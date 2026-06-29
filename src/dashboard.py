@@ -565,6 +565,8 @@ async function initPaper(){
   const dcl = dpos?'up':(dneg?'down':'');
   const tcl = p.total_pnl>0?'up':(p.total_pnl<0?'down':'');
   const sign = v => (v>0?'+':'');
+  const acl = (p.alpha_pct||0)>0?'up':((p.alpha_pct||0)<0?'down':'');
+  const bname = p.benchmark_name||'NIFTY 50';
 
   const cards = `<div class=cards>
     <div class=card><div class=k>Portfolio value</div><div class=v>${inr(p.value)}</div>
@@ -575,6 +577,9 @@ async function initPaper(){
     <div class=\"card\"><div class=k>Total P&L</div>
       <div class=\"v ${tcl}\">${sign(p.total_pnl)}${inr(p.total_pnl)}</div>
       <div class=\"chg ${tcl}\">${sign(p.total_pnl_pct)}${(p.total_pnl_pct||0).toFixed(2)}%</div></div>
+    <div class=\"card\"><div class=k>vs ${bname} (alpha)</div>
+      <div class=\"v ${acl}\">${sign(p.alpha_pct)}${(p.alpha_pct||0).toFixed(2)}%</div>
+      <div class=chg>index ${sign(p.benchmark_pct)}${(p.benchmark_pct||0).toFixed(2)}% · ${inr(p.benchmark_value)}</div></div>
     <div class=card><div class=k>Holdings</div><div class=v>${p.n_positions||0}</div>
       <div class=chg>cash ${inr(p.cash)}</div></div>
   </div>`;
