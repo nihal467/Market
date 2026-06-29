@@ -2,18 +2,12 @@ name: Daily Investment Update
 
 on:
   schedule:
-    # 10:30 UTC = 16:00 IST, after NSE close (Mon–Fri).
+    # 10:30 UTC = 16:00 IST, after NSE close (Mon-Fri).
     - cron: "30 10 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -44,18 +38,10 @@ jobs:
             git push
           fi
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      # Dashboard is a self-contained HTML file. Download it from this run's
+      # artifacts, or `git pull` and open docs/index.html locally.
+      - name: Upload dashboard artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: docs
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: dashboard
+          path: docs/index.html
