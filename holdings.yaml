@@ -6,12 +6,12 @@
 # Stock symbols use Yahoo Finance format: NSE = SYMBOL.NS  (e.g. RELIANCE.NS)
 
 # Dashboard settings.
-# Repo is PRIVATE, so amounts are shown. If you ever make the repo public or
-# enable GitHub Pages on a public repo, set hide_amounts: true to publish only
-# percentages + signals (no rupee values).
+# Repo is PUBLIC (for free GitHub Pages hosting), so amounts are HIDDEN:
+# only % allocation, return %, and signals are published — no rupee values.
+# Set hide_amounts: false only if you make the repo private again.
 dashboard:
   title: My Investment Dashboard
-  hide_amounts: false
+  hide_amounts: true
 
 stocks:
   # Groww stock SIP (~₹18,150/mo). Add one entry per stock you hold.

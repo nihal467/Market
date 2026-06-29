@@ -34,16 +34,32 @@
   .reasons { color:var(--mut); font-size:12px; margin-top:4px; }
   .foot { color:var(--mut); font-size:12px; margin-top:20px; line-height:1.5; }
   .broker { color:var(--mut); font-size:12px; }
+  .lock { display:flex; gap:8px; align-items:center; margin-bottom:20px; flex-wrap:wrap; }
+  .lock input { background:var(--card); border:1px solid var(--line); color:var(--txt);
+                padding:8px 10px; border-radius:8px; font-size:14px; }
+  .lock button { background:#2f81f7; color:#fff; border:0; padding:8px 14px;
+                 border-radius:8px; font-size:14px; cursor:pointer; }
+  .lock button:hover { background:#2670d6; }
+  .lock .msg { color:var(--mut); font-size:12px; }
+  .lock .msg.err { color:var(--sell); }
+  .val { white-space:nowrap; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1 id="title">Investment Dashboard</h1>
   <div class="sub" id="updated">Loading…</div>
+  <div class="lock" id="lock" style="display:none">
+    <span>🔒 Amounts hidden.</span>
+    <input id="pw" type="password" placeholder="Enter password" autocomplete="off" />
+    <button id="unlock">Show amounts</button>
+    <span class="msg" id="lockmsg"></span>
+  </div>
   <div class="cards" id="cards"></div>
   <table>
     <thead><tr>
       <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
+      <th id="valhdr" style="display:none">Value</th>
     </tr></thead>
     <tbody id="rows"></tbody>
   </table>
@@ -52,19 +68,18 @@
 <script>
 function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
 function cls(v){ return (v>0)?'pos':(v<0)?'neg':''; }
+function inr(v){ return (v===null||v===undefined) ? '—'
+  : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T18:29:44.223469+00:00",
-  "hide_amounts": false,
+  "generated_at": "2026-06-29T18:45:25.245144+00:00",
+  "hide_amounts": true,
   "totals": {
-    "pnl_pct": 6.88,
-    "invested": 762790.0,
-    "current_value": 815298.08,
-    "pnl": 52508.08
+    "pnl_pct": 6.88
   },
   "signal_counts": {
-    "BUY": 3,
-    "HOLD": 10,
+    "BUY": 6,
+    "HOLD": 7,
     "SELL": 0
   },
   "positions": [
@@ -79,12 +94,9 @@ const d = {
         "RSI 32.22 neutral",
         "Price below SMA50 (23.75) \u2014 downtrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Neutral news sentiment (0.042)"
+        "Positive news sentiment (0.292)"
       ],
-      "rsi": 32.22,
-      "invested": 23052.0,
-      "current_value": 22582.8,
-      "pnl": -469.2
+      "rsi": 32.22
     },
     {
       "name": "Zerodha Nifty Midcap 150 ETF",
@@ -92,18 +104,15 @@ const d = {
       "type": "etf",
       "allocation_pct": 2.49,
       "pnl_pct": 4.12,
-      "signal": "HOLD",
+      "signal": "BUY",
       "reasons": [
         "RSI 60.75 neutral",
         "Price above SMA50 (11.23) \u2014 uptrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Near 52-week high \u2014 limited upside / book profit",
-        "Neutral news sentiment (0.125)"
+        "Positive news sentiment (0.25)"
       ],
-      "rsi": 60.75,
-      "invested": 19481.0,
-      "current_value": 20284.08,
-      "pnl": 803.08
+      "rsi": 60.75
     },
     {
       "name": "Zerodha Nifty 100 ETF",
@@ -118,10 +127,7 @@ const d = {
         "SMA50 < SMA200 (death cross) \u2014 bearish",
         "Positive news sentiment (0.25)"
       ],
-      "rsi": 67.82,
-      "invested": 20760.0,
-      "current_value": 20447.91,
-      "pnl": -312.09
+      "rsi": 67.82
     },
     {
       "name": "Zerodha Long Term Gilt (LTGILTCASE)",
@@ -135,12 +141,9 @@ const d = {
         "Price above SMA50 (29.84) \u2014 uptrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Near 52-week high \u2014 limited upside / book profit",
-        "Neutral news sentiment (-0.125)"
+        "Neutral news sentiment (0.0)"
       ],
-      "rsi": 85.29,
-      "invested": 10022.0,
-      "current_value": 10248.17,
-      "pnl": 226.17
+      "rsi": 85.29
     },
     {
       "name": "Nippon Nifty 50 ETF (NIFTYBEES)",
@@ -155,10 +158,7 @@ const d = {
         "SMA50 < SMA200 (death cross) \u2014 bearish",
         "Neutral news sentiment (0.125)"
       ],
-      "rsi": 69.64,
-      "invested": 33410.0,
-      "current_value": 32387.04,
-      "pnl": -1022.96
+      "rsi": 69.64
     },
     {
       "name": "Nippon Nifty Midcap 150 ETF (smallcase)",
@@ -166,18 +166,15 @@ const d = {
       "type": "etf",
       "allocation_pct": 0.83,
       "pnl_pct": 3.56,
-      "signal": "HOLD",
+      "signal": "BUY",
       "reasons": [
         "RSI 64.11 neutral",
         "Price above SMA50 (231.12) \u2014 uptrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Near 52-week high \u2014 limited upside / book profit",
-        "Neutral news sentiment (0.125)"
+        "Positive news sentiment (0.375)"
       ],
-      "rsi": 64.11,
-      "invested": 6560.0,
-      "current_value": 6793.25,
-      "pnl": 233.25
+      "rsi": 64.11
     },
     {
       "name": "Nippon Nifty Next 50 ETF (JUNIORBEES)",
@@ -193,10 +190,7 @@ const d = {
         "Near 52-week high \u2014 limited upside / book profit",
         "Positive news sentiment (0.25)"
       ],
-      "rsi": 60.14,
-      "invested": 19215.0,
-      "current_value": 20096.96,
-      "pnl": 881.96
+      "rsi": 60.14
     },
     {
       "name": "HDFC Gold ETF",
@@ -211,10 +205,7 @@ const d = {
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Positive news sentiment (0.375)"
       ],
-      "rsi": 34.58,
-      "invested": 50384.0,
-      "current_value": 58244.56,
-      "pnl": 7860.56
+      "rsi": 34.58
     },
     {
       "name": "Nifty Next 50 ETF",
@@ -230,10 +221,7 @@ const d = {
         "Near 52-week high \u2014 limited upside / book profit",
         "Positive news sentiment (0.5)"
       ],
-      "rsi": 63.88,
-      "invested": 201575.0,
-      "current_value": 207487.5,
-      "pnl": 5912.5
+      "rsi": 63.88
     },
     {
       "name": "Motilal Oswal Nasdaq 100 ETF",
@@ -248,10 +236,7 @@ const d = {
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Positive news sentiment (0.25)"
       ],
-      "rsi": 52.07,
-      "invested": 100803.0,
-      "current_value": 140063.04,
-      "pnl": 39260.04
+      "rsi": 52.07
     },
     {
       "name": "Nifty Midcap 150 ETF",
@@ -259,18 +244,15 @@ const d = {
       "type": "etf",
       "allocation_pct": 18.85,
       "pnl_pct": 1.48,
-      "signal": "HOLD",
+      "signal": "BUY",
       "reasons": [
         "RSI 64.11 neutral",
         "Price above SMA50 (231.12) \u2014 uptrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Near 52-week high \u2014 limited upside / book profit",
-        "Neutral news sentiment (0.125)"
+        "Positive news sentiment (0.375)"
       ],
-      "rsi": 64.11,
-      "invested": 151431.0,
-      "current_value": 153668.0,
-      "pnl": 2237.0
+      "rsi": 64.11
     },
     {
       "name": "LG Electronics India",
@@ -284,10 +266,7 @@ const d = {
         "Price above SMA50 (1553.27) \u2014 uptrend",
         "Neutral news sentiment (0.125)"
       ],
-      "rsi": 58.39,
-      "invested": 4560.0,
-      "current_value": 6267.6,
-      "pnl": 1707.6
+      "rsi": 58.39
     },
     {
       "name": "Motilal Oswal Midcap Fund - Direct Plan - Growth",
@@ -299,33 +278,62 @@ const d = {
       "reasons": [
         "Mutual fund SIP \u2014 continue investing; not a trade signal"
       ],
-      "rsi": null,
-      "invested": 121537.0,
-      "current_value": 116727.17,
-      "pnl": -4809.83
+      "rsi": null
     }
   ],
-  "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting."
+  "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
+  "secret": {
+    "salt": "GfSEX1o6vCOTanZNmIQXDQ==",
+    "iv": "phHbnDBVOPL1CADp",
+    "ct": "Vpelo5AgTyD0XUKZ5SCdp8xld/0qEiGRTLPHSi2afn9R+/Pjx1JXA66uKLZi/hRPWrdW4qYSM8hPe+Zk8b2xsYrhSp8FCGGn/nIDA9dh92jMttAVbqCcHqQrmDGuIXktqxOlK6um4H3RXqRlkmmgCW60YbhNKuwFcZfLKJm4/LU1Sc7X2z3yEML9xB0MM2Sd5pSxZtcft457OWhNo7abZekQpH3Ar/Cxt6ODZTiUJjUd20xlatVhTj1MWqH4F37gzDGwak86O5xK1Qw/nVXf7ncx5gRF2GqlbSmvqV/S3P8NSNqIw+dyMUme5KPfMbFERj6O/uVpRB5dKIOj+qeNwveJZiwc5mm9mb7MOEQ+k1FwvdlU+L6+XhskUJ7m45WnqLLirNo6d4pm9qtYH7CEGL/vF1S1Waddy4izCMS3G/Tw4s/Fmt4hlIYGdjwMaforb6bMEZMEe7DiyhbG7hbI+JBCQm99Z6jDrzmmKEde/1vOyal7TvJIetCqUBFLR8IsXdzWYlHSrkmVWCBmAG5ICuW5h2h3AE+Ui/TukoutFStw8VNw1dUW2lOyBYHcOhNxskRm+qcLwJdYoILw0z5IhDHL3LtJXHHpQ6ZJpQqhpKaK380EvMisTdff7g9v0CUx4pOMlQCFaqs3v0j+xA8e4KkPSuKQtXefcb7br176FNLsW7LTHnPvIRYVNf2r9+H9kZmLc8lNMPOv5/IT15EyXJpsEkunzkggWyQbP9GUymBqv49w0QLgs3YpUu4qFTGsM7kC9nJtzTfXZwEYteCbepoyOUkniRI8kTI1HtF3VuS8blWCPiNGvX/E0u0eX+UHAVeIpgSqT7cFFycWrw7HE9BCnXL0hxTpY4OzaBYfemSqW20DjjbU1MmnuDXLf1ZjJUd+DWfWFGRr9wSv+M1VXiOtxcUnz6pQsCN/RYPnFaipYiYX+N1mrjdpfUJedCyUkULSS4gC37QOMSUoaos3vie7ZZFELJjPBX0OMWgDQPx9fiykRg7LZ4g5g93VfEwXm2zEluWw72dgZQ9vB91cX6iLBqArzWCRxS79hoohRo0p6q5gEyVI7xc/mPVFKkOd0+LqgQqo3UVOsOclLGbo4dkplwSJzMzvLN4zPLv/Fu+ZYboDTLI0hy5uEVp9jQgO2kHtFT+WQs41G/47oLxvCGm7zgg4yU0cFuqu9Q/D3tGiQUIuYTO1BuDgngMqbtYXc5uleBT+d3vrOj0TC9fPaOPs5Hsekmc=",
+    "iter": 200000
+  },
+  "has_secret": true
 };
+
+function b64(s){ return Uint8Array.from(atob(s), c=>c.charCodeAt(0)); }
+async function decryptSecret(password, sec){
+  const enc = new TextEncoder();
+  const baseKey = await crypto.subtle.importKey(
+    'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt:b64(sec.salt), iterations:sec.iter, hash:'SHA-256' },
+    baseKey, { name:'AES-GCM', length:256 }, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt(
+    { name:'AES-GCM', iv:b64(sec.iv) }, key, b64(sec.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
 (function(){
   if(!d){ document.getElementById('updated').textContent='No data'; return; }
   document.getElementById('title').textContent = d.title;
   document.title = d.title;
   document.getElementById('updated').textContent =
     'Updated ' + new Date(d.generated_at).toLocaleString();
-  const c = d.signal_counts || {};
-  const cards = [
-    ['Buy', c.BUY||0, 'BUY'], ['Hold', c.HOLD||0, 'HOLD'], ['Sell', c.SELL||0, 'SELL'],
-    ['Total return', pct(d.totals && d.totals.pnl_pct), '']
-  ];
-  if(!d.hide_amounts && d.totals){
-    cards.push(['Current value', '₹'+(d.totals.current_value||0).toLocaleString('en-IN'), '']);
+
+  function renderCards(extra){
+    const c = d.signal_counts || {};
+    const cards = [
+      ['Buy', c.BUY||0, 'BUY'], ['Hold', c.HOLD||0, 'HOLD'], ['Sell', c.SELL||0, 'SELL'],
+      ['Total return', pct(d.totals && d.totals.pnl_pct), '']
+    ];
+    if(extra){
+      cards.push(['Current value', inr(extra.totals.current_value), '']);
+      cards.push(['Total P&L', inr(extra.totals.pnl), extra.totals.pnl>=0?'BUY':'SELL']);
+    } else if(!d.hide_amounts && d.totals){
+      cards.push(['Current value', inr(d.totals.current_value), '']);
+    }
+    document.getElementById('cards').innerHTML = cards.map(x=>
+      `<div class=card><div class=k>${x[0]}</div><div class="v ${x[2]}">${x[1]}</div></div>`
+    ).join('');
   }
-  document.getElementById('cards').innerHTML = cards.map(x=>
-    `<div class=card><div class=k>${x[0]}</div><div class="v ${x[2]}">${x[1]}</div></div>`
-  ).join('');
-  document.getElementById('rows').innerHTML = d.positions.map(p=>{
+
+  const showVal = !d.hide_amounts || false;
+  document.getElementById('rows').innerHTML = d.positions.map((p,i)=>{
     const reasons = (p.reasons||[]).slice(0,3).join(' · ');
+    const valCell = (!d.hide_amounts)
+      ? `<td class=val>${inr(p.current_value)}</td>`
+      : (d.has_secret ? `<td class="val" data-i="${i}" style="display:none">🔒</td>` : '');
     return `<tr>
       <td><div>${p.name}</div><div class=broker>${p.broker}</div>
           <div class=reasons>${reasons}</div></td>
@@ -333,9 +341,41 @@ const d = {
       <td>${p.rsi===null||p.rsi===undefined?'—':p.rsi}</td>
       <td>${pct(p.allocation_pct)}</td>
       <td class="${cls(p.pnl_pct)}">${pct(p.pnl_pct)}</td>
+      ${valCell}
     </tr>`;
   }).join('');
+  if(!d.hide_amounts){ document.getElementById('valhdr').style.display=''; }
+
+  renderCards(null);
   document.getElementById('foot').textContent = d.disclaimer;
+
+  if(d.has_secret && d.secret){
+    const lock = document.getElementById('lock');
+    lock.style.display = '';
+    const msg = document.getElementById('lockmsg');
+    async function attempt(){
+      const pw = document.getElementById('pw').value;
+      if(!pw){ return; }
+      msg.className='msg'; msg.textContent='Decrypting…';
+      try{
+        const sec = await decryptSecret(pw, d.secret);
+        renderCards(sec);
+        document.getElementById('valhdr').style.display='';
+        document.querySelectorAll('td.val[data-i]').forEach(td=>{
+          const i = td.getAttribute('data-i');
+          const a = sec.by_index[i] || {};
+          td.style.display=''; td.textContent = inr(a.current_value);
+        });
+        lock.style.display='none';
+      }catch(e){
+        msg.className='msg err'; msg.textContent='Wrong password.';
+      }
+    }
+    document.getElementById('unlock').addEventListener('click', attempt);
+    document.getElementById('pw').addEventListener('keydown', e=>{
+      if(e.key==='Enter') attempt();
+    });
+  }
 })();
 </script>
 </body>
