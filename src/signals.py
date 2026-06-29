@@ -41,20 +41,37 @@ def iter_equities(holdings: dict):
     groups.extend(holdings.get("equity_groups") or [])
     for group in groups:
         broker = group.get("broker", "")
+        trade = bool(group.get("trade", False))
         for h in group.get("holdings") or []:
             if h.get("symbol"):
-                yield broker, h
+                yield broker, trade, h
 
 
 def run() -> dict:
     holdings = load_holdings()
     results: list[dict] = []
 
-    for broker, h in iter_equities(holdings):
+    for broker, trade, h in iter_equities(holdings):
         symbol = h["symbol"]
         name = h.get("name", symbol)
         print(f"Analyzing {name} ({symbol}) ...")
         ind = compute_indicators(symbol)
+
+        if not trade:
+            # Long-term SIP holding: track only, no buy/sell recommendation.
+            results.append({
+                "broker": broker,
+                "name": name,
+                "symbol": symbol,
+                "tradable": False,
+                "signal": "SIP",
+                "score": 0,
+                "reasons": ["Long-term SIP — keep investing; not actively traded"],
+                "indicators": ind,
+                "sentiment": None,
+            })
+            continue
+
         query = _news_query(name)
         sent = get_news_sentiment(query)
         rec = decide(ind, sent)
@@ -62,6 +79,7 @@ def run() -> dict:
             "broker": broker,
             "name": name,
             "symbol": symbol,
+            "tradable": True,
             "signal": rec["signal"],
             "score": rec["score"],
             "reasons": rec["reasons"],
@@ -69,14 +87,15 @@ def run() -> dict:
             "sentiment": sent,
         })
 
-    # Mutual funds -> informational HOLD only.
+    # Mutual funds -> informational SIP only.
     mfs = holdings.get("mutual_funds") or {}
     for h in mfs.get("holdings") or []:
         results.append({
             "broker": mfs.get("broker", ""),
             "name": h.get("name", h.get("scheme_code")),
             "symbol": f"MF:{h.get('scheme_code')}",
-            "signal": "HOLD",
+            "tradable": False,
+            "signal": "SIP",
             "score": 0,
             "reasons": ["Mutual fund SIP — continue investing; not a trade signal"],
             "indicators": None,
@@ -110,7 +129,7 @@ def _print(snapshot: dict) -> None:
     print(f"Generated: {snapshot['generated_at']}")
     print(f"{'Signal':<7}{'Name':<40}{'RSI':>7}{'Score':>7}")
     print("-" * 65)
-    order = {"BUY": 0, "SELL": 1, "HOLD": 2}
+    order = {"BUY": 0, "SELL": 1, "HOLD": 2, "SIP": 3}
     for s in sorted(snapshot["signals"], key=lambda x: order.get(x["signal"], 3)):
         rsi = s["indicators"]["rsi14"] if s["indicators"] else None
         rsi_str = "-" if rsi is None else f"{rsi}"

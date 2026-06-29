@@ -72,21 +72,18 @@ def build_data() -> dict:
     portfolio = _load(os.path.join(DATA_DIR, "portfolio.json"))
     signals = _load(os.path.join(DATA_DIR, "signals.json"))
 
-    sig_by_symbol = {}
+    sig_by_key = {}
     for s in signals.get("signals", []):
-        sym = s["symbol"]
-        sig_by_symbol[sym] = s
-        if sym.startswith("MF:"):
-            sig_by_symbol[sym[3:]] = s  # also key by bare scheme code
+        sig_by_key[(s.get("broker", ""), s.get("name", ""))] = s
 
     positions = []
     for p in portfolio.get("positions", []):
-        sym = p.get("identifier")
-        sig = sig_by_symbol.get(sym, {})
+        sig = sig_by_key.get((p.get("broker", ""), p.get("name", "")), {})
         row = {
             "name": p["name"],
             "broker": p["broker"],
             "type": p["type"],
+            "tradable": sig.get("tradable", False),
             "allocation_pct": p.get("allocation_pct"),
             "pnl_pct": p.get("pnl_pct"),
             "signal": sig.get("signal", "—"),
@@ -108,9 +105,10 @@ def build_data() -> dict:
             "pnl": totals_src.get("pnl"),
         })
 
+    # Only the actively-traded (₹5L lumpsum) holdings get buy/sell tallies.
     counts = {"BUY": 0, "HOLD": 0, "SELL": 0}
     for p in positions:
-        if p["signal"] in counts:
+        if p.get("tradable") and p["signal"] in counts:
             counts[p["signal"]] += 1
 
     return {
@@ -160,7 +158,11 @@ def write() -> None:
         # Map by_id -> by position index so the page can match rows after decrypt.
         by_index = {}
         for i, p in enumerate(portfolio.get("positions", [])):
-            by_index[i] = secret["by_id"].get(p.get("identifier"))
+            by_index[i] = {
+                "invested": p.get("invested"),
+                "current_value": p.get("current_value"),
+                "pnl": p.get("pnl"),
+            }
         secret_payload = {"totals": secret["totals"], "by_index": by_index}
         data["secret"] = encrypt_payload(secret_payload, password)
         data["has_secret"] = True
@@ -213,6 +215,7 @@ INDEX_HTML = """<!DOCTYPE html>
   .BUY { background:rgba(31,157,85,.18); color:var(--buy); }
   .SELL { background:rgba(229,72,77,.18); color:var(--sell); }
   .HOLD { background:rgba(154,164,178,.15); color:var(--hold); }
+  .SIP { background:rgba(47,129,247,.15); color:#6cb0ff; }
   .pos { color:var(--buy); } .neg { color:var(--sell); }
   .reasons { color:var(--mut); font-size:12px; margin-top:4px; }
   .foot { color:var(--mut); font-size:12px; margin-top:20px; line-height:1.5; }
@@ -242,7 +245,8 @@ INDEX_HTML = """<!DOCTYPE html>
   <table>
     <thead><tr>
       <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
-      <th id=\"valhdr\" style=\"display:none\">Value</th>
+      <th class=\"amtcol\" style=\"display:none\">Invested</th>
+      <th class=\"amtcol\" style=\"display:none\">Value</th>
     </tr></thead>
     <tbody id=\"rows\"></tbody>
   </table>
@@ -282,9 +286,11 @@ async function decryptSecret(password, sec){
       ['Total return', pct(d.totals && d.totals.pnl_pct), '']
     ];
     if(extra){
+      cards.push(['Invested', inr(extra.totals.invested), '']);
       cards.push(['Current value', inr(extra.totals.current_value), '']);
       cards.push(['Total P&L', inr(extra.totals.pnl), extra.totals.pnl>=0?'BUY':'SELL']);
     } else if(!d.hide_amounts && d.totals){
+      cards.push(['Invested', inr(d.totals.invested), '']);
       cards.push(['Current value', inr(d.totals.current_value), '']);
     }
     document.getElementById('cards').innerHTML = cards.map(x=>
@@ -292,12 +298,18 @@ async function decryptSecret(password, sec){
     ).join('');
   }
 
-  const showVal = !d.hide_amounts || false;
+  function showAmtCols(){ document.querySelectorAll('.amtcol').forEach(e=>e.style.display=''); }
+
   document.getElementById('rows').innerHTML = d.positions.map((p,i)=>{
     const reasons = (p.reasons||[]).slice(0,3).join(' · ');
-    const valCell = (!d.hide_amounts)
-      ? `<td class=val>${inr(p.current_value)}</td>`
-      : (d.has_secret ? `<td class=\"val\" data-i=\"${i}\" style=\"display:none\">🔒</td>` : '');
+    let invCell='', valCell='';
+    if(!d.hide_amounts){
+      invCell = `<td class=\"amt\">${inr(p.invested)}</td>`;
+      valCell = `<td class=\"amt\">${inr(p.current_value)}</td>`;
+    } else if(d.has_secret){
+      invCell = `<td class=\"amt inv\" data-i=\"${i}\" style=\"display:none\">🔒</td>`;
+      valCell = `<td class=\"amt val\" data-i=\"${i}\" style=\"display:none\">🔒</td>`;
+    }
     return `<tr>
       <td><div>${p.name}</div><div class=broker>${p.broker}</div>
           <div class=reasons>${reasons}</div></td>
@@ -305,10 +317,10 @@ async function decryptSecret(password, sec){
       <td>${p.rsi===null||p.rsi===undefined?'—':p.rsi}</td>
       <td>${pct(p.allocation_pct)}</td>
       <td class=\"${cls(p.pnl_pct)}\">${pct(p.pnl_pct)}</td>
-      ${valCell}
+      ${invCell}${valCell}
     </tr>`;
   }).join('');
-  if(!d.hide_amounts){ document.getElementById('valhdr').style.display=''; }
+  if(!d.hide_amounts){ showAmtCols(); }
 
   renderCards(null);
   document.getElementById('foot').textContent = d.disclaimer;
@@ -324,10 +336,13 @@ async function decryptSecret(password, sec){
       try{
         const sec = await decryptSecret(pw, d.secret);
         renderCards(sec);
-        document.getElementById('valhdr').style.display='';
-        document.querySelectorAll('td.val[data-i]').forEach(td=>{
-          const i = td.getAttribute('data-i');
-          const a = sec.by_index[i] || {};
+        showAmtCols();
+        document.querySelectorAll('td.amt.inv[data-i]').forEach(td=>{
+          const a = sec.by_index[td.getAttribute('data-i')] || {};
+          td.style.display=''; td.textContent = inr(a.invested);
+        });
+        document.querySelectorAll('td.amt.val[data-i]').forEach(td=>{
+          const a = sec.by_index[td.getAttribute('data-i')] || {};
           td.style.display=''; td.textContent = inr(a.current_value);
         });
         lock.style.display='none';
