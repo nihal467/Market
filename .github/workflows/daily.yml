@@ -8,6 +8,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -24,6 +30,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run daily pipeline
+        env:
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python src/run_daily.py
 
       - name: Commit dashboard
@@ -38,10 +46,18 @@ jobs:
             git push
           fi
 
-      # Dashboard is a self-contained HTML file. Download it from this run's
-      # artifacts, or `git pull` and open docs/index.html locally.
-      - name: Upload dashboard artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: dashboard
-          path: docs/index.html
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

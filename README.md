@@ -52,10 +52,18 @@ Just open it in a browser (double-click). View it anytime after a pipeline run.
 To see the latest dashboard: `git pull` then open `docs/index.html`, or download
 the `dashboard` artifact from the workflow run.
 
-> **Privacy:** this is a **private** repo (financial data). GitHub Pages is not
-> available on private repos under the free plan, so the dashboard is viewed
-> locally rather than hosted. If you make the repo public, set
-> `dashboard.hide_amounts: true` in `holdings.yaml` first to hide rupee values.
+> **Privacy:** the repo is **public** (for free GitHub Pages hosting), so rupee
+> amounts are **hidden** — only %, signals, and names are shown. Amounts are
+> **AES-256 encrypted** inside the page and unlocked in-browser with a password.
+>
+> **Password:** stored as the `DASHBOARD_PASSWORD` GitHub Secret (used by the
+> Action) and never committed. For local runs, set it yourself:
+> ```bash
+> DASHBOARD_PASSWORD="your-pass" python src/dashboard.py
+> ```
+> The page shows a "Show amounts" box; enter the password to reveal values.
+> Wrong passwords cannot decrypt the data (AES-GCM + PBKDF2-SHA256, 200k iters).
+> To change it: `gh secret set DASHBOARD_PASSWORD --repo OWNER/REPO`.
 
 ## How signals work (Phase 2)
 For each equity/ETF holding the tool computes:
