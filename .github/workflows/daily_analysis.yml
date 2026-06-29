@@ -44,6 +44,11 @@ jobs:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
         run: python src/daily_analysis.py
 
+      - name: Paper trade (virtual Rs 5L)
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+        run: python src/paper_trader.py
+
       - name: Commit & push data
         working-directory: data-branch
         run: |
