@@ -503,6 +503,7 @@ async function initMarket(){
   document.querySelectorAll('.tab').forEach(t=>
     t.addEventListener('click', ()=>show(t.getAttribute('data-tab'))));
   show('movers');
+}
 </script>
 </body>
 </html>
