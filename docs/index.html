@@ -44,6 +44,23 @@
   .lock .msg { color:var(--mut); font-size:12px; }
   .lock .msg.err { color:var(--sell); }
   .val { white-space:nowrap; }
+  .sec { font-size:18px; margin:34px 0 4px; }
+  .secsub { color:var(--mut); font-size:12px; font-weight:400; }
+  .tabs { display:flex; gap:8px; margin:12px 0 14px; flex-wrap:wrap; }
+  .tab { background:var(--card); border:1px solid var(--line); color:var(--mut);
+         padding:7px 14px; border-radius:8px; font-size:13px; cursor:pointer; }
+  .tab.active { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .empty { color:var(--mut); font-size:13px; padding:14px 0; }
+  .up { color:var(--buy); } .down { color:var(--sell); }
+  .flag { display:inline-block; padding:1px 8px; border-radius:20px; font-size:11px;
+          margin-left:6px; background:rgba(154,164,178,.15); color:var(--mut); }
+  .flag.big_move_up { background:rgba(31,157,85,.18); color:var(--buy); }
+  .flag.big_move_down { background:rgba(229,72,77,.18); color:var(--sell); }
+  .flag.rsi_oversold { background:rgba(31,157,85,.14); color:var(--buy); }
+  .flag.rsi_overbought { background:rgba(229,72,77,.14); color:var(--sell); }
+  .rank { color:var(--mut); font-size:12px; }
+  .chg { color:var(--mut); font-size:12px; margin-top:2px; }
+  .mut { color:var(--mut); }
 </style>
 </head>
 <body>
@@ -66,6 +83,16 @@
     <tbody id="rows"></tbody>
   </table>
   <div class="foot" id="foot"></div>
+
+  <div id="market">
+    <h2 class="sec">📈 Market Watch <span class="secsub" id="mkt-updated"></span></h2>
+    <div class="tabs">
+      <button class="tab active" data-tab="movers">Movers (today)</button>
+      <button class="tab" data-tab="changes">Changes (24h)</button>
+      <button class="tab" data-tab="watchlist">Top 50 watchlist</button>
+    </div>
+    <div id="mkt-body"><div class="empty">Loading market data…</div></div>
+  </div>
 </div>
 <script>
 function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
@@ -74,14 +101,14 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T19:03:43.936755+00:00",
+  "generated_at": "2026-06-29T19:29:28.577028+00:00",
   "hide_amounts": true,
   "totals": {
-    "pnl_pct": 7.0
+    "pnl_pct": 6.88
   },
   "signal_counts": {
-    "BUY": 3,
-    "HOLD": 2,
+    "BUY": 2,
+    "HOLD": 3,
     "SELL": 0
   },
   "positions": [
@@ -90,8 +117,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.73,
-      "pnl_pct": -3.45,
+      "allocation_pct": 2.77,
+      "pnl_pct": -2.04,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -104,7 +131,7 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.49,
-      "pnl_pct": 4.4,
+      "pnl_pct": 4.12,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -116,8 +143,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.52,
-      "pnl_pct": -1.03,
+      "allocation_pct": 2.51,
+      "pnl_pct": -1.5,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -142,8 +169,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 3.99,
-      "pnl_pct": -2.61,
+      "allocation_pct": 3.97,
+      "pnl_pct": -3.06,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -168,8 +195,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.48,
-      "pnl_pct": 5.5,
+      "allocation_pct": 2.46,
+      "pnl_pct": 4.59,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -197,7 +224,7 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 25.42,
+      "allocation_pct": 25.45,
       "pnl_pct": 2.93,
       "signal": "BUY",
       "reasons": [
@@ -205,7 +232,7 @@ const d = {
         "Price above SMA50 (74.34) \u2014 uptrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Near 52-week high \u2014 limited upside / book profit",
-        "Positive news sentiment (0.375)"
+        "Positive news sentiment (0.5)"
       ],
       "rsi": 63.88
     },
@@ -214,8 +241,8 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 17.25,
-      "pnl_pct": 39.63,
+      "allocation_pct": 17.18,
+      "pnl_pct": 38.95,
       "signal": "BUY",
       "reasons": [
         "RSI 45.87 neutral",
@@ -230,7 +257,7 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 18.83,
+      "allocation_pct": 18.85,
       "pnl_pct": 1.48,
       "signal": "HOLD",
       "reasons": [
@@ -248,12 +275,12 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 0.77,
-      "pnl_pct": 37.83,
-      "signal": "BUY",
+      "pnl_pct": 37.45,
+      "signal": "HOLD",
       "reasons": [
         "RSI 62.13 neutral",
         "Price above SMA50 (1553.51) \u2014 uptrend",
-        "Positive news sentiment (0.25)"
+        "Neutral news sentiment (0.125)"
       ],
       "rsi": 62.13
     },
@@ -262,7 +289,7 @@ const d = {
       "broker": "5paisa",
       "type": "mutual_fund",
       "tradable": false,
-      "allocation_pct": 14.3,
+      "allocation_pct": 14.32,
       "pnl_pct": -3.96,
       "signal": "SIP",
       "reasons": [
@@ -272,10 +299,11 @@ const d = {
     }
   ],
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
+  "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "wzw7S1PkQaqRCPgqtJwNow==",
-    "iv": "pChxRA4K1jPR6u1U",
-    "ct": "xfg5xOiNnFBfhi1XpprSnQvsIauHY1wMko14C7RM8EdzgBYlsqQvnsDUsDtltBUYeyssYJ5ro6j8m2DwdN9EtyRgpNpJzsTC/02r4mnLI67NcjZbJxnDIp94LxQKLR3j8sLg9Cj9rydkf5E0ES1frCPzEfxt70O/Ehpb60HeybSwdbvw0vvLAa8AkKhZ6OH8DrxYXjgDzyUwnpR9hwieb85Klr2seVnp2A1hS6afO+mJ5AW7uwbLRQ8LUZBPBLqL4qOMdOylHMdDcidCM8u+N85dRy7Z3plMPbC9zCvuxA7DZBieq1H54Tmq/fjPsP57n6BHmqrG8ornswWla6f5t9iotC1hmCoxvA833rFDGAwuX1+MOhUoSUTI/IDH787e15LV3IJma7oAfrZTJzCgx0qYgy8olGVE7pyhN3nYz/rxssE28v7gUI+bkxua7/vh5/S30j+t3hhA0a6flvYEzYs1MxAvHvnDG/ZBPxbt/HysX+dSuD9Pz0RPIwVx+e/ZaU57p8knRm+sVHBIlufP1zc42ikxBWFjUUHZGiYAi7Es2YQPnpNtB3ZdExWziH0RA4H/1h6uLkAH8mwj1fn/kOJ17ZAKRtGkwiXg5JRX+FV6yhuKMuqrA0qyAV/ZLAWJqEb+f9CSc9f9+q7TGqrzfnDWdK2+S/vyUVbHNtX81iTXU8dDie1Jpgr+G7BhG9588hOmI/aMVdLcNs4qkUr0bMRSeEw2AR5biCNoNSJklcR60ZAMQ3oIaW5Wqzns2C6xbvK16/AIFX2DNd8Xt17+ptn1KYgWhD8ipcrwJ9LWwmXk0wtYIcNAty8+ArrFFbt+MV2/HzXdxLsF8inzy56bAA2TddkGaZpJ/4SzS0f54oJClnWZTWHvK8rjT1hPmkHe2olmlzaim8qKZK41uTFo0A5aj7AKyEd5gj4UInqynFZAdGjuMb47FfBTM5N6neA976Xlnc1iqd65cNViZly0TErK6oYzO2K9GPTS0s7AvfL4bgQ4xLjishO5Q/ZJAWCxylmLWC27VJApN8qURz21JpbyYALvHCgwSmaIUe+uncLL8DgnszM8m44oMW26Zp0qPFolp3Ulm+jEafzmjD8aHKPejHPouP7oswYxeV1V3rPJnMpctApA4uGY4jc6WQxGIUKMDMFO5XzQQgTuuN9EQu7Rg3adpjG8n0cpfSyKHLUqEO1KL701PGHYw/ijXc19M61VZhqXSSO+8idxORyKLg==",
+    "salt": "vjy2FgVqbAob3VIuDU4OBA==",
+    "iv": "LlZWijeJC1aBEEZi",
+    "ct": "bs82QiUjXoyZPzrNtikLvYGgoWkldAFTYb2y7oZwfLhOWG1w/LilkxyQfirVja1MxEbyl2rElGb5RUvvYXjZQyzB57bflgKGo+wgLs1e0M2WxbRTB+KAh3CHVgzlN1aohaZps9IXZ1t1cI/Xfc73ufpYGOXfYIQexjzpn/3EiMTSh7ehKWdZ/QSOmpMrBK+/Bl+0Kx8fuCkop3Bv6BcXjhArVl8TZSTHDTdW2jC9F6OpSCHQCSvkolvYwLPHOosLtTRGLZ5x1U5iNTJ9YEo5MVPQPoMrwc185n1gdwiNnP/MrHiC84ifJqadfbTTk38nsNWmFqQirFYZkaKpkM4KgwMZmE5hpvl5CdLpMtHkkz4gRppz1o06BlWXiYwX5U4hCA0olPpnVsVQOdnSMK7O11byGO4K49oFJI4yF5lYi5odbNyjAap+EWWR/YiP535D1TreQ53UgSY95H4f35CMwQITb32q3fY7HIxzx7fyN/R84foM3YGwQU7vvpGRGO+nETn9Sm1MiX+ttj4f5VWIgV3l82oWg6ti3vwEkYVBxP1lczm4XDnjifHYsMB0hg31/S/xokrx0cfsfd84cu+CSKX9Gjs8GOPR8IO6hUADKN1Vh+kJ7+4bP7kvZ8Np5XhEVLf7g/ERJrKuQ+pU1wSo16Amm0D3P0uim0X8LJfIUrKey8Xq/Y2BoDszn/9h94miuFwoHEfGlNAYDOQg2DpoMsR6GQpEj9yLWwAIKgm/5aDyOefSYlrcrnCTH6JniVqSCoHjLnysbkFkpFn0clXIS4mYfEVWQg33bc9oNHVA+lXO9BbpALEVFp+PriixD+Fj8wBAyBP6qql6wTsHaiUZLhYE57GzX8qevGZGE64VKoTmlgf2ONklywEG38cnszX/iFHVX/2vx1n3/1cAs2Ie2Q9o6uywLbJndZ6fXtEd403U96kyFrzS0t7PxrmmrAyIbqPruRw3KjojAcKfCdXU2dxoYP+/Srw18B6H62B69ZxfUfBEF9857C3kPP9cZ7sm8Pm/DixoQUlp/4xiNMx1YuR1XcAkmjNmnO5MI45ifRoDNNZEL6saMNSqPWP/tVbwB3eruLauylmPb6kTclNBEqL4qD+mx6kLdyTdTv0+ebqcxJuXfu1kLKCTLr94ZEchWrFX/NizLLO8EXock8rHRhSbp8unEXPfOwzukb/N/tyz/m0f+L7i6Doc969vbBZ2KdNi3hU48BxoS+snNXqGFk415qE=",
     "iter": 200000
   },
   "has_secret": true
@@ -377,7 +405,95 @@ async function decryptSecret(password, sec){
       if(e.key==='Enter') attempt();
     });
   }
+
+  // --- Market Watch: live data from the `data` branch (public, no amounts) ---
+  initMarket();
 })();
+
+async function initMarket(){
+  const base = (d && d.data_base_url) ? d.data_base_url : '';
+  if(!base){ return; }
+  const bust = '?t=' + Date.now();
+  async function load(name){
+    try{
+      const r = await fetch(base + '/' + name + '/latest.json' + bust, {cache:'no-store'});
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){ return null; }
+  }
+  const [intraday, daily, watch] = await Promise.all(
+    [load('intraday'), load('daily'), load('watchlist')]);
+
+  const body = document.getElementById('mkt-body');
+  const upd = document.getElementById('mkt-updated');
+  const stamp = (watch && watch.generated_ist) || (daily && daily.ist) || '';
+  if(stamp){ upd.textContent = '· watchlist built ' + new Date(stamp).toLocaleString(); }
+
+  function pctCell(v){
+    if(v===null||v===undefined) return '<span class=mut>—</span>';
+    const c = v>0?'up':(v<0?'down':'');
+    return '<span class="'+c+'">'+(v>0?'+':'')+v.toFixed(2)+'%</span>';
+  }
+  function flags(arr){
+    return (arr||[]).map(f=>'<span class="flag '+f+'">'+f.replace(/_/g,' ')+'</span>').join('');
+  }
+
+  function renderMovers(){
+    if(!intraday || !intraday.movers || !intraday.movers.length){
+      return '<div class=empty>No movers right now. Intraday updates every ~15 min during market hours (NSE 09:15–15:30 IST).</div>';
+    }
+    const rows = intraday.movers.map(m=>`<tr>
+      <td><div>${m.name||m.symbol}</div><div class=broker>${m.symbol}</div></td>
+      <td>${pctCell(m.chg_pct)}</td>
+      <td>${m.rsi==null?'—':m.rsi}</td>
+      <td>${flags(m.flags)}</td></tr>`).join('');
+    return `<div class=sub>${intraday.count||0} watched · ${intraday.movers.length} moving · ${new Date(intraday.ist).toLocaleTimeString()}</div>
+      <table><thead><tr><th>Stock</th><th>Change</th><th>RSI</th><th>Flags</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+
+  function renderChanges(){
+    if(!daily){ return '<div class=empty>No daily analysis yet.</div>'; }
+    const ch = daily.changes_since_prev || [];
+    const c = daily.signal_counts || {};
+    const head = `<div class=sub>EOD signals: <span class=up>${c.BUY||0} buy</span> · ${c.HOLD||0} hold · <span class=down>${c.SELL||0} sell</span> across ${daily.analyzed||0} stocks</div>`;
+    if(!ch.length){ return head + '<div class=empty>No changes vs the previous run.</div>'; }
+    const rows = ch.map(x=>{
+      let what = x.type.replace(/_/g,' ');
+      if(x.type==='signal_flip') what = `${x.from} → <b>${x.to}</b>`;
+      else if(x.rsi!=null) what += ` (RSI ${x.rsi})`;
+      return `<tr><td><div>${x.name||x.symbol}</div><div class=broker>${x.symbol}</div></td>
+        <td>${what}</td></tr>`;
+    }).join('');
+    return head + `<table><thead><tr><th>Stock</th><th>Change since last run</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+
+  function renderWatch(){
+    if(!watch || !watch.watchlist || !watch.watchlist.length){
+      return '<div class=empty>Watchlist not built yet. The weekly job runs Sunday 17:30 IST.</div>';
+    }
+    const rows = watch.watchlist.map(r=>`<tr>
+      <td><span class=rank>#${r.rank}</span></td>
+      <td><div>${r.name}</div><div class=broker>${r.symbol} · ${r.sector||''}</div></td>
+      <td>${r.rsi14==null?'—':r.rsi14}</td>
+      <td>${pctCell(r.ret_1m)}</td>
+      <td>${pctCell(r.ret_3m)}</td>
+      <td>${r.composite}</td></tr>`).join('');
+    return `<div class=sub>Top ${watch.top_n} of ${watch.evaluated} evaluated · ranked by technicals + news</div>
+      <table><thead><tr><th>#</th><th>Stock</th><th>RSI</th><th>1M</th><th>3M</th><th>Score</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+
+  const views = {movers:renderMovers, changes:renderChanges, watchlist:renderWatch};
+  function show(tab){
+    document.querySelectorAll('.tab').forEach(t=>
+      t.classList.toggle('active', t.getAttribute('data-tab')===tab));
+    body.innerHTML = (views[tab]||renderMovers)();
+  }
+  document.querySelectorAll('.tab').forEach(t=>
+    t.addEventListener('click', ()=>show(t.getAttribute('data-tab'))));
+  show('movers');
 </script>
 </body>
 </html>
