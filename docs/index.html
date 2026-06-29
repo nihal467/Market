@@ -76,6 +76,7 @@
   <div class="maintabs">
     <button class="maintab active" data-panel="investment">💼 My Investment</button>
     <button class="maintab" data-panel="market">📈 Market Watch</button>
+    <button class="maintab" data-panel="paper">🤖 Dummy ₹5L</button>
   </div>
 
   <section id="panel-investment" class="panel">
@@ -106,6 +107,11 @@
     </div>
     <div id="mkt-body"><div class="empty">Loading market data…</div></div>
   </section>
+
+  <section id="panel-paper" class="panel" style="display:none">
+    <div class="sub" id="paper-updated"></div>
+    <div id="paper-body"><div class="empty">Loading paper-trading bot…</div></div>
+  </section>
 </div>
 <script>
 function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
@@ -114,10 +120,10 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T19:45:24.007710+00:00",
+  "generated_at": "2026-06-29T19:53:43.728929+00:00",
   "hide_amounts": true,
   "totals": {
-    "pnl_pct": 7.0
+    "pnl_pct": 6.88
   },
   "signal_counts": {
     "BUY": 2,
@@ -130,8 +136,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.73,
-      "pnl_pct": -3.45,
+      "allocation_pct": 2.77,
+      "pnl_pct": -2.04,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -144,7 +150,7 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.49,
-      "pnl_pct": 4.4,
+      "pnl_pct": 4.12,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -156,8 +162,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.52,
-      "pnl_pct": -1.03,
+      "allocation_pct": 2.51,
+      "pnl_pct": -1.5,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -182,8 +188,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 3.99,
-      "pnl_pct": -2.61,
+      "allocation_pct": 3.97,
+      "pnl_pct": -3.06,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -208,8 +214,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.48,
-      "pnl_pct": 5.5,
+      "allocation_pct": 2.46,
+      "pnl_pct": 4.59,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -237,7 +243,7 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 25.42,
+      "allocation_pct": 25.45,
       "pnl_pct": 2.93,
       "signal": "BUY",
       "reasons": [
@@ -254,8 +260,8 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 17.25,
-      "pnl_pct": 39.63,
+      "allocation_pct": 17.18,
+      "pnl_pct": 38.95,
       "signal": "BUY",
       "reasons": [
         "RSI 45.87 neutral",
@@ -270,7 +276,7 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 18.83,
+      "allocation_pct": 18.85,
       "pnl_pct": 1.48,
       "signal": "HOLD",
       "reasons": [
@@ -288,7 +294,7 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 0.77,
-      "pnl_pct": 37.83,
+      "pnl_pct": 37.45,
       "signal": "HOLD",
       "reasons": [
         "RSI 62.13 neutral",
@@ -302,7 +308,7 @@ const d = {
       "broker": "5paisa",
       "type": "mutual_fund",
       "tradable": false,
-      "allocation_pct": 14.3,
+      "allocation_pct": 14.32,
       "pnl_pct": -3.96,
       "signal": "SIP",
       "reasons": [
@@ -314,9 +320,9 @@ const d = {
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "CCx7GtCDiXpw0EdBbMKnCw==",
-    "iv": "cb25J1IvIE36Wwbv",
-    "ct": "AMmO7SuyNmqNxgDbNUKkasOlt9RsV9KWhlLcbMrvETDt++f3K7Qit/99CCb/glMnLtJ68SJf39JIQ8LFSwnJQKjeViBx/uZrpgsC5v/sisa7Ylyw1VbjvFyxWZugED4OWXDZ9ckVSKdugaTs9jubQSt1mAcrIFu2N/t7khviDeRh10jmY+cGAnxYreHqxnQjj0CFHb525k4HJnls6nEeRYr6v6Ds5TXbzldRTqIIAaQmc4bdTRqIxtR/ejLlV+0eLrep2tPSUE+4DF3PWtJ6szffjlV72TaxzA3PTgBrCHINS+0wg69DkvYSyVQB+tzfHDoevqQfhXBKRqNkdtai1jN/Qv6FbCMoWNenm6E1Nfe45mB4emnVzClveIWHOJFJLKLGuqOPDRkW3JIpecYYO2PFV3XfC9v8BzEEt9pUpdziC4KWWJr0tUHmyAJpmLF8HyJiOR4iAvJkLwD6BxY/ZCiw/xafdnGuzdJFZzz7BXjjjJHtIRCgp1SSP+hv8jd1t5lXS1wU10tdmuPrdvwdNkpDbKgjIp6pVYWZkiPLSZhV21S9XE7upEmY5mEf1+fvoe2RVxjaBF2LAbFBH6x8EMJA+Xq08fAU/BxcK0YXWE30q217h9N9Sjardx8hCWk/rHRM8Bsh/Okutoga4tRbFCALh4JLxJvBeaWb7UJvJlMgqcizycigkIRszH+EgI4wvXfFbav5vt8i5Q+5JCNVeQXIRcBIoo7fbL9mKF/72m8OVnnUt4BE7B00tVr1H4X5ebKSAo91zaUg7jalPknHzceSnCPVq06qN0kw5WbVFq6IlPRuZEvdSCl0oXIKdJQ+kSBXnugIFD40LOJNXJ8dNF3v2OCLu2G1ML5g28VKfC8SDa+oPFRgrM0ZmMoDDE0LAl2xwwSzeO+4dnrf3DMZUfIn4r5UCEOrwdaluPMuDbl1zRVvN/SGoIR/nZ1DbGl8p8W7Gmh8Let/21cROozJEpjk4889sZWYJgqw+qjFKUBkYLAipkOH7rhPUaYdfpqfbVIWJMPTG2yEcSPqN9u+00DMP678yfp1Wqp/CNbb471SmoEpjyYZUlayrn3tJrMehPwe+x0AuXZl5g9j7bb6vxsIkRkBt5QDtoiXGJ21oF8n3Kl0frT0GGTf3jvv240Hx4oAwfjHooMtEoxUywDpiY0amKhk1Qt3ttUxY0a/Cq5M7NuqSO/QsIwGZFg3vOca6kFv/zPR+0ijNm760FLaFg==",
+    "salt": "nF9+Acu3w1WfMlPb9Up99g==",
+    "iv": "e7QPxJqrfZ70ryxS",
+    "ct": "G6IoiO4/4sjRn6b1aNAwwVCadgC98o9VNkDSEG4iZv0HD47F4yCaEDZ2OYwVV2vPdbWWk2Rv9MEP30XKYX9V35AEYOLE/SZEEszTBDOJ/L3k41+Be/XbbeM9hQGf2st0ZYp1zxt+SRad638Qsq8t3hdJ3COM4hvsYirmFwhdpp4MtlrmcS7tXomaaja8ppub1EpKkhzJaTmkOtz/xCc25koB+6iw7Ega8yXBvR4K76r6+kHcvyg0ERLs2rcXyIdfaGqSDxDJj6mYwjsGSpQCgt9VWZXrF+VwuWWA9YOfvXLt/4USQxzTVvK9f2h1//Yn39+ghWiXljTrBVuKiuZ9nOnKDXZcUE5zksgyGi+ysTTh4HUnWpGUdoP0gDkwwm6Nb4RrgI3IF4TKciRgGCd4aD58ri11q8YI+9E/RIfQMiM/MvmFUItvot26A9NizdqZMg/EqT7OnG9nAdBWMPYTgrdGF2E3TdbC7pF6P5YvnPVoMD6amGfPqTsMHu3L9JjOo4OKYmfjEwBt9b8m9GIXl05nomDx8kWtH0p0YaTfcBEI9Dzt9V0Ppiq+I0QWeqbrwDzGpiPV0CPphfMiqYr+BEBoTEYBm33SxjbtUxQFY8BQzK5tVomJolYyJfSOcmfBEcdM7lK6yLIGYZsCO6qtp8QsL1M41gf2LiG3Wd6FyzYKT+7LgO9oC0MhknytrPIwKJdk3bIGbxnm15du0EE32T5spnSwU3V7GtqDHFpLW5tA2xD4TylZZHfRe3PdZVHwGcQrWm5hCD9FwoiwB6pJPwWk4GlfYmW0QyyNhJ60x4ABY7GGBwFf5XtollwGx4c/209DFbkMoXaRYKXMkxuvYqDbpI8uafgvP6mC6Y82Q2z/w0I4u9kBwobsbQIQCPeoFuK+g8BxV/BSa2zSWSm5NKDuczmmgyvm5yMokiUa7IHm+c8nYX6jgtJFFEEUy0LgWSzmSLi+x6ji+AY9NU4B/1Z94OCp6oIIuhvqet9GEZdB9J0zMVBwpYtMBzPdAEXSKgF+yLW2GxHiEAqO/z/4r8P5a/NIbdSJKQuC2alckOqj/w92bA3YUWqWIH20vh/FmQgue+z2/jI99EfJhkN/K7Wy00uBgLFMWU55pmgHGnVAVhrm9RhYP8abDBEJWk0Xs1ZIq+kop1pIeQcVrvKoLp7J2kygUafw3rArSbdLpTDFvRDnR8cCKP8o076xXOh7CjXUa7poNAFq+gT0Ly94jgWh1uU=",
     "iter": 200000
   },
   "has_secret": true
@@ -342,7 +348,7 @@ async function decryptSecret(password, sec){
   document.getElementById('updated').textContent =
     'Updated ' + new Date(d.generated_at).toLocaleString();
 
-  // Top-level panel switching (My Investment / Market Watch).
+  // Top-level panel switching (My Investment / Market Watch / Dummy ₹5L).
   document.querySelectorAll('.maintab').forEach(t=>
     t.addEventListener('click', ()=>{
       const panel = t.getAttribute('data-panel');
@@ -352,6 +358,8 @@ async function decryptSecret(password, sec){
         panel==='investment' ? '' : 'none';
       document.getElementById('panel-market').style.display =
         panel==='market' ? '' : 'none';
+      document.getElementById('panel-paper').style.display =
+        panel==='paper' ? '' : 'none';
     }));
 
   function renderCards(extra){
@@ -433,6 +441,8 @@ async function decryptSecret(password, sec){
 
   // --- Market Watch: live data from the `data` branch (public, no amounts) ---
   initMarket();
+  // --- Dummy ₹5L: virtual paper-trading bot results from the `data` branch ---
+  initPaper();
 })();
 
 async function initMarket(){
@@ -519,6 +529,85 @@ async function initMarket(){
   document.querySelectorAll('.tab').forEach(t=>
     t.addEventListener('click', ()=>show(t.getAttribute('data-tab'))));
   show('movers');
+}
+
+async function initPaper(){
+  const base = (d && d.data_base_url) ? d.data_base_url : '';
+  const body = document.getElementById('paper-body');
+  const upd = document.getElementById('paper-updated');
+  if(!base){ body.innerHTML = '<div class=empty>No data source configured.</div>'; return; }
+  let p = null;
+  try{
+    const r = await fetch(base + '/paper/latest.json?t=' + Date.now(), {cache:'no-store'});
+    if(r.ok) p = await r.json();
+  }catch(e){ p = null; }
+
+  if(!p){
+    body.innerHTML = '<div class=empty>The bot has not placed its first trade yet. '
+      + 'It runs after market close (16:30 IST) each trading day, simulating a virtual '
+      + '₹5,00,000 across the day\'s top BUY-ranked stocks.</div>';
+    return;
+  }
+
+  if(p.ist){ upd.textContent = '· last run ' + new Date(p.ist).toLocaleString()
+    + ' · since ' + (p.inception||'—'); }
+
+  const dpos = p.day_pnl>0, dneg = p.day_pnl<0;
+  const dcl = dpos?'up':(dneg?'down':'');
+  const tcl = p.total_pnl>0?'up':(p.total_pnl<0?'down':'');
+  const sign = v => (v>0?'+':'');
+
+  const cards = `<div class=cards>
+    <div class=card><div class=k>Portfolio value</div><div class=v>${inr(p.value)}</div>
+      <div class=chg>started ${inr(p.start_capital)}</div></div>
+    <div class="card"><div class=k>Today's P&L</div>
+      <div class="v ${dcl}">${sign(p.day_pnl)}${inr(p.day_pnl)}</div>
+      <div class="chg ${dcl}">${sign(p.day_pnl_pct)}${(p.day_pnl_pct||0).toFixed(2)}%</div></div>
+    <div class="card"><div class=k>Total P&L</div>
+      <div class="v ${tcl}">${sign(p.total_pnl)}${inr(p.total_pnl)}</div>
+      <div class="chg ${tcl}">${sign(p.total_pnl_pct)}${(p.total_pnl_pct||0).toFixed(2)}%</div></div>
+    <div class=card><div class=k>Holdings</div><div class=v>${p.n_positions||0}</div>
+      <div class=chg>cash ${inr(p.cash)}</div></div>
+  </div>`;
+
+  const pos = (p.positions||[]).map(x=>`<tr>
+    <td><div>${x.name||x.symbol}</div><div class=broker>${x.symbol}</div></td>
+    <td>${x.qty}</td>
+    <td>₹${(x.avg_price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td>
+    <td>₹${(x.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td>
+    <td>${inr(x.value)}</td>
+    <td class="${x.pnl>0?'up':(x.pnl<0?'down':'')}">${sign(x.pnl)}${inr(x.pnl)} (${sign(x.pnl_pct)}${(x.pnl_pct||0).toFixed(2)}%)</td>
+  </tr>`).join('');
+  const posTable = pos
+    ? `<h2 class=sec>Current positions</h2>
+       <table><thead><tr><th>Stock</th><th>Qty</th><th>Avg</th><th>Price</th><th>Value</th><th>P&L</th></tr></thead>
+       <tbody>${pos}</tbody></table>`
+    : '<div class=empty>No open positions.</div>';
+
+  const tr = (p.today_trades||[]);
+  const trTable = tr.length
+    ? `<h2 class=sec>Today's trades</h2>
+       <table><thead><tr><th>Action</th><th>Stock</th><th>Qty</th><th>Price</th></tr></thead>
+       <tbody>${tr.map(t=>`<tr>
+         <td class="${t.action==='BUY'?'up':'down'}">${t.action}</td>
+         <td>${t.name||t.symbol}</td><td>${t.qty}</td>
+         <td>₹${(t.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td></tr>`).join('')}</tbody></table>`
+    : '';
+
+  const hist = (p.history||[]).slice().reverse();
+  const histTable = hist.length
+    ? `<h2 class=sec>Daily history <span class=secsub>(most recent first)</span></h2>
+       <table><thead><tr><th>Date</th><th>Value</th><th>Day P&L</th><th>Total P&L</th></tr></thead>
+       <tbody>${hist.map(h=>`<tr>
+         <td>${h.date}</td><td>${inr(h.value)}</td>
+         <td class="${h.day_pnl>0?'up':(h.day_pnl<0?'down':'')}">${sign(h.day_pnl)}${inr(h.day_pnl)} (${sign(h.day_pnl_pct)}${(h.day_pnl_pct||0).toFixed(2)}%)</td>
+         <td class="${h.total_pnl>0?'up':(h.total_pnl<0?'down':'')}">${sign(h.total_pnl_pct)}${(h.total_pnl_pct||0).toFixed(2)}%</td></tr>`).join('')}</tbody></table>`
+    : '';
+
+  const note = p.strategy
+    ? `<div class=foot>${p.strategy}</div>` : '';
+
+  body.innerHTML = cards + trTable + posTable + histTable + note;
 }
 </script>
 </body>

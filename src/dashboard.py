@@ -293,6 +293,7 @@ INDEX_HTML = """<!DOCTYPE html>
   <div class=\"maintabs\">
     <button class=\"maintab active\" data-panel=\"investment\">💼 My Investment</button>
     <button class=\"maintab\" data-panel=\"market\">📈 Market Watch</button>
+    <button class=\"maintab\" data-panel=\"paper\">🤖 Dummy ₹5L</button>
   </div>
 
   <section id=\"panel-investment\" class=\"panel\">
@@ -323,6 +324,11 @@ INDEX_HTML = """<!DOCTYPE html>
     </div>
     <div id=\"mkt-body\"><div class=\"empty\">Loading market data…</div></div>
   </section>
+
+  <section id=\"panel-paper\" class=\"panel\" style=\"display:none\">
+    <div class=\"sub\" id=\"paper-updated\"></div>
+    <div id=\"paper-body\"><div class=\"empty\">Loading paper-trading bot…</div></div>
+  </section>
 </div>
 <script>
 function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
@@ -351,7 +357,7 @@ async function decryptSecret(password, sec){
   document.getElementById('updated').textContent =
     'Updated ' + new Date(d.generated_at).toLocaleString();
 
-  // Top-level panel switching (My Investment / Market Watch).
+  // Top-level panel switching (My Investment / Market Watch / Dummy ₹5L).
   document.querySelectorAll('.maintab').forEach(t=>
     t.addEventListener('click', ()=>{
       const panel = t.getAttribute('data-panel');
@@ -361,6 +367,8 @@ async function decryptSecret(password, sec){
         panel==='investment' ? '' : 'none';
       document.getElementById('panel-market').style.display =
         panel==='market' ? '' : 'none';
+      document.getElementById('panel-paper').style.display =
+        panel==='paper' ? '' : 'none';
     }));
 
   function renderCards(extra){
@@ -442,6 +450,8 @@ async function decryptSecret(password, sec){
 
   // --- Market Watch: live data from the `data` branch (public, no amounts) ---
   initMarket();
+  // --- Dummy ₹5L: virtual paper-trading bot results from the `data` branch ---
+  initPaper();
 })();
 
 async function initMarket(){
@@ -528,6 +538,85 @@ async function initMarket(){
   document.querySelectorAll('.tab').forEach(t=>
     t.addEventListener('click', ()=>show(t.getAttribute('data-tab'))));
   show('movers');
+}
+
+async function initPaper(){
+  const base = (d && d.data_base_url) ? d.data_base_url : '';
+  const body = document.getElementById('paper-body');
+  const upd = document.getElementById('paper-updated');
+  if(!base){ body.innerHTML = '<div class=empty>No data source configured.</div>'; return; }
+  let p = null;
+  try{
+    const r = await fetch(base + '/paper/latest.json?t=' + Date.now(), {cache:'no-store'});
+    if(r.ok) p = await r.json();
+  }catch(e){ p = null; }
+
+  if(!p){
+    body.innerHTML = '<div class=empty>The bot has not placed its first trade yet. '
+      + 'It runs after market close (16:30 IST) each trading day, simulating a virtual '
+      + '₹5,00,000 across the day\\'s top BUY-ranked stocks.</div>';
+    return;
+  }
+
+  if(p.ist){ upd.textContent = '· last run ' + new Date(p.ist).toLocaleString()
+    + ' · since ' + (p.inception||'—'); }
+
+  const dpos = p.day_pnl>0, dneg = p.day_pnl<0;
+  const dcl = dpos?'up':(dneg?'down':'');
+  const tcl = p.total_pnl>0?'up':(p.total_pnl<0?'down':'');
+  const sign = v => (v>0?'+':'');
+
+  const cards = `<div class=cards>
+    <div class=card><div class=k>Portfolio value</div><div class=v>${inr(p.value)}</div>
+      <div class=chg>started ${inr(p.start_capital)}</div></div>
+    <div class=\"card\"><div class=k>Today's P&L</div>
+      <div class=\"v ${dcl}\">${sign(p.day_pnl)}${inr(p.day_pnl)}</div>
+      <div class=\"chg ${dcl}\">${sign(p.day_pnl_pct)}${(p.day_pnl_pct||0).toFixed(2)}%</div></div>
+    <div class=\"card\"><div class=k>Total P&L</div>
+      <div class=\"v ${tcl}\">${sign(p.total_pnl)}${inr(p.total_pnl)}</div>
+      <div class=\"chg ${tcl}\">${sign(p.total_pnl_pct)}${(p.total_pnl_pct||0).toFixed(2)}%</div></div>
+    <div class=card><div class=k>Holdings</div><div class=v>${p.n_positions||0}</div>
+      <div class=chg>cash ${inr(p.cash)}</div></div>
+  </div>`;
+
+  const pos = (p.positions||[]).map(x=>`<tr>
+    <td><div>${x.name||x.symbol}</div><div class=broker>${x.symbol}</div></td>
+    <td>${x.qty}</td>
+    <td>₹${(x.avg_price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td>
+    <td>₹${(x.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td>
+    <td>${inr(x.value)}</td>
+    <td class=\"${x.pnl>0?'up':(x.pnl<0?'down':'')}\">${sign(x.pnl)}${inr(x.pnl)} (${sign(x.pnl_pct)}${(x.pnl_pct||0).toFixed(2)}%)</td>
+  </tr>`).join('');
+  const posTable = pos
+    ? `<h2 class=sec>Current positions</h2>
+       <table><thead><tr><th>Stock</th><th>Qty</th><th>Avg</th><th>Price</th><th>Value</th><th>P&L</th></tr></thead>
+       <tbody>${pos}</tbody></table>`
+    : '<div class=empty>No open positions.</div>';
+
+  const tr = (p.today_trades||[]);
+  const trTable = tr.length
+    ? `<h2 class=sec>Today's trades</h2>
+       <table><thead><tr><th>Action</th><th>Stock</th><th>Qty</th><th>Price</th></tr></thead>
+       <tbody>${tr.map(t=>`<tr>
+         <td class=\"${t.action==='BUY'?'up':'down'}\">${t.action}</td>
+         <td>${t.name||t.symbol}</td><td>${t.qty}</td>
+         <td>₹${(t.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td></tr>`).join('')}</tbody></table>`
+    : '';
+
+  const hist = (p.history||[]).slice().reverse();
+  const histTable = hist.length
+    ? `<h2 class=sec>Daily history <span class=secsub>(most recent first)</span></h2>
+       <table><thead><tr><th>Date</th><th>Value</th><th>Day P&L</th><th>Total P&L</th></tr></thead>
+       <tbody>${hist.map(h=>`<tr>
+         <td>${h.date}</td><td>${inr(h.value)}</td>
+         <td class=\"${h.day_pnl>0?'up':(h.day_pnl<0?'down':'')}\">${sign(h.day_pnl)}${inr(h.day_pnl)} (${sign(h.day_pnl_pct)}${(h.day_pnl_pct||0).toFixed(2)}%)</td>
+         <td class=\"${h.total_pnl>0?'up':(h.total_pnl<0?'down':'')}\">${sign(h.total_pnl_pct)}${(h.total_pnl_pct||0).toFixed(2)}%</td></tr>`).join('')}</tbody></table>`
+    : '';
+
+  const note = p.strategy
+    ? `<div class=foot>${p.strategy}</div>` : '';
+
+  body.innerHTML = cards + trTable + posTable + histTable + note;
 }
 </script>
 </body>
