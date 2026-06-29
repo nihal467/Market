@@ -33,6 +33,7 @@ from market_calendar import now_ist
 START_CAPITAL = 500000.0
 TOP_N = 10               # equal-weight this many top BUY-ranked stocks
 COST_PER_SIDE = 0.0010   # 0.10% per buy/sell leg (brokerage+slippage+taxes proxy)
+BENCHMARK = "^NSEI"      # NIFTY 50 — the "do nothing, just hold the index" baseline
 
 STATE_FILE = "paper/state.json"
 LATEST_FILE = "paper/latest.json"
@@ -47,7 +48,38 @@ def _empty_state() -> dict:
         "positions": {},   # symbol -> {qty, avg_price, name}
         "last_date": None,
         "history": [],     # list of daily snapshots (also mirrored to jsonl)
+        # Benchmark anchor: NIFTY level on the first day we could read it, so we
+        # can compare the bot against simply holding the index from day one.
+        "benchmark_inception": None,        # index level at anchor
+        "benchmark_inception_date": None,   # date that anchor was set
     }
+
+
+def _benchmark_level() -> float | None:
+    """Latest NIFTY 50 closing level, or None if it can't be fetched.
+
+    Wrapped defensively: a benchmark hiccup must never break the actual paper
+    trade. yfinance is imported lazily so module import stays cheap.
+    """
+    try:
+        import yfinance as yf
+
+        data = yf.download(BENCHMARK, period="5d", interval="1d",
+                           auto_adjust=True, progress=False)
+        if data is None or data.empty:
+            return None
+        close = data["Close"]
+        # Single-ticker downloads can come back as a 1-column DataFrame; collapse
+        # to a Series so .iloc[-1] is a scalar, not a 1-element Series.
+        if hasattr(close, "columns"):
+            close = close.iloc[:, 0]
+        close = close.dropna()
+        if close.empty:
+            return None
+        return float(close.iloc[-1])
+    except Exception as exc:  # noqa: BLE001 — benchmark is best-effort only
+        print(f"  ! benchmark fetch failed: {exc}")
+        return None
 
 
 def _load_state() -> dict:
@@ -162,6 +194,21 @@ def run() -> dict:
     total_pnl = round(end_value - state["start_capital"], 2)
     total_pnl_pct = round(total_pnl / state["start_capital"] * 100, 3)
 
+    # 5) Benchmark: what the same Rs 5L would be worth if simply held in NIFTY 50
+    # since inception. Alpha = how much the bot beat (or lagged) just-hold-index.
+    bench_level = _benchmark_level()
+    if bench_level and state.get("benchmark_inception") is None:
+        state["benchmark_inception"] = bench_level
+        state["benchmark_inception_date"] = today
+    anchor = state.get("benchmark_inception")
+    if bench_level and anchor:
+        benchmark_pct = round((bench_level / anchor - 1) * 100, 3)
+        benchmark_value = round(state["start_capital"] * bench_level / anchor, 2)
+    else:
+        benchmark_pct = 0.0
+        benchmark_value = state["start_capital"]
+    alpha_pct = round(total_pnl_pct - benchmark_pct, 3)
+
     snapshot = {
         "date": today,
         "value": round(end_value, 2),
@@ -170,6 +217,9 @@ def run() -> dict:
         "day_pnl_pct": day_pnl_pct,
         "total_pnl": total_pnl,
         "total_pnl_pct": total_pnl_pct,
+        "benchmark_pct": benchmark_pct,
+        "benchmark_value": benchmark_value,
+        "alpha_pct": alpha_pct,
         "n_positions": len(state["positions"]),
         "n_trades": len(trades),
         "costs": round(cost_total, 2),
@@ -209,6 +259,10 @@ def run() -> dict:
         "day_pnl_pct": day_pnl_pct,
         "total_pnl": total_pnl,
         "total_pnl_pct": total_pnl_pct,
+        "benchmark_pct": benchmark_pct,
+        "benchmark_value": benchmark_value,
+        "benchmark_name": "NIFTY 50",
+        "alpha_pct": alpha_pct,
         "n_positions": len(state["positions"]),
         "today_trades": trades,
         "positions": positions_view,
@@ -223,7 +277,8 @@ def run() -> dict:
 
     print(f"[{today}] value Rs {end_value:,.0f} | day {day_pnl:+,.0f} "
           f"({day_pnl_pct:+.2f}%) | total {total_pnl:+,.0f} "
-          f"({total_pnl_pct:+.2f}%) | {len(trades)} trades | "
+          f"({total_pnl_pct:+.2f}%) | NIFTY {benchmark_pct:+.2f}% | "
+          f"alpha {alpha_pct:+.2f}% | {len(trades)} trades | "
           f"{len(state['positions'])} holdings")
     return latest
 
