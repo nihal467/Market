@@ -30,6 +30,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run daily pipeline
+        # DASHBOARD_PASSWORD mirrors the 1Password item
+        # op://Personal/Market Dashboard/password. Local runs read 1Password
+        # directly via the op CLI; CI uses this secret because the org-managed
+        # 1Password account does not permit creating a service account.
         env:
           DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: python src/run_daily.py
