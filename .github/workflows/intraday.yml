@@ -1,10 +1,11 @@
 name: Intraday Monitor
 
 # Snapshots the Top-50 watchlist every ~15 min during market hours and logs
-# movers. NSE 09:15-15:30 IST = 03:45-10:00 UTC; we schedule a wide window and
-# let the Python market-calendar gate the exact open/close (and weekends).
+# movers. NSE 09:15-15:30 IST = 03:45-10:00 UTC. The cron window is wide; a
+# cheap pre-gate (pure stdlib, no pip install) exits in ~5s when the market is
+# closed so closed-market runs cost almost nothing.
 #
-# NOTE: GitHub Actions cron is best-effort — runs can be delayed 5-20+ min or
+# NOTE: GitHub Actions cron is best-effort - runs can be delayed 5-20+ min or
 # skipped under load. This is near-real-time monitoring, NOT a trading trigger.
 on:
   schedule:
@@ -22,36 +23,58 @@ jobs:
   intraday:
     runs-on: ubuntu-latest
     steps:
+      # Cheap gate FIRST (no checkout, no pip): skip the costly steps when the
+      # NSE market is closed. Saves runner minutes if the repo is ever private.
+      - name: Market-hours gate
+        id: gate
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          from datetime import datetime, time, timedelta, timezone
+          ist = datetime.now(timezone(timedelta(hours=5, minutes=30)))
+          is_open = (ist.weekday() < 5 and time(9, 15) <= ist.time() <= time(15, 30))
+          print("open=" + ("true" if is_open else "false"))
+          print("ist=" + ist.isoformat())
+          PY
+
+      - name: Status
+        run: echo "Market open=${{ steps.gate.outputs.open }} (IST ${{ steps.gate.outputs.ist }})"
+
       - name: Checkout code (main)
+        if: steps.gate.outputs.open == 'true'
         uses: actions/checkout@v4
 
       - name: Checkout data branch
+        if: steps.gate.outputs.open == 'true'
         uses: actions/checkout@v4
         with:
           ref: data
           path: data-branch
 
       - uses: actions/setup-python@v5
+        if: steps.gate.outputs.open == 'true'
         with:
           python-version: "3.11"
           cache: pip
 
       - name: Install dependencies
+        if: steps.gate.outputs.open == 'true'
         run: pip install -r requirements.txt
 
       - name: Intraday snapshot
+        if: steps.gate.outputs.open == 'true'
         env:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
         run: python src/intraday.py
 
       - name: Commit & push data
+        if: steps.gate.outputs.open == 'true'
         working-directory: data-branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           if git diff --staged --quiet; then
-            echo "No data changes (likely market closed)."; exit 0
+            echo "No data changes."; exit 0
           fi
           git commit -m "data: intraday $(date -u +%Y-%m-%dT%H:%MZ)"
           for i in 1 2 3 4 5; do
