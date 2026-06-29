@@ -109,3 +109,26 @@ data/signals.json      latest signals (git-ignored)
 
 ## Disclaimer
 For personal tracking only. Not investment advice.
+
+## Market data pipeline (watchlist + monitoring)
+
+Beyond your own portfolio, the repo runs three scheduled jobs that gather a
+broad market dataset and publish it to a separate **`data` branch** (kept apart
+from code so history stays clean — no paid service needed):
+
+| Job | Schedule | What it does | Output (on `data` branch) |
+|-----|----------|--------------|---------------------------|
+| **Weekly watchlist** | Sun 17:30 IST | Ranks the NSE universe (`universe.csv`, ~170 names) by technicals + news → Top 50 | `watchlist/YYYY-Www.json`, `watchlist/latest.json` |
+| **Intraday monitor** | every 15 min, market hours | Snapshots the Top-50 (price, %chg, RSI), flags movers | `intraday/YYYY/MM/DD.jsonl`, `intraday/latest.json` |
+| **Daily analysis** | 16:30 & 01:00 IST | Full EOD signals + day-over-day change detection (signal flips, RSI regime) | `daily/YYYY/MM/DD.json`, `daily/latest.json` |
+
+Local runs write to `data_out/` (git-ignored). In CI, `MARKET_DATA_DIR` points
+at a checkout of the `data` branch.
+
+**Important caveats**
+- GitHub Actions cron is best-effort: runs can be 5–20+ min late or skipped.
+  The intraday feed is *near-real-time monitoring*, **not** a low-latency
+  trading trigger. The Python market-calendar gate no-ops outside NSE hours.
+- Public price feeds (Yahoo) can rate-limit CI IPs; jobs batch requests and the
+  universe is shipped in-repo so we never depend on NSE's (CI-blocked) site.
+- Holdings/watchlists are signals only — **not investment advice**.

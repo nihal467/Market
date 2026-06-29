@@ -1,0 +1,61 @@
+name: Intraday Monitor
+
+# Snapshots the Top-50 watchlist every ~15 min during market hours and logs
+# movers. NSE 09:15-15:30 IST = 03:45-10:00 UTC; we schedule a wide window and
+# let the Python market-calendar gate the exact open/close (and weekends).
+#
+# NOTE: GitHub Actions cron is best-effort — runs can be delayed 5-20+ min or
+# skipped under load. This is near-real-time monitoring, NOT a trading trigger.
+on:
+  schedule:
+    - cron: "*/15 3-10 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-data
+  cancel-in-progress: false
+
+jobs:
+  intraday:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (main)
+        uses: actions/checkout@v4
+
+      - name: Checkout data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: data-branch
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Intraday snapshot
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+        run: python src/intraday.py
+
+      - name: Commit & push data
+        working-directory: data-branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No data changes (likely market closed)."; exit 0
+          fi
+          git commit -m "data: intraday $(date -u +%Y-%m-%dT%H:%MZ)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin data && git push origin HEAD:data && exit 0
+            echo "push retry $i"; sleep $((RANDOM % 8 + 2))
+          done
+          echo "push failed after retries"; exit 1

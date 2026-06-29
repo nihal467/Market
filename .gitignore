@@ -5,3 +5,6 @@ data/*.json
 data/*.csv
 !data/.gitkeep
 .DS_Store
+
+# Local market-data output (published to the data branch, not main)
+data_out/
