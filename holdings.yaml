@@ -1,0 +1,102 @@
+# Your investment holdings. Update quantities/amounts when a SIP buys execute.
+# No broker login needed — prices & NAVs are fetched from public sources.
+#
+# Find your MF scheme code at https://www.amfiindia.com/spages/NAVAll.txt
+#   (search the file for your fund name; the first number on the line is the code)
+# Stock symbols use Yahoo Finance format: NSE = SYMBOL.NS  (e.g. RELIANCE.NS)
+
+# Dashboard settings.
+# Repo is PRIVATE, so amounts are shown. If you ever make the repo public or
+# enable GitHub Pages on a public repo, set hide_amounts: true to publish only
+# percentages + signals (no rupee values).
+dashboard:
+  title: My Investment Dashboard
+  hide_amounts: false
+
+stocks:
+  # Groww stock SIP (~₹18,150/mo). Add one entry per stock you hold.
+  broker: Groww
+  monthly_sip: 18150
+  holdings: []
+    # - symbol: RELIANCE.NS
+    #   name: Reliance Industries
+    #   quantity: 0          # total units you currently hold
+    #   invested: 0          # total rupees invested so far in this stock
+
+mutual_funds:
+  # 5paisa MF SIP (~₹6,050/mo)
+  broker: 5paisa
+  monthly_sip: 6050
+  holdings:
+    - scheme_code: "127042"
+      name: Motilal Oswal Midcap Fund - Direct Plan - Growth
+      units: 1082.74
+      invested: 121537      # avg NAV 112.25 x 1082.74 units
+
+lumpsum:
+  # 5paisa one-time ₹5,00,000 — held as an ETF/stock basket (see equity_groups below).
+  broker: 5paisa
+  amount: 500000
+  note: Invested across ETFs + LG India on 5paisa.
+
+equity_groups:
+  # Groww/Zerodha smallcase SIP (~₹18,150/mo) across 3 smallcases:
+  # Top 250 Quant, 3-in-1 Multi Asset, Equity & Gold Asset Allocation.
+  - broker: Groww
+    type: etf
+    holdings:
+      - symbol: GOLDCASE.NS
+        name: Zerodha Gold ETF (GOLDCASE)
+        quantity: 1020
+        invested: 23052
+      - symbol: MID150CASE.NS
+        name: Zerodha Nifty Midcap 150 ETF
+        quantity: 1784
+        invested: 19481
+      - symbol: TOP100CASE.NS
+        name: Zerodha Nifty 100 ETF
+        quantity: 1953
+        invested: 20760
+      - symbol: LTGILTCASE.NS
+        name: Zerodha Long Term Gilt (LTGILTCASE)
+        quantity: 337
+        invested: 10022
+      - symbol: NIFTYBEES.NS
+        name: Nippon Nifty 50 ETF (NIFTYBEES)
+        quantity: 119
+        invested: 33410
+      - symbol: MID150BEES.NS
+        name: Nippon Nifty Midcap 150 ETF (smallcase)
+        quantity: 29
+        invested: 6560
+      - symbol: JUNIORBEES.NS
+        name: Nippon Nifty Next 50 ETF (JUNIORBEES)
+        quantity: 26
+        invested: 19215
+
+  # 5paisa lumpsum basket (ETFs + stock). Prices fetched from Yahoo (.NS).
+  # Update quantity/invested if you buy or sell more.
+  - broker: 5paisa
+    type: etf
+    holdings:
+      - symbol: HDFCGOLD.NS
+        name: HDFC Gold ETF
+        quantity: 484
+        invested: 50384      # 484 x 104.10 avg
+      - symbol: NEXT50IETF.NS
+        name: Nifty Next 50 ETF
+        quantity: 2750
+        invested: 201575     # 2750 x 73.30 avg
+      - symbol: MON100.NS
+        name: Motilal Oswal Nasdaq 100 ETF
+        quantity: 432
+        invested: 100803     # 432 x 233.34 avg
+      - symbol: MID150BEES.NS
+        name: Nifty Midcap 150 ETF
+        quantity: 656
+        invested: 151431     # 656 x 230.84 avg
+      - symbol: LGEINDIA.NS
+        name: LG Electronics India
+        quantity: 4
+        invested: 4560       # 4 x 1140 avg
+

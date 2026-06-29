@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Investment Dashboard</title>
+<style>
+  :root { --bg:#0e1116; --card:#171c24; --line:#222a35; --txt:#e6edf3; --mut:#8b97a7;
+          --buy:#1f9d55; --sell:#e5484d; --hold:#9aa4b2; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+         background:var(--bg); color:var(--txt); }
+  .wrap { max-width:1000px; margin:0 auto; padding:24px 16px 60px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--mut); font-size:13px; margin-bottom:20px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+           gap:12px; margin-bottom:24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px;
+          padding:14px; }
+  .card .k { color:var(--mut); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  .card .v { font-size:24px; font-weight:600; margin-top:6px; }
+  table { width:100%; border-collapse:collapse; background:var(--card);
+          border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line);
+          font-size:14px; vertical-align:top; }
+  th { color:var(--mut); font-weight:500; font-size:12px; text-transform:uppercase; }
+  tr:last-child td { border-bottom:none; }
+  .pill { display:inline-block; padding:2px 10px; border-radius:20px; font-size:12px;
+          font-weight:600; }
+  .BUY { background:rgba(31,157,85,.18); color:var(--buy); }
+  .SELL { background:rgba(229,72,77,.18); color:var(--sell); }
+  .HOLD { background:rgba(154,164,178,.15); color:var(--hold); }
+  .pos { color:var(--buy); } .neg { color:var(--sell); }
+  .reasons { color:var(--mut); font-size:12px; margin-top:4px; }
+  .foot { color:var(--mut); font-size:12px; margin-top:20px; line-height:1.5; }
+  .broker { color:var(--mut); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">Investment Dashboard</h1>
+  <div class="sub" id="updated">Loading…</div>
+  <div class="cards" id="cards"></div>
+  <table>
+    <thead><tr>
+      <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
+    </tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div class="foot" id="foot"></div>
+</div>
+<script>
+function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
+function cls(v){ return (v>0)?'pos':(v<0)?'neg':''; }
+const d = {
+  "title": "My Investment Dashboard",
+  "generated_at": "2026-06-29T18:26:28.050931+00:00",
+  "hide_amounts": false,
+  "totals": {
+    "pnl_pct": 6.88,
+    "invested": 762790.0,
+    "current_value": 815298.08,
+    "pnl": 52508.08
+  },
+  "signal_counts": {
+    "BUY": 6,
+    "HOLD": 7,
+    "SELL": 0
+  },
+  "positions": [
+    {
+      "name": "Zerodha Gold ETF (GOLDCASE)",
+      "broker": "Groww",
+      "type": "etf",
+      "allocation_pct": 2.77,
+      "pnl_pct": -2.04,
+      "signal": "HOLD",
+      "reasons": [
+        "RSI 32.22 neutral",
+        "Price below SMA50 (23.75) \u2014 downtrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.292)"
+      ],
+      "rsi": 32.22,
+      "invested": 23052.0,
+      "current_value": 22582.8,
+      "pnl": -469.2
+    },
+    {
+      "name": "Zerodha Nifty Midcap 150 ETF",
+      "broker": "Groww",
+      "type": "etf",
+      "allocation_pct": 2.49,
+      "pnl_pct": 4.12,
+      "signal": "BUY",
+      "reasons": [
+        "RSI 60.75 neutral",
+        "Price above SMA50 (11.23) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.25)"
+      ],
+      "rsi": 60.75,
+      "invested": 19481.0,
+      "current_value": 20284.08,
+      "pnl": 803.08
+    },
+    {
+      "name": "Zerodha Nifty 100 ETF",
+      "broker": "Groww",
+      "type": "etf",
+      "allocation_pct": 2.51,
+      "pnl_pct": -1.5,
+      "signal": "HOLD",
+      "reasons": [
+        "RSI 67.82 neutral",
+        "Price above SMA50 (10.37) \u2014 uptrend",
+        "SMA50 < SMA200 (death cross) \u2014 bearish",
+        "Positive news sentiment (0.25)"
+      ],
+      "rsi": 67.82,
+      "invested": 20760.0,
+      "current_value": 20447.91,
+      "pnl": -312.09
+    },
+    {
+      "name": "Zerodha Long Term Gilt (LTGILTCASE)",
+      "broker": "Groww",
+      "type": "etf",
+      "allocation_pct": 1.26,
+      "pnl_pct": 2.26,
+      "signal": "HOLD",
+      "reasons": [
+        "RSI 85.29 overbought (>70) \u2014 potential sell",
+        "Price above SMA50 (29.84) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Neutral news sentiment (0.0)"
+      ],
+      "rsi": 85.29,
+      "invested": 10022.0,
+      "current_value": 10248.17,
+      "pnl": 226.17
+    },
+    {
+      "name": "Nippon Nifty 50 ETF (NIFTYBEES)",
+      "broker": "Groww",
+      "type": "etf",
+      "allocation_pct": 3.97,
+      "pnl_pct": -3.06,
+      "signal": "HOLD",
+      "reasons": [
+        "RSI 69.64 neutral",
+        "Price above SMA50 (270.1) \u2014 uptrend",
+        "SMA50 < SMA200 (death cross) \u2014 bearish",
+        "Neutral news sentiment (0.125)"
+      ],
+      "rsi": 69.64,
+      "invested": 33410.0,
+      "current_value": 32387.04,
+      "pnl": -1022.96
+    },
+    {
+      "name": "Nippon Nifty Midcap 150 ETF (smallcase)",
+      "broker": "Groww",
+      "type": "etf",
+      "allocation_pct": 0.83,
+      "pnl_pct": 3.56,
+      "signal": "BUY",
+      "reasons": [
+        "RSI 64.11 neutral",
+        "Price above SMA50 (231.12) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.375)"
+      ],
+      "rsi": 64.11,
+      "invested": 6560.0,
+      "current_value": 6793.25,
+      "pnl": 233.25
+    },
+    {
+      "name": "Nippon Nifty Next 50 ETF (JUNIORBEES)",
+      "broker": "Groww",
+      "type": "etf",
+      "allocation_pct": 2.46,
+      "pnl_pct": 4.59,
+      "signal": "BUY",
+      "reasons": [
+        "RSI 60.14 neutral",
+        "Price above SMA50 (761.93) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.25)"
+      ],
+      "rsi": 60.14,
+      "invested": 19215.0,
+      "current_value": 20096.96,
+      "pnl": 881.96
+    },
+    {
+      "name": "HDFC Gold ETF",
+      "broker": "5paisa",
+      "type": "etf",
+      "allocation_pct": 7.14,
+      "pnl_pct": 15.6,
+      "signal": "HOLD",
+      "reasons": [
+        "RSI 34.58 neutral",
+        "Price below SMA50 (129.09) \u2014 downtrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.375)"
+      ],
+      "rsi": 34.58,
+      "invested": 50384.0,
+      "current_value": 58244.56,
+      "pnl": 7860.56
+    },
+    {
+      "name": "Nifty Next 50 ETF",
+      "broker": "5paisa",
+      "type": "etf",
+      "allocation_pct": 25.45,
+      "pnl_pct": 2.93,
+      "signal": "BUY",
+      "reasons": [
+        "RSI 63.88 neutral",
+        "Price above SMA50 (74.34) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.5)"
+      ],
+      "rsi": 63.88,
+      "invested": 201575.0,
+      "current_value": 207487.5,
+      "pnl": 5912.5
+    },
+    {
+      "name": "Motilal Oswal Nasdaq 100 ETF",
+      "broker": "5paisa",
+      "type": "etf",
+      "allocation_pct": 17.18,
+      "pnl_pct": 38.95,
+      "signal": "BUY",
+      "reasons": [
+        "RSI 52.07 neutral",
+        "Price above SMA50 (321.4) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.25)"
+      ],
+      "rsi": 52.07,
+      "invested": 100803.0,
+      "current_value": 140063.04,
+      "pnl": 39260.04
+    },
+    {
+      "name": "Nifty Midcap 150 ETF",
+      "broker": "5paisa",
+      "type": "etf",
+      "allocation_pct": 18.85,
+      "pnl_pct": 1.48,
+      "signal": "BUY",
+      "reasons": [
+        "RSI 64.11 neutral",
+        "Price above SMA50 (231.12) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.375)"
+      ],
+      "rsi": 64.11,
+      "invested": 151431.0,
+      "current_value": 153668.0,
+      "pnl": 2237.0
+    },
+    {
+      "name": "LG Electronics India",
+      "broker": "5paisa",
+      "type": "etf",
+      "allocation_pct": 0.77,
+      "pnl_pct": 37.45,
+      "signal": "HOLD",
+      "reasons": [
+        "RSI 58.39 neutral",
+        "Price above SMA50 (1553.27) \u2014 uptrend",
+        "Neutral news sentiment (0.125)"
+      ],
+      "rsi": 58.39,
+      "invested": 4560.0,
+      "current_value": 6267.6,
+      "pnl": 1707.6
+    },
+    {
+      "name": "Motilal Oswal Midcap Fund - Direct Plan - Growth",
+      "broker": "5paisa",
+      "type": "mutual_fund",
+      "allocation_pct": 14.32,
+      "pnl_pct": -3.96,
+      "signal": "HOLD",
+      "reasons": [
+        "Mutual fund SIP \u2014 continue investing; not a trade signal"
+      ],
+      "rsi": null,
+      "invested": 121537.0,
+      "current_value": 116727.17,
+      "pnl": -4809.83
+    }
+  ],
+  "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting."
+};
+(function(){
+  if(!d){ document.getElementById('updated').textContent='No data'; return; }
+  document.getElementById('title').textContent = d.title;
+  document.title = d.title;
+  document.getElementById('updated').textContent =
+    'Updated ' + new Date(d.generated_at).toLocaleString();
+  const c = d.signal_counts || {};
+  const cards = [
+    ['Buy', c.BUY||0, 'BUY'], ['Hold', c.HOLD||0, 'HOLD'], ['Sell', c.SELL||0, 'SELL'],
+    ['Total return', pct(d.totals && d.totals.pnl_pct), '']
+  ];
+  if(!d.hide_amounts && d.totals){
+    cards.push(['Current value', '₹'+(d.totals.current_value||0).toLocaleString('en-IN'), '']);
+  }
+  document.getElementById('cards').innerHTML = cards.map(x=>
+    `<div class=card><div class=k>${x[0]}</div><div class="v ${x[2]}">${x[1]}</div></div>`
+  ).join('');
+  document.getElementById('rows').innerHTML = d.positions.map(p=>{
+    const reasons = (p.reasons||[]).slice(0,3).join(' · ');
+    return `<tr>
+      <td><div>${p.name}</div><div class=broker>${p.broker}</div>
+          <div class=reasons>${reasons}</div></td>
+      <td><span class="pill ${p.signal}">${p.signal}</span></td>
+      <td>${p.rsi===null||p.rsi===undefined?'—':p.rsi}</td>
+      <td>${pct(p.allocation_pct)}</td>
+      <td class="${cls(p.pnl_pct)}">${pct(p.pnl_pct)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('foot').textContent = d.disclaimer;
+})();
+</script>
+</body>
+</html>
