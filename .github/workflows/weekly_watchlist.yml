@@ -41,6 +41,11 @@ jobs:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
         run: python src/watchlist.py
 
+      - name: Run backtest
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+        run: python src/backtest.py
+
       - name: Commit & push data
         working-directory: data-branch
         run: |

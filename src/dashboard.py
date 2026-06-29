@@ -545,14 +545,43 @@ async function initPaper(){
   const body = document.getElementById('paper-body');
   const upd = document.getElementById('paper-updated');
   if(!base){ body.innerHTML = '<div class=empty>No data source configured.</div>'; return; }
-  let p = null;
-  try{
-    const r = await fetch(base + '/paper/latest.json?t=' + Date.now(), {cache:'no-store'});
-    if(r.ok) p = await r.json();
-  }catch(e){ p = null; }
+  const sign = v => (v>0?'+':'');
+  async function load(name){
+    try{
+      const r = await fetch(base + '/' + name + '/latest.json?t=' + Date.now(), {cache:'no-store'});
+      if(r.ok) return await r.json();
+    }catch(e){}
+    return null;
+  }
+  const [p, bt] = await Promise.all([load('paper'), load('backtest')]);
+
+  // --- Backtest summary (historical proof) ---
+  function renderBacktest(){
+    if(!bt){ return ''; }
+    const a = bt.alpha_pct, acl = (a>0)?'up':((a<0)?'down':'');
+    const tcl = (bt.total_return_pct>0)?'up':((bt.total_return_pct<0)?'down':'');
+    const pr = bt.params||{};
+    return `<h2 class=sec>Backtest <span class=secsub>${bt.start_date} → ${bt.end_date} · ${bt.trading_days} trading days · ${bt.lookback} lookback</span></h2>
+      <div class=cards>
+        <div class=card><div class=k>Strategy return</div>
+          <div class=\"v ${tcl}\">${sign(bt.total_return_pct)}${(bt.total_return_pct||0).toFixed(2)}%</div>
+          <div class=chg>CAGR ${sign(bt.cagr_pct)}${(bt.cagr_pct||0).toFixed(2)}%</div></div>
+        <div class=\"card\"><div class=k>vs ${bt.benchmark_name||'NIFTY 50'} (alpha)</div>
+          <div class=\"v ${acl}\">${a==null?'—':sign(a)+a.toFixed(2)+'%'}</div>
+          <div class=chg>index ${bt.benchmark_return_pct==null?'—':sign(bt.benchmark_return_pct)+bt.benchmark_return_pct.toFixed(2)+'%'}</div></div>
+        <div class=card><div class=k>Max drawdown</div>
+          <div class=\"v down\">${(bt.max_drawdown_pct||0).toFixed(2)}%</div>
+          <div class=chg>worst peak-to-trough</div></div>
+        <div class=card><div class=k>Sharpe</div><div class=v>${bt.sharpe}</div>
+          <div class=chg>win days ${bt.win_rate_pct}%</div></div>
+      </div>
+      <div class=foot>${bt.note||''} Params: top ${pr.top_n}, ${pr.stop_loss_pct}% stop, ${pr.max_position_pct}% max/stock, ${pr.max_sector_pct}% max/sector, ${pr.cost_per_side_pct}% cost/leg.</div>`;
+  }
 
   if(!p){
-    body.innerHTML = '<div class=empty>The bot has not placed its first trade yet. '
+    upd.textContent = bt ? ('· backtest ' + bt.start_date + '–' + bt.end_date) : '';
+    body.innerHTML = renderBacktest()
+      + '<div class=empty>Live paper trading has not placed its first trade yet. '
       + 'It runs after market close (16:30 IST) each trading day, simulating a virtual '
       + '₹5,00,000 across the day\\'s top BUY-ranked stocks.</div>';
     return;
@@ -564,7 +593,6 @@ async function initPaper(){
   const dpos = p.day_pnl>0, dneg = p.day_pnl<0;
   const dcl = dpos?'up':(dneg?'down':'');
   const tcl = p.total_pnl>0?'up':(p.total_pnl<0?'down':'');
-  const sign = v => (v>0?'+':'');
   const acl = (p.alpha_pct||0)>0?'up':((p.alpha_pct||0)<0?'down':'');
   const bname = p.benchmark_name||'NIFTY 50';
 
@@ -583,6 +611,16 @@ async function initPaper(){
     <div class=card><div class=k>Holdings</div><div class=v>${p.n_positions||0}</div>
       <div class=chg>cash ${inr(p.cash)}</div></div>
   </div>`;
+
+  const rs = p.risk_settings;
+  const riskBar = rs
+    ? `<div class=foot>🛡️ Risk controls: <b>${rs.stop_loss_pct}%</b> stop-loss · <b>${rs.max_position_pct}%</b> max per stock · <b>${rs.max_sector_pct}%</b> max per sector · top <b>${rs.top_n}</b> equal-weight</div>`
+    : '';
+
+  const re = (p.risk_events||[]).filter(e=>e.type==='stop_loss');
+  const riskEvents = re.length
+    ? `<h2 class=sec>Risk actions today</h2><div class=foot>${re.map(e=>`🛑 Stopped out <b>${e.name||e.symbol}</b> at ${e.loss_pct}%`).join(' · ')}</div>`
+    : '';
 
   const pos = (p.positions||[]).map(x=>`<tr>
     <td><div>${x.name||x.symbol}</div><div class=broker>${x.symbol}</div></td>
@@ -603,7 +641,7 @@ async function initPaper(){
     ? `<h2 class=sec>Today's trades</h2>
        <table><thead><tr><th>Action</th><th>Stock</th><th>Qty</th><th>Price</th></tr></thead>
        <tbody>${tr.map(t=>`<tr>
-         <td class=\"${t.action==='BUY'?'up':'down'}\">${t.action}</td>
+         <td class=\"${t.action==='BUY'?'up':'down'}\">${t.action}${t.reason==='stop_loss'?' 🛑':''}</td>
          <td>${t.name||t.symbol}</td><td>${t.qty}</td>
          <td>₹${(t.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td></tr>`).join('')}</tbody></table>`
     : '';
@@ -618,10 +656,10 @@ async function initPaper(){
          <td class=\"${h.total_pnl>0?'up':(h.total_pnl<0?'down':'')}\">${sign(h.total_pnl_pct)}${(h.total_pnl_pct||0).toFixed(2)}%</td></tr>`).join('')}</tbody></table>`
     : '';
 
-  const note = p.strategy
-    ? `<div class=foot>${p.strategy}</div>` : '';
+  const note = p.strategy ? `<div class=foot>${p.strategy}</div>` : '';
 
-  body.innerHTML = cards + trTable + posTable + histTable + note;
+  body.innerHTML = cards + riskBar + riskEvents + trTable + posTable
+    + histTable + renderBacktest() + note;
 }
 </script>
 </body>

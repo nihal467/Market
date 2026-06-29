@@ -38,6 +38,11 @@ def _indicators_from_close(close: pd.Series) -> dict | None:
 
     high52 = round(float(close.max()), 2)
     low52 = round(float(close.min()), 2)
+    ret_3m = None
+    if len(close) > 63:
+        past = float(close.iloc[-63])
+        if past:
+            ret_3m = round((last / past - 1) * 100, 2)
     return {
         "price": round(last, 2),
         "sma50": sma(50),
@@ -47,6 +52,7 @@ def _indicators_from_close(close: pd.Series) -> dict | None:
         "week52_low": low52,
         "pct_from_high": round((last - high52) / high52 * 100, 2),
         "pct_from_low": round((last - low52) / low52 * 100, 2),
+        "ret_3m": ret_3m,
     }
 
 
@@ -109,6 +115,7 @@ def run() -> dict:
             "pct_from_high": ind["pct_from_high"] if ind else None,
             "reasons": rec["reasons"],
             "news_score": sent.get("score"),
+            "components": rec.get("components", {}),
         }
         results.append(row)
 
