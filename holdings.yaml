@@ -9,9 +9,14 @@
 # Repo is PUBLIC (for free GitHub Pages hosting), so amounts are HIDDEN:
 # only % allocation, return %, and signals are published — no rupee values.
 # Set hide_amounts: false only if you make the repo private again.
+#
+# Amounts are AES-encrypted and unlocked in-browser with a password.
+# The password is fetched from 1Password (password_op_ref) for local runs,
+# or from the DASHBOARD_PASSWORD env/secret in CI.
 dashboard:
   title: My Investment Dashboard
   hide_amounts: true
+  password_op_ref: "op://Personal/Market Dashboard/password"
 
 stocks:
   # Groww stock SIP (~₹18,150/mo). Add one entry per stock you hold.

@@ -56,14 +56,21 @@ the `dashboard` artifact from the workflow run.
 > amounts are **hidden** — only %, signals, and names are shown. Amounts are
 > **AES-256 encrypted** inside the page and unlocked in-browser with a password.
 >
-> **Password:** stored as the `DASHBOARD_PASSWORD` GitHub Secret (used by the
-> Action) and never committed. For local runs, set it yourself:
+> **Password via 1Password:** the source of truth is a 1Password item
+> (`op://Personal/Market Dashboard/password`, set in `holdings.yaml` as
+> `password_op_ref`).
+> - **Local runs** fetch it automatically via the 1Password CLI — just be signed
+>   in (`op signin`), then `python src/dashboard.py`. No env var needed.
+> - **CI** uses the `DASHBOARD_PASSWORD` GitHub Secret, which mirrors the same
+>   1Password value. (A 1Password *service account* would let CI read the vault
+>   directly, but this org-managed account blocks creating one.)
+>
+> To rotate the password, update it in 1Password and mirror it to CI:
 > ```bash
-> DASHBOARD_PASSWORD="your-pass" python src/dashboard.py
+> NEW=$(op read "op://Personal/Market Dashboard/password")
+> printf '%s' "$NEW" | gh secret set DASHBOARD_PASSWORD --repo nihal467/Market
 > ```
-> The page shows a "Show amounts" box; enter the password to reveal values.
 > Wrong passwords cannot decrypt the data (AES-GCM + PBKDF2-SHA256, 200k iters).
-> To change it: `gh secret set DASHBOARD_PASSWORD --repo OWNER/REPO`.
 
 ## How signals work (Phase 2)
 For each equity/ETF holding the tool computes:

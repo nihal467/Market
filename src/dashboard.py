@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
+import subprocess
 from datetime import datetime, timezone
 
 import yaml
@@ -32,6 +34,36 @@ def _settings() -> dict:
     with open(os.path.join(ROOT, "holdings.yaml"), "r", encoding="utf-8") as fh:
         cfg = yaml.safe_load(fh) or {}
     return cfg.get("dashboard") or {}
+
+
+def resolve_password(settings: dict) -> str:
+    """Resolve the dashboard password.
+
+    Order of precedence:
+      1. DASHBOARD_PASSWORD env var (set directly, or by the 1Password
+         load-secrets GitHub Action in CI).
+      2. 1Password CLI: `op read <password_op_ref>` for local use, where
+         password_op_ref is set in holdings.yaml (e.g.
+         op://Personal/Market Dashboard/password).
+    Returns "" if no password is available (amounts simply stay hidden).
+    """
+    env = os.environ.get("DASHBOARD_PASSWORD", "").strip()
+    if env:
+        return env
+
+    ref = (settings.get("password_op_ref") or "").strip()
+    if ref and shutil.which("op"):
+        try:
+            out = subprocess.run(
+                ["op", "read", ref],
+                capture_output=True, text=True, timeout=30,
+            )
+            if out.returncode == 0:
+                return out.stdout.strip()
+            print(f"  ! 1Password read failed: {out.stderr.strip()}")
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! 1Password CLI error: {exc}")
+    return ""
 
 
 def build_data() -> dict:
@@ -117,9 +149,10 @@ def write() -> None:
     data = build_data()
 
     # Optionally embed AES-encrypted amounts, unlockable in-browser with a
-    # password. The password comes from the DASHBOARD_PASSWORD env var (a GitHub
-    # Secret in CI) and is NEVER written to the repo — only ciphertext is.
-    password = os.environ.get("DASHBOARD_PASSWORD", "").strip()
+    # password. The password is resolved from DASHBOARD_PASSWORD (env / CI
+    # secret) or from 1Password via password_op_ref. It is NEVER written to the
+    # repo — only ciphertext is.
+    password = resolve_password(_settings())
     if password and data.get("hide_amounts"):
         from secret_box import encrypt_payload
         portfolio = _load(os.path.join(DATA_DIR, "portfolio.json"))
