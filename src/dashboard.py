@@ -66,6 +66,37 @@ def resolve_password(settings: dict) -> str:
     return ""
 
 
+def _data_base_url() -> str:
+    """Raw base URL of the `data` branch, derived from the git remote.
+
+    GitHub Pages serves this dashboard from `main`, but the time-series market
+    data lives on the separate `data` branch. The page fetches that JSON at
+    runtime from raw.githubusercontent.com (which sends permissive CORS
+    headers). Overridable via the DATA_BASE_URL env var.
+    """
+    override = os.environ.get("DATA_BASE_URL", "").strip()
+    if override:
+        return override.rstrip("/")
+    slug = "nihal467/Market"
+    try:
+        out = subprocess.run(
+            ["git", "config", "--get", "remote.origin.url"],
+            capture_output=True, text=True, timeout=10, cwd=ROOT,
+        )
+        url = out.stdout.strip()
+        if url:
+            # Normalize git@github.com:owner/repo.git or https URLs to owner/repo.
+            url = url.replace("git@github.com:", "").replace(
+                "https://github.com/", "")
+            if url.endswith(".git"):
+                url = url[:-4]
+            if "/" in url:
+                slug = url
+    except Exception:  # noqa: BLE001
+        pass
+    return f"https://raw.githubusercontent.com/{slug}/data"
+
+
 def build_data() -> dict:
     settings = _settings()
     hide = bool(settings.get("hide_amounts", True))
@@ -119,6 +150,7 @@ def build_data() -> dict:
         "signal_counts": counts,
         "positions": positions,
         "disclaimer": signals.get("disclaimer", "Not investment advice."),
+        "data_base_url": _data_base_url(),
     }
 
 
@@ -229,6 +261,23 @@ INDEX_HTML = """<!DOCTYPE html>
   .lock .msg { color:var(--mut); font-size:12px; }
   .lock .msg.err { color:var(--sell); }
   .val { white-space:nowrap; }
+  .sec { font-size:18px; margin:34px 0 4px; }
+  .secsub { color:var(--mut); font-size:12px; font-weight:400; }
+  .tabs { display:flex; gap:8px; margin:12px 0 14px; flex-wrap:wrap; }
+  .tab { background:var(--card); border:1px solid var(--line); color:var(--mut);
+         padding:7px 14px; border-radius:8px; font-size:13px; cursor:pointer; }
+  .tab.active { background:#2f81f7; color:#fff; border-color:#2f81f7; }
+  .empty { color:var(--mut); font-size:13px; padding:14px 0; }
+  .up { color:var(--buy); } .down { color:var(--sell); }
+  .flag { display:inline-block; padding:1px 8px; border-radius:20px; font-size:11px;
+          margin-left:6px; background:rgba(154,164,178,.15); color:var(--mut); }
+  .flag.big_move_up { background:rgba(31,157,85,.18); color:var(--buy); }
+  .flag.big_move_down { background:rgba(229,72,77,.18); color:var(--sell); }
+  .flag.rsi_oversold { background:rgba(31,157,85,.14); color:var(--buy); }
+  .flag.rsi_overbought { background:rgba(229,72,77,.14); color:var(--sell); }
+  .rank { color:var(--mut); font-size:12px; }
+  .chg { color:var(--mut); font-size:12px; margin-top:2px; }
+  .mut { color:var(--mut); }
 </style>
 </head>
 <body>
@@ -251,6 +300,16 @@ INDEX_HTML = """<!DOCTYPE html>
     <tbody id=\"rows\"></tbody>
   </table>
   <div class=\"foot\" id=\"foot\"></div>
+
+  <div id=\"market\">
+    <h2 class=\"sec\">📈 Market Watch <span class=\"secsub\" id=\"mkt-updated\"></span></h2>
+    <div class=\"tabs\">
+      <button class=\"tab active\" data-tab=\"movers\">Movers (today)</button>
+      <button class=\"tab\" data-tab=\"changes\">Changes (24h)</button>
+      <button class=\"tab\" data-tab=\"watchlist\">Top 50 watchlist</button>
+    </div>
+    <div id=\"mkt-body\"><div class=\"empty\">Loading market data…</div></div>
+  </div>
 </div>
 <script>
 function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
@@ -355,7 +414,95 @@ async function decryptSecret(password, sec){
       if(e.key==='Enter') attempt();
     });
   }
+
+  // --- Market Watch: live data from the `data` branch (public, no amounts) ---
+  initMarket();
 })();
+
+async function initMarket(){
+  const base = (d && d.data_base_url) ? d.data_base_url : '';
+  if(!base){ return; }
+  const bust = '?t=' + Date.now();
+  async function load(name){
+    try{
+      const r = await fetch(base + '/' + name + '/latest.json' + bust, {cache:'no-store'});
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){ return null; }
+  }
+  const [intraday, daily, watch] = await Promise.all(
+    [load('intraday'), load('daily'), load('watchlist')]);
+
+  const body = document.getElementById('mkt-body');
+  const upd = document.getElementById('mkt-updated');
+  const stamp = (watch && watch.generated_ist) || (daily && daily.ist) || '';
+  if(stamp){ upd.textContent = '· watchlist built ' + new Date(stamp).toLocaleString(); }
+
+  function pctCell(v){
+    if(v===null||v===undefined) return '<span class=mut>—</span>';
+    const c = v>0?'up':(v<0?'down':'');
+    return '<span class=\"'+c+'\">'+(v>0?'+':'')+v.toFixed(2)+'%</span>';
+  }
+  function flags(arr){
+    return (arr||[]).map(f=>'<span class=\"flag '+f+'\">'+f.replace(/_/g,' ')+'</span>').join('');
+  }
+
+  function renderMovers(){
+    if(!intraday || !intraday.movers || !intraday.movers.length){
+      return '<div class=empty>No movers right now. Intraday updates every ~15 min during market hours (NSE 09:15–15:30 IST).</div>';
+    }
+    const rows = intraday.movers.map(m=>`<tr>
+      <td><div>${m.name||m.symbol}</div><div class=broker>${m.symbol}</div></td>
+      <td>${pctCell(m.chg_pct)}</td>
+      <td>${m.rsi==null?'—':m.rsi}</td>
+      <td>${flags(m.flags)}</td></tr>`).join('');
+    return `<div class=sub>${intraday.count||0} watched · ${intraday.movers.length} moving · ${new Date(intraday.ist).toLocaleTimeString()}</div>
+      <table><thead><tr><th>Stock</th><th>Change</th><th>RSI</th><th>Flags</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+
+  function renderChanges(){
+    if(!daily){ return '<div class=empty>No daily analysis yet.</div>'; }
+    const ch = daily.changes_since_prev || [];
+    const c = daily.signal_counts || {};
+    const head = `<div class=sub>EOD signals: <span class=up>${c.BUY||0} buy</span> · ${c.HOLD||0} hold · <span class=down>${c.SELL||0} sell</span> across ${daily.analyzed||0} stocks</div>`;
+    if(!ch.length){ return head + '<div class=empty>No changes vs the previous run.</div>'; }
+    const rows = ch.map(x=>{
+      let what = x.type.replace(/_/g,' ');
+      if(x.type==='signal_flip') what = `${x.from} → <b>${x.to}</b>`;
+      else if(x.rsi!=null) what += ` (RSI ${x.rsi})`;
+      return `<tr><td><div>${x.name||x.symbol}</div><div class=broker>${x.symbol}</div></td>
+        <td>${what}</td></tr>`;
+    }).join('');
+    return head + `<table><thead><tr><th>Stock</th><th>Change since last run</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+
+  function renderWatch(){
+    if(!watch || !watch.watchlist || !watch.watchlist.length){
+      return '<div class=empty>Watchlist not built yet. The weekly job runs Sunday 17:30 IST.</div>';
+    }
+    const rows = watch.watchlist.map(r=>`<tr>
+      <td><span class=rank>#${r.rank}</span></td>
+      <td><div>${r.name}</div><div class=broker>${r.symbol} · ${r.sector||''}</div></td>
+      <td>${r.rsi14==null?'—':r.rsi14}</td>
+      <td>${pctCell(r.ret_1m)}</td>
+      <td>${pctCell(r.ret_3m)}</td>
+      <td>${r.composite}</td></tr>`).join('');
+    return `<div class=sub>Top ${watch.top_n} of ${watch.evaluated} evaluated · ranked by technicals + news</div>
+      <table><thead><tr><th>#</th><th>Stock</th><th>RSI</th><th>1M</th><th>3M</th><th>Score</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+
+  const views = {movers:renderMovers, changes:renderChanges, watchlist:renderWatch};
+  function show(tab){
+    document.querySelectorAll('.tab').forEach(t=>
+      t.classList.toggle('active', t.getAttribute('data-tab')===tab));
+    body.innerHTML = (views[tab]||renderMovers)();
+  }
+  document.querySelectorAll('.tab').forEach(t=>
+    t.addEventListener('click', ()=>show(t.getAttribute('data-tab'))));
+  show('movers');
 </script>
 </body>
 </html>
