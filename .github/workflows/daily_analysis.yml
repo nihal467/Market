@@ -1,0 +1,61 @@
+name: Daily Analysis
+
+# Full end-of-day analysis over the Top-50 watchlist with day-over-day change
+# detection (signal flips, RSI regime changes). Runs after close and again
+# overnight so the morning view reflects the latest 24h.
+#   11:00 UTC = 16:30 IST (post-close)
+#   19:30 UTC = 01:00 IST (overnight refresh)
+on:
+  schedule:
+    - cron: "0 11 * * 1-5"
+    - cron: "30 19 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market-data
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (main)
+        uses: actions/checkout@v4
+
+      - name: Checkout data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: data-branch
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Daily analysis
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+        run: python src/daily_analysis.py
+
+      - name: Commit & push data
+        working-directory: data-branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No data changes."; exit 0
+          fi
+          git commit -m "data: daily analysis $(date -u +%Y-%m-%dT%H:%MZ)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin data && git push origin HEAD:data && exit 0
+            echo "push retry $i"; sleep $((RANDOM % 8 + 2))
+          done
+          echo "push failed after retries"; exit 1
