@@ -44,6 +44,11 @@
   .lock .msg { color:var(--mut); font-size:12px; }
   .lock .msg.err { color:var(--sell); }
   .val { white-space:nowrap; }
+  .maintabs { display:flex; gap:8px; margin:20px 0; border-bottom:1px solid var(--line); }
+  .maintab { background:none; border:0; border-bottom:2px solid transparent; color:var(--mut);
+             padding:10px 6px; margin-bottom:-1px; font-size:15px; font-weight:600;
+             cursor:pointer; }
+  .maintab.active { color:var(--txt); border-bottom-color:#2f81f7; }
   .sec { font-size:18px; margin:34px 0 4px; }
   .secsub { color:var(--mut); font-size:12px; font-weight:400; }
   .tabs { display:flex; gap:8px; margin:12px 0 14px; flex-wrap:wrap; }
@@ -67,32 +72,40 @@
 <div class="wrap">
   <h1 id="title">Investment Dashboard</h1>
   <div class="sub" id="updated">Loading…</div>
-  <div class="lock" id="lock" style="display:none">
-    <span>🔒 Amounts hidden.</span>
-    <input id="pw" type="password" placeholder="Enter password" autocomplete="off" />
-    <button id="unlock">Show amounts</button>
-    <span class="msg" id="lockmsg"></span>
-  </div>
-  <div class="cards" id="cards"></div>
-  <table>
-    <thead><tr>
-      <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
-      <th class="amtcol" style="display:none">Invested</th>
-      <th class="amtcol" style="display:none">Value</th>
-    </tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
-  <div class="foot" id="foot"></div>
 
-  <div id="market">
-    <h2 class="sec">📈 Market Watch <span class="secsub" id="mkt-updated"></span></h2>
+  <div class="maintabs">
+    <button class="maintab active" data-panel="investment">💼 My Investment</button>
+    <button class="maintab" data-panel="market">📈 Market Watch</button>
+  </div>
+
+  <section id="panel-investment" class="panel">
+    <div class="lock" id="lock" style="display:none">
+      <span>🔒 Amounts hidden.</span>
+      <input id="pw" type="password" placeholder="Enter password" autocomplete="off" />
+      <button id="unlock">Show amounts</button>
+      <span class="msg" id="lockmsg"></span>
+    </div>
+    <div class="cards" id="cards"></div>
+    <table>
+      <thead><tr>
+        <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
+        <th class="amtcol" style="display:none">Invested</th>
+        <th class="amtcol" style="display:none">Value</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="foot" id="foot"></div>
+  </section>
+
+  <section id="panel-market" class="panel" style="display:none">
+    <div class="sub" id="mkt-updated"></div>
     <div class="tabs">
       <button class="tab active" data-tab="movers">Movers (today)</button>
       <button class="tab" data-tab="changes">Changes (24h)</button>
       <button class="tab" data-tab="watchlist">Top 50 watchlist</button>
     </div>
     <div id="mkt-body"><div class="empty">Loading market data…</div></div>
-  </div>
+  </section>
 </div>
 <script>
 function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
@@ -101,10 +114,10 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T19:37:15.364610+00:00",
+  "generated_at": "2026-06-29T19:44:00.407311+00:00",
   "hide_amounts": true,
   "totals": {
-    "pnl_pct": 7.0
+    "pnl_pct": 6.88
   },
   "signal_counts": {
     "BUY": 2,
@@ -117,8 +130,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.73,
-      "pnl_pct": -3.45,
+      "allocation_pct": 2.77,
+      "pnl_pct": -2.04,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -131,7 +144,7 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.49,
-      "pnl_pct": 4.4,
+      "pnl_pct": 4.12,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -143,8 +156,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.52,
-      "pnl_pct": -1.03,
+      "allocation_pct": 2.51,
+      "pnl_pct": -1.5,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -169,8 +182,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 3.99,
-      "pnl_pct": -2.61,
+      "allocation_pct": 3.97,
+      "pnl_pct": -3.06,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -195,8 +208,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.48,
-      "pnl_pct": 5.5,
+      "allocation_pct": 2.46,
+      "pnl_pct": 4.59,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -224,7 +237,7 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 25.42,
+      "allocation_pct": 25.45,
       "pnl_pct": 2.93,
       "signal": "BUY",
       "reasons": [
@@ -241,8 +254,8 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 17.25,
-      "pnl_pct": 39.63,
+      "allocation_pct": 17.18,
+      "pnl_pct": 38.95,
       "signal": "BUY",
       "reasons": [
         "RSI 45.87 neutral",
@@ -257,7 +270,7 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 18.83,
+      "allocation_pct": 18.85,
       "pnl_pct": 1.48,
       "signal": "HOLD",
       "reasons": [
@@ -275,7 +288,7 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 0.77,
-      "pnl_pct": 37.83,
+      "pnl_pct": 37.45,
       "signal": "HOLD",
       "reasons": [
         "RSI 62.13 neutral",
@@ -289,7 +302,7 @@ const d = {
       "broker": "5paisa",
       "type": "mutual_fund",
       "tradable": false,
-      "allocation_pct": 14.3,
+      "allocation_pct": 14.32,
       "pnl_pct": -3.96,
       "signal": "SIP",
       "reasons": [
@@ -301,9 +314,9 @@ const d = {
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "BcbYbaWzXIachETmgzH+iA==",
-    "iv": "G0b7FiHYKqj6f8ta",
-    "ct": "OltyOIP4wchjdgh+h84D8L0ecSEE71FVjiM3zuWfAqY3eW//uOeOBXj520KoK1CiwFnZ5G4Qxa1F7f6MBcr2M0WsCOzoXA4VBVOpBQBZE5eYFEOFg55xVuK5YDfe0J5SnVlu4MWmEyngqUsLfYCz1Ww6opA12PUN+Vs6UT8AjHsPrVz91g2xgo1GltqJikcDwYp0nI7pyd7b1U5jrpLHXB1MQuKJQJGDIJ6unF6qBm0OJrotCz7ztf0Fxi7K56kqDmRgqgd/CahbujO9vOcMRxDLOTzs36H07RARxI3kNy2gE57Z6p1HfrPUSQRMOwe4af0xe3fkvHCycnUZBIH5nGdPUPnpHQEvZXDjrGYvzOQkXfr6O1vM5fH+1vb3dsRfOZ9mgmpJKAZgHJaewFz3284PWNKhLW81Ewdk6SuJBdOEco0q5u3YWYEOW9K6wXOID9NtH1uEJQA//B0nYTZ6WfjejshT1Tc9PoDdVGI//lqDj9bzjy/F+YmN8bXsw0/oQXFFhWjh3+Q2AucXbZ5DouvQDsfvaGVi6i+8rL3yZ+9RYszFtK2nqO31LYtKjyLnlurUn0Fs9Ovt6HW4iWmMB0kv5ajMFnw9GpYowOLBUJiy9NZ4/bqINFe5PADYlca6g2r1FbIvIMjzBPUcAeVfF/YUg6GOCCr72Ehcr3MQ3psTAeyO0IPwnx3YzCIOlcjy1YPk5FGWY+Lff25qce7e51XZXYB5fV3lFGiCYBQc8Tq4oGS+gr2h8b/JdHrSJw9xNqzKXegIVTWjFEdcnjNWXdBbmfOJZDLvH2oZ1dojOiBFkWARKk60WYkAS7gJO96KVIu51rwRiv4Kyjwm091TLbhQ8icnGu3Uv4vMkqCwRwTvEWrnieqvQf5oCaDuMcdpeyoGJOdLye8ts8Dq4hzo3zX39rXhCYAmV7L3XzIr+yaCvFLapXd8baGIbKO5AhrRZZds6pHVomEgqHNeHoIBNd+SOCwjAAV3Ca3QSByLnzKwW7QEDMR50m49wWp2bbP23vvZv4686FkUuGDgQA0aXIp2SiGGnshMMDTAeQej8WqbvF8OT4Z+oWY1bHOmxyxJ3BYUktWTrhNIdPvxv55e9LtxEO/UtgHfZb54vRjpJMsu7LgyBLIYfgzvrAkON8EW46EKgcMHnYfROi8P5kws23cib7KqFkMBhypPSOsqC70FosAGDqHp3Bl8W9fKaP7ZpyZqVlTbjhn+iBB0GsClQA==",
+    "salt": "uuE9UIMpePitCYMvASrebQ==",
+    "iv": "w70ovJ8Q3OC3vj+5",
+    "ct": "YDwV77LSmvQq07gk7EXeAYxtEDuOrhCiDUaRCeg0uINDSu0XZxii9kH3eNuKr/EhzHkGVfKPTFDmkiHXvvIzkY9QRWxm+pjVHrHU9rUxLaoqcGV04C3foYc481PcnJz3DZR10XLSlF1zLnpS0RpxbdphPsBlJUY3LZxA8YkSKd+NS5OrcQclrA8hX+ATIe/ehSfKdg0EPHf21y94b0LQ6Q1+C9orCTHSyWrvJcOR/+4qef5iOvCCkQJ9alc2O0UDnKNZvwVfN/NQHgaCWc/bM49S7ekGJqRKO4H27+EXCUvnDAHYrjvn3le5MG56uzJhLQPWoCawY8i3ZXFlCTt3efd2MMpb4mIbFO9bGdJkBDd8AbqIpkbTe1e0H91RItZDyyiJGoYZAavLr5c7Vt1a0YzJA9Nr9nD4SnKR4e7pwbM20RiOD3BQEc5rV4VVrTYfuWCP+ibCPRfoR2AchJNBu1SJm7lrcuYLABcFnVgHRO5d+9HWhh0CYmC4MxGQaHwkox8r3K6kAqmkqUzhnkzc9leFaO1Iq2itEqTPZ14HAwMC4Rk/7hBOQvum8p5SyMhWj3aIcQGpPN8Qitmar8mIENsUMRBMp29mW4kbH+TztejYewUFSc2Nh5wajBxJVI37AZ6+aw+MA1i56J/dno75Hpoo/UfSJ8QCsdPx1f+V44sXrXzN59A9/Qgb7kY2g8ttshc30AJR2cAKxVROvQyNTekB6yWcW8byMN1LEM/ymN67M/MispUPsSVfnzyP4m4PsFAxfJcpRS9QzLB+EQEs7RA/itonIeqKxWj0Ufztsr8bwdh3j9cH9+eWEqH7FXJfngwsvv+TME9y305F0p79M79zLs8hxDK652SHBi1Mvnpn122p+YwV8tXY6h1UfxZmW/tSKNF705wMcor4Vx5cA0vrTlMdmA3DVWKD+86Zh+q28Ki6+iIhzj+bYa+T5TUbtIbv5hBDNbZ68SSjF//syUzDfFI+ul7maN8AC0kG2n+iSX/ft5/mC/X2xQoM2rLxe6IdwOd5nvneg57AqwXQWszUPmA68m5rIlGdxVPW9y2CIBlv0guM1TglUtasXLJ28c+8TQatLfLTj1plsa8rrUCBzESwfO0sl2eqcta9uNSAGT9QyVJEHN3hneGrOntDsaIAgO88NbAIL9xzqOhiaWZZOknv87otLkUFkbNA6389fTnypZImFPNSTIfjFvt6M+qqckyfrpCcmw6bBhwtKjAGd60=",
     "iter": 200000
   },
   "has_secret": true
@@ -328,6 +341,18 @@ async function decryptSecret(password, sec){
   document.title = d.title;
   document.getElementById('updated').textContent =
     'Updated ' + new Date(d.generated_at).toLocaleString();
+
+  // Top-level panel switching (My Investment / Market Watch).
+  document.querySelectorAll('.maintab').forEach(t=>
+    t.addEventListener('click', ()=>{
+      const panel = t.getAttribute('data-panel');
+      document.querySelectorAll('.maintab').forEach(x=>
+        x.classList.toggle('active', x===t));
+      document.getElementById('panel-investment').style.display =
+        panel==='investment' ? '' : 'none';
+      document.getElementById('panel-market').style.display =
+        panel==='market' ? '' : 'none';
+    }));
 
   function renderCards(extra){
     const c = d.signal_counts || {};

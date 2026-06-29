@@ -261,6 +261,11 @@ INDEX_HTML = """<!DOCTYPE html>
   .lock .msg { color:var(--mut); font-size:12px; }
   .lock .msg.err { color:var(--sell); }
   .val { white-space:nowrap; }
+  .maintabs { display:flex; gap:8px; margin:20px 0; border-bottom:1px solid var(--line); }
+  .maintab { background:none; border:0; border-bottom:2px solid transparent; color:var(--mut);
+             padding:10px 6px; margin-bottom:-1px; font-size:15px; font-weight:600;
+             cursor:pointer; }
+  .maintab.active { color:var(--txt); border-bottom-color:#2f81f7; }
   .sec { font-size:18px; margin:34px 0 4px; }
   .secsub { color:var(--mut); font-size:12px; font-weight:400; }
   .tabs { display:flex; gap:8px; margin:12px 0 14px; flex-wrap:wrap; }
@@ -284,32 +289,40 @@ INDEX_HTML = """<!DOCTYPE html>
 <div class=\"wrap\">
   <h1 id=\"title\">Investment Dashboard</h1>
   <div class=\"sub\" id=\"updated\">Loading…</div>
-  <div class=\"lock\" id=\"lock\" style=\"display:none\">
-    <span>🔒 Amounts hidden.</span>
-    <input id=\"pw\" type=\"password\" placeholder=\"Enter password\" autocomplete=\"off\" />
-    <button id=\"unlock\">Show amounts</button>
-    <span class=\"msg\" id=\"lockmsg\"></span>
-  </div>
-  <div class=\"cards\" id=\"cards\"></div>
-  <table>
-    <thead><tr>
-      <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
-      <th class=\"amtcol\" style=\"display:none\">Invested</th>
-      <th class=\"amtcol\" style=\"display:none\">Value</th>
-    </tr></thead>
-    <tbody id=\"rows\"></tbody>
-  </table>
-  <div class=\"foot\" id=\"foot\"></div>
 
-  <div id=\"market\">
-    <h2 class=\"sec\">📈 Market Watch <span class=\"secsub\" id=\"mkt-updated\"></span></h2>
+  <div class=\"maintabs\">
+    <button class=\"maintab active\" data-panel=\"investment\">💼 My Investment</button>
+    <button class=\"maintab\" data-panel=\"market\">📈 Market Watch</button>
+  </div>
+
+  <section id=\"panel-investment\" class=\"panel\">
+    <div class=\"lock\" id=\"lock\" style=\"display:none\">
+      <span>🔒 Amounts hidden.</span>
+      <input id=\"pw\" type=\"password\" placeholder=\"Enter password\" autocomplete=\"off\" />
+      <button id=\"unlock\">Show amounts</button>
+      <span class=\"msg\" id=\"lockmsg\"></span>
+    </div>
+    <div class=\"cards\" id=\"cards\"></div>
+    <table>
+      <thead><tr>
+        <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
+        <th class=\"amtcol\" style=\"display:none\">Invested</th>
+        <th class=\"amtcol\" style=\"display:none\">Value</th>
+      </tr></thead>
+      <tbody id=\"rows\"></tbody>
+    </table>
+    <div class=\"foot\" id=\"foot\"></div>
+  </section>
+
+  <section id=\"panel-market\" class=\"panel\" style=\"display:none\">
+    <div class=\"sub\" id=\"mkt-updated\"></div>
     <div class=\"tabs\">
       <button class=\"tab active\" data-tab=\"movers\">Movers (today)</button>
       <button class=\"tab\" data-tab=\"changes\">Changes (24h)</button>
       <button class=\"tab\" data-tab=\"watchlist\">Top 50 watchlist</button>
     </div>
     <div id=\"mkt-body\"><div class=\"empty\">Loading market data…</div></div>
-  </div>
+  </section>
 </div>
 <script>
 function pct(v){ return (v===null||v===undefined) ? '—' : v.toFixed(2)+'%'; }
@@ -337,6 +350,18 @@ async function decryptSecret(password, sec){
   document.title = d.title;
   document.getElementById('updated').textContent =
     'Updated ' + new Date(d.generated_at).toLocaleString();
+
+  // Top-level panel switching (My Investment / Market Watch).
+  document.querySelectorAll('.maintab').forEach(t=>
+    t.addEventListener('click', ()=>{
+      const panel = t.getAttribute('data-panel');
+      document.querySelectorAll('.maintab').forEach(x=>
+        x.classList.toggle('active', x===t));
+      document.getElementById('panel-investment').style.display =
+        panel==='investment' ? '' : 'none';
+      document.getElementById('panel-market').style.display =
+        panel==='market' ? '' : 'none';
+    }));
 
   function renderCards(extra){
     const c = d.signal_counts || {};
