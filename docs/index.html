@@ -30,6 +30,7 @@
   .BUY { background:rgba(31,157,85,.18); color:var(--buy); }
   .SELL { background:rgba(229,72,77,.18); color:var(--sell); }
   .HOLD { background:rgba(154,164,178,.15); color:var(--hold); }
+  .SIP { background:rgba(47,129,247,.15); color:#6cb0ff; }
   .pos { color:var(--buy); } .neg { color:var(--sell); }
   .reasons { color:var(--mut); font-size:12px; margin-top:4px; }
   .foot { color:var(--mut); font-size:12px; margin-top:20px; line-height:1.5; }
@@ -59,7 +60,8 @@
   <table>
     <thead><tr>
       <th>Holding</th><th>Signal</th><th>RSI</th><th>Alloc %</th><th>Return %</th>
-      <th id="valhdr" style="display:none">Value</th>
+      <th class="amtcol" style="display:none">Invested</th>
+      <th class="amtcol" style="display:none">Value</th>
     </tr></thead>
     <tbody id="rows"></tbody>
   </table>
@@ -72,14 +74,14 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T18:52:53.017870+00:00",
+  "generated_at": "2026-06-29T19:01:38.791545+00:00",
   "hide_amounts": true,
   "totals": {
     "pnl_pct": 6.88
   },
   "signal_counts": {
-    "BUY": 6,
-    "HOLD": 7,
+    "BUY": 2,
+    "HOLD": 3,
     "SELL": 0
   },
   "positions": [
@@ -87,61 +89,51 @@ const d = {
       "name": "Zerodha Gold ETF (GOLDCASE)",
       "broker": "Groww",
       "type": "etf",
+      "tradable": false,
       "allocation_pct": 2.77,
       "pnl_pct": -2.04,
-      "signal": "HOLD",
+      "signal": "SIP",
       "reasons": [
-        "RSI 32.22 neutral",
-        "Price below SMA50 (23.75) \u2014 downtrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Positive news sentiment (0.292)"
+        "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 32.22
+      "rsi": 30.19
     },
     {
       "name": "Zerodha Nifty Midcap 150 ETF",
       "broker": "Groww",
       "type": "etf",
+      "tradable": false,
       "allocation_pct": 2.49,
       "pnl_pct": 4.12,
-      "signal": "BUY",
+      "signal": "SIP",
       "reasons": [
-        "RSI 60.75 neutral",
-        "Price above SMA50 (11.23) \u2014 uptrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Near 52-week high \u2014 limited upside / book profit",
-        "Positive news sentiment (0.25)"
+        "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 60.75
+      "rsi": 66.67
     },
     {
       "name": "Zerodha Nifty 100 ETF",
       "broker": "Groww",
       "type": "etf",
+      "tradable": false,
       "allocation_pct": 2.51,
       "pnl_pct": -1.5,
-      "signal": "HOLD",
+      "signal": "SIP",
       "reasons": [
-        "RSI 67.82 neutral",
-        "Price above SMA50 (10.37) \u2014 uptrend",
-        "SMA50 < SMA200 (death cross) \u2014 bearish",
-        "Positive news sentiment (0.25)"
+        "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 67.82
+      "rsi": 73.86
     },
     {
       "name": "Zerodha Long Term Gilt (LTGILTCASE)",
       "broker": "Groww",
       "type": "etf",
+      "tradable": false,
       "allocation_pct": 1.26,
       "pnl_pct": 2.26,
-      "signal": "HOLD",
+      "signal": "SIP",
       "reasons": [
-        "RSI 85.29 overbought (>70) \u2014 potential sell",
-        "Price above SMA50 (29.84) \u2014 uptrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Near 52-week high \u2014 limited upside / book profit",
-        "Neutral news sentiment (0.0)"
+        "Long-term SIP \u2014 keep investing; not actively traded"
       ],
       "rsi": 85.29
     },
@@ -149,30 +141,25 @@ const d = {
       "name": "Nippon Nifty 50 ETF (NIFTYBEES)",
       "broker": "Groww",
       "type": "etf",
+      "tradable": false,
       "allocation_pct": 3.97,
       "pnl_pct": -3.06,
-      "signal": "HOLD",
+      "signal": "SIP",
       "reasons": [
-        "RSI 69.64 neutral",
-        "Price above SMA50 (270.1) \u2014 uptrend",
-        "SMA50 < SMA200 (death cross) \u2014 bearish",
-        "Neutral news sentiment (0.125)"
+        "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 69.64
+      "rsi": 75.72
     },
     {
       "name": "Nippon Nifty Midcap 150 ETF (smallcase)",
       "broker": "Groww",
       "type": "etf",
+      "tradable": false,
       "allocation_pct": 0.83,
       "pnl_pct": 3.56,
-      "signal": "BUY",
+      "signal": "SIP",
       "reasons": [
-        "RSI 64.11 neutral",
-        "Price above SMA50 (231.12) \u2014 uptrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Near 52-week high \u2014 limited upside / book profit",
-        "Positive news sentiment (0.375)"
+        "Long-term SIP \u2014 keep investing; not actively traded"
       ],
       "rsi": 64.11
     },
@@ -180,22 +167,20 @@ const d = {
       "name": "Nippon Nifty Next 50 ETF (JUNIORBEES)",
       "broker": "Groww",
       "type": "etf",
+      "tradable": false,
       "allocation_pct": 2.46,
       "pnl_pct": 4.59,
-      "signal": "BUY",
+      "signal": "SIP",
       "reasons": [
-        "RSI 60.14 neutral",
-        "Price above SMA50 (761.93) \u2014 uptrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Near 52-week high \u2014 limited upside / book profit",
-        "Positive news sentiment (0.25)"
+        "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 60.14
+      "rsi": 69.18
     },
     {
       "name": "HDFC Gold ETF",
       "broker": "5paisa",
       "type": "etf",
+      "tradable": true,
       "allocation_pct": 7.14,
       "pnl_pct": 15.6,
       "signal": "HOLD",
@@ -211,6 +196,7 @@ const d = {
       "name": "Nifty Next 50 ETF",
       "broker": "5paisa",
       "type": "etf",
+      "tradable": true,
       "allocation_pct": 25.45,
       "pnl_pct": 2.93,
       "signal": "BUY",
@@ -227,30 +213,32 @@ const d = {
       "name": "Motilal Oswal Nasdaq 100 ETF",
       "broker": "5paisa",
       "type": "etf",
+      "tradable": true,
       "allocation_pct": 17.18,
       "pnl_pct": 38.95,
       "signal": "BUY",
       "reasons": [
-        "RSI 52.07 neutral",
-        "Price above SMA50 (321.4) \u2014 uptrend",
+        "RSI 45.87 neutral",
+        "Price above SMA50 (320.62) \u2014 uptrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Positive news sentiment (0.25)"
       ],
-      "rsi": 52.07
+      "rsi": 45.87
     },
     {
       "name": "Nifty Midcap 150 ETF",
       "broker": "5paisa",
       "type": "etf",
+      "tradable": true,
       "allocation_pct": 18.85,
       "pnl_pct": 1.48,
-      "signal": "BUY",
+      "signal": "HOLD",
       "reasons": [
         "RSI 64.11 neutral",
         "Price above SMA50 (231.12) \u2014 uptrend",
         "SMA50 > SMA200 (golden cross) \u2014 bullish",
         "Near 52-week high \u2014 limited upside / book profit",
-        "Positive news sentiment (0.375)"
+        "Neutral news sentiment (0.125)"
       ],
       "rsi": 64.11
     },
@@ -258,23 +246,25 @@ const d = {
       "name": "LG Electronics India",
       "broker": "5paisa",
       "type": "etf",
+      "tradable": true,
       "allocation_pct": 0.77,
       "pnl_pct": 37.45,
       "signal": "HOLD",
       "reasons": [
-        "RSI 58.39 neutral",
-        "Price above SMA50 (1553.27) \u2014 uptrend",
+        "RSI 62.13 neutral",
+        "Price above SMA50 (1553.51) \u2014 uptrend",
         "Neutral news sentiment (0.125)"
       ],
-      "rsi": 58.39
+      "rsi": 62.13
     },
     {
       "name": "Motilal Oswal Midcap Fund - Direct Plan - Growth",
       "broker": "5paisa",
       "type": "mutual_fund",
+      "tradable": false,
       "allocation_pct": 14.32,
       "pnl_pct": -3.96,
-      "signal": "HOLD",
+      "signal": "SIP",
       "reasons": [
         "Mutual fund SIP \u2014 continue investing; not a trade signal"
       ],
@@ -283,9 +273,9 @@ const d = {
   ],
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "secret": {
-    "salt": "y6RHedDz1Pg9+ak/vvfjAA==",
-    "iv": "65yRM9ZKOw+cJNEn",
-    "ct": "3W9X0V7JsexzVhG2w0g0Rs+AaS8jwtfRNZX1O3+148AAdKDG8P6rsKDRlth6p0w5KfUY4ZecAEB0yQxYzld2sLwdvxhw4XhWUQ1HJLcoj/1rSeJBv6TYP8KvOFCOcYxECZ4eFSbkqha1evqvxcq5rOBsF77zrNunAN5cDubfZPNtSfJNYg+CeBxzA0yt9IbI5JH6A6FWoUoia3t0pJsOc1ZQnD2FkvOm0tuQ5QFTz+MwZYeJQwgD1MgklOCtQ4DBKBneOgchjOYWpKMIS20FL34GoEyKNAwmT9jz+uuppQPMJ56ycuSXyYyCmsc0q/SsB1oHeifuRBGIe83eStUCnmTzbOBYRS4iJzLComLRUByRDKNIcxRIdYfgKSjjtsxR9o9b6TF9IjwsIcqW2GGe54ulbutIqEj7eIPNQ/aoitmrNXcCUYDIwvsgQIvcSAT59AZWCVY6PNIiYcD21ORvw1+LF5Uh5Cz8DlL3A9+AXLSZtLHPEBWaTbIYAkcFOr0a6V4gQUSXnzv0CSiFF6eZ6UgrVVmCJ7NzXS/IWOGK2t/WGtahtUNZKc7ZDf3WACktoKFvLZWKxaNwPJBLK7macaS/He/FU82cFzjfCAQZfgxLDylGOUYAJo1kEcoxLI56/1XnLbTDK0trlY58/6mJAmTsWF4Ye7aBYiZKSkpzPUmv74cJZOGRMLjoMlgO13baSJrnXFSDNKWsfR+dw/ZMQ63BVInkY3+jMs/m6xJnGqgJ8SwGSI9jZPo4/Khr/tOrAZBgQEWqcRS22Z55lfYQxCt3Szpk+ZH1AYmWn6aibZiPFFb15Nq4mx2P+nDpONMU5MZVz8PQMtLVbXuaTvjTGVYou73mviznlAxjgTRTMaMIt6kdcAAeJ0U6e9GmudUGOdGnigfNhfUWlHVfOLq2x7YQqr9IWqia/QWDXmyNWh0is5ATssvUGuXK2cPbDhcl1iCtbak8/VcV24biMu41rNjP7ESAt6A85GCUCFUIeD1AiVVzTwOGegVu5opMyZAh8NM14Eyo1LgkryQqvcsDneg6BHnBkmYCDpZYDbobI1KUk9NHnSbO6izdcnXklQ3TCd8UgBerRi16X5ld3z7KDru8r5bbTyfh7fHlCzD8Whn7HwjBriP/Z4BnOHqfFe5k5CA8ffsIbyn3HK+GKG7+4OXohnUGncArhdtPepi37MdYjglf2eJmPqh6oUN+NAZzwl8qU8cDmKTuQmeVeLiaMAglmKpGSmk=",
+    "salt": "EEDwY4FqahHyBiSKqTMGHQ==",
+    "iv": "cyPDvZNHfPM4U3wm",
+    "ct": "rcxa44gKspuVJHj+ZuMUD+Hyy7xZIdXObPERVD9WARajoy+7opWmIiKZqBO1WnbdOiqoS9CDJ13DqQJ0JX7jmUoa81NpAa2Pfks/4KTKU1OBNczgI2ZPL1QgaIiGUoEJ+1091QUG9B5987+76YQrR30pfERU3NwHgXUe4Lw64c/drCxIfQ4YouVsJP6bEvdajA8NqiqtCs3lw+VB/Gj5S0LfC78OHgWmMB9y4GDd+beNYsaSP6LVUlR6oCs9pGfkcGl9I0AhOOh4EOsGWJJnd6V7HJCfpIKSS25zN/WmbKmpCoHPb9k4WCp1nET+IMLPI0NHzihPzdPIvLPI8wEXpJq41XeUmsYyt6BJJUOofUIbHarShnZ5EqLSHLpMV3E4U3Q74i2k1cVufFWlkuU45qb5so61WVRrrSgg1qZHghmAbUvmefhX+mFqGMuneZe+11q12x9BsQHjIvwujMvAfHSYD4UAUVX0BW4z+JBs8fBN4mfzDY2LsQgXUkQ27EB8ApV+SQQLuMmYvlnlMR2RJ+fyE7opnzRcHNfOPGm0F+n6gopQJBv0Dn/zAQl9Bc5BQthdByH7RgnCVoyjbeN4bNk+Xhxapd8nkwme2PLWm2rqhR1DTyprTAFFHQ0RO0IzsLtzzjNnOFk1PNsDHED/KbwhK2H9w8H6yX2L2WdcxAwppokd5idQuCh/703u3sUFV5SNFhVrJgw/YBEL1EXhNdEzak6GShXoFak6LKDXZfy2T/XbKaJfbpChPnWhmHLmSxMLetheUQxNsTsuGvVhStk1HPvoRZGNLU1gx34/PDb6m/Fe3GPP2voA84sfWCLl67A18B2+2H4LFspP2WyYkVt7sGDeM7ktPOSuPB4bQifm7N9zPdu4QmoVTIwz27XuZmX9dM+HYPVIM8NLJZKYJgEHHl3GfoC02Qzqmw4xqhv4pBkWoQuHlaSsPLdOKhAFJGUtU79nCyTIZgn9jGjVp9HGWOkb2IkOSuhoEDB2NjGzn+Ept0aQnRNVUKaTDHoRSDD383rDLpnYxTQPa1o6TfKN3pjfz37yUhclZ7mW9/Bt9eiSnxRWJ6W5wu2gp6H100XR7qu8jlMsRSmqYDoDijujvJUs8iOdilXC/2Y+nFunzMsLODx+t/Dk3i8RAuaf67T61nozyIhKa3IkYj2Ztw2JTE8KWl434Gq40p750rd505T5PsyJEocOa6+qLF0LmsVwN7lfeqrgUjcR34a2QK45z2Q=",
     "iter": 200000
   },
   "has_secret": true
@@ -318,9 +308,11 @@ async function decryptSecret(password, sec){
       ['Total return', pct(d.totals && d.totals.pnl_pct), '']
     ];
     if(extra){
+      cards.push(['Invested', inr(extra.totals.invested), '']);
       cards.push(['Current value', inr(extra.totals.current_value), '']);
       cards.push(['Total P&L', inr(extra.totals.pnl), extra.totals.pnl>=0?'BUY':'SELL']);
     } else if(!d.hide_amounts && d.totals){
+      cards.push(['Invested', inr(d.totals.invested), '']);
       cards.push(['Current value', inr(d.totals.current_value), '']);
     }
     document.getElementById('cards').innerHTML = cards.map(x=>
@@ -328,12 +320,18 @@ async function decryptSecret(password, sec){
     ).join('');
   }
 
-  const showVal = !d.hide_amounts || false;
+  function showAmtCols(){ document.querySelectorAll('.amtcol').forEach(e=>e.style.display=''); }
+
   document.getElementById('rows').innerHTML = d.positions.map((p,i)=>{
     const reasons = (p.reasons||[]).slice(0,3).join(' · ');
-    const valCell = (!d.hide_amounts)
-      ? `<td class=val>${inr(p.current_value)}</td>`
-      : (d.has_secret ? `<td class="val" data-i="${i}" style="display:none">🔒</td>` : '');
+    let invCell='', valCell='';
+    if(!d.hide_amounts){
+      invCell = `<td class="amt">${inr(p.invested)}</td>`;
+      valCell = `<td class="amt">${inr(p.current_value)}</td>`;
+    } else if(d.has_secret){
+      invCell = `<td class="amt inv" data-i="${i}" style="display:none">🔒</td>`;
+      valCell = `<td class="amt val" data-i="${i}" style="display:none">🔒</td>`;
+    }
     return `<tr>
       <td><div>${p.name}</div><div class=broker>${p.broker}</div>
           <div class=reasons>${reasons}</div></td>
@@ -341,10 +339,10 @@ async function decryptSecret(password, sec){
       <td>${p.rsi===null||p.rsi===undefined?'—':p.rsi}</td>
       <td>${pct(p.allocation_pct)}</td>
       <td class="${cls(p.pnl_pct)}">${pct(p.pnl_pct)}</td>
-      ${valCell}
+      ${invCell}${valCell}
     </tr>`;
   }).join('');
-  if(!d.hide_amounts){ document.getElementById('valhdr').style.display=''; }
+  if(!d.hide_amounts){ showAmtCols(); }
 
   renderCards(null);
   document.getElementById('foot').textContent = d.disclaimer;
@@ -360,10 +358,13 @@ async function decryptSecret(password, sec){
       try{
         const sec = await decryptSecret(pw, d.secret);
         renderCards(sec);
-        document.getElementById('valhdr').style.display='';
-        document.querySelectorAll('td.val[data-i]').forEach(td=>{
-          const i = td.getAttribute('data-i');
-          const a = sec.by_index[i] || {};
+        showAmtCols();
+        document.querySelectorAll('td.amt.inv[data-i]').forEach(td=>{
+          const a = sec.by_index[td.getAttribute('data-i')] || {};
+          td.style.display=''; td.textContent = inr(a.invested);
+        });
+        document.querySelectorAll('td.amt.val[data-i]').forEach(td=>{
+          const a = sec.by_index[td.getAttribute('data-i')] || {};
           td.style.display=''; td.textContent = inr(a.current_value);
         });
         lock.style.display='none';

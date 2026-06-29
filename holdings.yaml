@@ -47,8 +47,10 @@ lumpsum:
 equity_groups:
   # Groww/Zerodha smallcase SIP (~₹18,150/mo) across 3 smallcases:
   # Top 250 Quant, 3-in-1 Multi Asset, Equity & Gold Asset Allocation.
+  # trade: false -> long-term SIP, tracked only, NO buy/sell signals.
   - broker: Groww
     type: etf
+    trade: false
     holdings:
       - symbol: GOLDCASE.NS
         name: Zerodha Gold ETF (GOLDCASE)
@@ -80,9 +82,11 @@ equity_groups:
         invested: 19215
 
   # 5paisa lumpsum basket (ETFs + stock). Prices fetched from Yahoo (.NS).
+  # trade: true -> the ₹5L bucket you actively rebalance; BUY/SELL signals apply.
   # Update quantity/invested if you buy or sell more.
   - broker: 5paisa
     type: etf
+    trade: true
     holdings:
       - symbol: HDFCGOLD.NS
         name: HDFC Gold ETF
