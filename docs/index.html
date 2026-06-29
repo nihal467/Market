@@ -120,10 +120,10 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T20:20:23.732200+00:00",
+  "generated_at": "2026-06-29T20:23:35.498338+00:00",
   "hide_amounts": true,
   "totals": {
-    "pnl_pct": 6.88
+    "pnl_pct": 7.0
   },
   "signal_counts": {
     "BUY": 2,
@@ -136,8 +136,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.77,
-      "pnl_pct": -2.04,
+      "allocation_pct": 2.73,
+      "pnl_pct": -3.45,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -150,7 +150,7 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.49,
-      "pnl_pct": 4.12,
+      "pnl_pct": 4.4,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -162,8 +162,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.51,
-      "pnl_pct": -1.5,
+      "allocation_pct": 2.52,
+      "pnl_pct": -1.03,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -188,8 +188,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 3.97,
-      "pnl_pct": -3.06,
+      "allocation_pct": 3.99,
+      "pnl_pct": -2.61,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -214,8 +214,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.46,
-      "pnl_pct": 4.59,
+      "allocation_pct": 2.48,
+      "pnl_pct": 5.5,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -231,10 +231,10 @@ const d = {
       "pnl_pct": 15.6,
       "signal": "HOLD",
       "reasons": [
+        "Price below SMA50 (129.09)",
+        "Golden cross (SMA50>SMA200)",
         "RSI 34.58 neutral",
-        "Price below SMA50 (129.09) \u2014 downtrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Positive news sentiment (0.375)"
+        "Positive news (score 0.375, 8 headlines)"
       ],
       "rsi": 34.58
     },
@@ -243,15 +243,15 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 25.45,
+      "allocation_pct": 25.42,
       "pnl_pct": 2.93,
       "signal": "BUY",
       "reasons": [
+        "Price above SMA50 (74.34)",
+        "Golden cross (SMA50>SMA200)",
         "RSI 63.88 neutral",
-        "Price above SMA50 (74.34) \u2014 uptrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Near 52-week high \u2014 limited upside / book profit",
-        "Positive news sentiment (0.5)"
+        "Near 52-week high",
+        "Positive news (score 0.5, 8 headlines)"
       ],
       "rsi": 63.88
     },
@@ -260,14 +260,14 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 17.18,
-      "pnl_pct": 38.95,
+      "allocation_pct": 17.25,
+      "pnl_pct": 39.63,
       "signal": "BUY",
       "reasons": [
+        "Price above SMA50 (320.62)",
+        "Golden cross (SMA50>SMA200)",
         "RSI 45.87 neutral",
-        "Price above SMA50 (320.62) \u2014 uptrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Positive news sentiment (0.25)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
       "rsi": 45.87
     },
@@ -276,15 +276,15 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 18.85,
+      "allocation_pct": 18.83,
       "pnl_pct": 1.48,
       "signal": "HOLD",
       "reasons": [
+        "Price above SMA50 (231.12)",
+        "Golden cross (SMA50>SMA200)",
         "RSI 64.11 neutral",
-        "Price above SMA50 (231.12) \u2014 uptrend",
-        "SMA50 > SMA200 (golden cross) \u2014 bullish",
-        "Near 52-week high \u2014 limited upside / book profit",
-        "Neutral news sentiment (0.125)"
+        "Near 52-week high",
+        "Positive news (score 0.125, 8 headlines)"
       ],
       "rsi": 64.11
     },
@@ -294,12 +294,12 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 0.77,
-      "pnl_pct": 37.45,
+      "pnl_pct": 37.83,
       "signal": "HOLD",
       "reasons": [
+        "Price above SMA50 (1553.51)",
         "RSI 62.13 neutral",
-        "Price above SMA50 (1553.51) \u2014 uptrend",
-        "Neutral news sentiment (0.125)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
       "rsi": 62.13
     },
@@ -308,7 +308,7 @@ const d = {
       "broker": "5paisa",
       "type": "mutual_fund",
       "tradable": false,
-      "allocation_pct": 14.32,
+      "allocation_pct": 14.3,
       "pnl_pct": -3.96,
       "signal": "SIP",
       "reasons": [
@@ -320,9 +320,9 @@ const d = {
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "2Jp0ILpijqnHPVLHCxd78A==",
-    "iv": "kjIdQPH36q7RTHea",
-    "ct": "75aOfhEzBKaBpsTOW3YjVF8NzgW5q9g+xD+XAFcJFTXrRx4pJzCIcDcWrtZwa5rxZbm0LCxjHpHVANV5ItModABz/nBnsmlC5roZZx5xn8Z6rHLEsDXNtBoyDLHAptoY3FqtKm2j23ZPr1Li6FvKb05lStZvGNoaMF3no+OEvuQhvvisY7DzQckL7/VerdZEN5+uFFB9KeIz2majGbGt79umXyt53EiAN+fL978swTe8DgK1KswvKC3IoCnBIvjHmOrJJKyn+wo1irK64VfxCxyLUvqHrMK1xXv+wBjN3GN7H9UY1nEVJO2hiGd96KjNrDzjOEyn4PdhP3aN4FbSoEddmOWjqUDwld3gIAi98z3wn6XmQBVI0JS5/bBq6mRxPP7XkXInkPtu3rTAUlp2r38BbUXluYrAPxsBg56jaE0kWf7MKMEXn1sgAnB/tB2uIfmrhaYJrdE1AuGR98qFz1K6zUfLVU7zTzp46slYteX4QKUX79gWo/uwnL610sX8EZZ2sAFxFJ8D1cFVy4kmZnlkbbeS0JUMXkeuIkQlc0l27eGmJObw6Zu9qrLv62B1xcd3Fsd2Tlob8NnLnbKf2LaP+DajX+FkyQVQLDbM66gcTkmhm+EcHO5GtFGPXJSj4U5L8OG92BoW/yF2fQy5tORGHMGR1+Cevv2UTA2j7k6AZq2/p9h7Cd5kYKgefuGSdFQUEn7OINBdWDEaiolMeEx69/w/Leb4U6Xq0MFMhas/4uoJ6WaAfk7c39vuuuT7dX9ossRQEFVMO2oiCzrp/j/nvDAhqn+OsN2yTBNTuz4Dtp2Bb5MaYkbvazpKeWF2K/wPcYsgKVPPEghkvfAWSOgodsUH5keuLd/yO1TIwBAYk2rCTJ48GFfKQ2KHe1KbNNbgc+gpilARiYVUCQZtz02CuOwUHH7tVK7bpPUuIenwcoVSRvdeXGt0NgKpPqU1AwDx/zPNf8V66n72PH6gYwTnMI9ggQQi1wfwEO8i6jLa+06GoN6DuJaWa45BTee0jNBLFFbGl4VeqjXQ7u1Mt7VwQXjwrnRp2jY/aCHutc0MamVqKuPEFRajp0RiOxe+TYU9PTeFUtceZunYSXMoaN5R9bppa2gscD3wU8BcatH9ZVg8HCPvmA0JMxeCtO5qn+eCzfJUoo+FmhRrz2zUB8zxiezXqkg1ozs90e1ckRfb1yX6/zqHXIbBxtRKDGQ3rTZieldZSVbiFw73z66BIkcGV3Y=",
+    "salt": "Kf3DVZ8w6MbLhUKHz5WYtw==",
+    "iv": "oaMnvNQv6ecNGdBj",
+    "ct": "h5bmeOcavYieGORR+ZZkuFvxfFmP8oDXqDvKjKiyhvqDj5lTxS0sa8zKM8YdxPA1i+PXjzGPoG9PrrOVBXIphTDZ+9PPY07xb5+qDddbsrvRlKuvmwhCjlRGAq4x4daWcwN0Cve8WWOMt3PBqgnc+bWBZU1yV/kx9uZ6LY/Fx8DZIEGHREDQpPNSnp2/5ofCqY7BBEpCfK550Mcnm0yek2WoBxVXUDkYrseAq3E5TPK2A/PiIpYmpa7mCMv/sAoL7A+YnvALcQe05BUnO4cV6wQhFIxLSIapKMRYF9MqJX3F6BxSL31hhOp56yJLKoNszNaEt0bcAEi+JbrgxM2QGLdKodQ+DZBh20PoPVP6YaXT3UlBP/I/NjWEqseMOLLd1u/LzWz5++0Rs3o8iJjD02f7i9HlGm1vo3h5PNiYbBQYeqpUZF1610G7ZcU3CFMZqRL5ZnNvQQHi6Yrp51FtSuhVWQ/AOKziDtj0GjOLMf099+3EuT3UUaLfPC6OaeWrYs35wsgXJ4iqeE3we4V4Z/hHKll/pyLvJ4K6aJkuitEkfgOoLApFXxZQbWDOKrQQxuHoGgQXGZ5oF4iBIJmmUZN4M1JAcamZaDIa/tr3iiEc3LZEdvQBVaezhaO6WMIB0J73hkiYoBvCy14Z4zM937D3qJa8DR/fngHxpJx8NYdQvYAYGfq5pCtrH5DdPjSud+doPPFpJmlCW/wCEkcuBmpmk6BYjjqFE3T3FQIRiKroJ1MrSWd1wsNKReR7I3uZkbynyCtjv3fFXDZqJNdFbm/uLxGGS23y3wHj6otvWJsM6WWt9Wij2R7/VLq+TaSJRXRalQH/fbXpkKob0r6GGwCqjF1QXak30NhvYKdUPaw63drZrOxEqMLSl0o+vPlUu9OPfzYaaZgdbxF4an0pOLhxh8Q4wAWkd9TcjhVKIOglit1Jo0nP7Jw2YdCxbW4c0HOKU9arKxiHuocNskQH3pkXngdqYg6NXGO+449uZ1Lkk1BSevQGXTBu9189+rt3Dce0rHGgCHJyDQirNUvlJbjlQT0WHXHuYKp7VSiQQ3Ph3rhcKCY1N2Tde0/22a0AdzdFAKKnktJE5KmGxEMiZKqKhgT0VFRdDmszwgRMsOzDWqyRq5Bp/wPcac4Hfr/sTc+87gsH8bYRkuTShWA86B8u7Uqkswz0Me5tcJUvIKyiZjJn/gxZz4US3t9qQoevuvyo/sboWFJD7OI46Q2GjA==",
     "iter": 200000
   },
   "has_secret": true
