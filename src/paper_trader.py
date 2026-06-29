@@ -35,6 +35,11 @@ TOP_N = 10               # equal-weight this many top BUY-ranked stocks
 COST_PER_SIDE = 0.0010   # 0.10% per buy/sell leg (brokerage+slippage+taxes proxy)
 BENCHMARK = "^NSEI"      # NIFTY 50 — the "do nothing, just hold the index" baseline
 
+# --- Risk controls ---------------------------------------------------------
+STOP_LOSS_PCT = 0.08     # force-exit a holding down >8% from its avg buy price
+MAX_POSITION_PCT = 0.15  # no single stock may exceed 15% of the book
+MAX_SECTOR_PCT = 0.40    # no single sector may exceed 40% of the book
+
 STATE_FILE = "paper/state.json"
 LATEST_FILE = "paper/latest.json"
 HISTORY_FILE = "paper/history.jsonl"
@@ -107,6 +112,16 @@ def _pick_targets(analysis: list[dict]) -> list[dict]:
     return buys[:TOP_N]
 
 
+def _sector_map() -> dict:
+    """symbol -> sector, sourced from the weekly watchlist (best-effort)."""
+    wl = ds.read_json("watchlist/latest.json", default={}) or {}
+    out = {}
+    for r in wl.get("watchlist", []):
+        if r.get("symbol"):
+            out[r["symbol"]] = r.get("sector") or "Unknown"
+    return out
+
+
 def run() -> dict:
     ist = now_ist()
     today = ist.strftime("%Y-%m-%d")
@@ -134,11 +149,38 @@ def run() -> dict:
     prev_value = state["history"][-1]["value"] if state["history"] else state["start_capital"]
 
     targets = _pick_targets(analysis)
-    target_syms = {t["symbol"] for t in targets}
+    sectors = _sector_map()
     trades: list[dict] = []
+    risk_events: list[dict] = []
     cost_total = 0.0
 
-    # 1) SELL everything not in the new target set (signal no longer BUY).
+    # 1a) STOP-LOSS: force-exit any holding down more than STOP_LOSS_PCT from its
+    # average buy price, regardless of signal. These symbols are blocked from
+    # being re-bought today so we don't immediately churn back in.
+    blocked: set[str] = set()
+    for sym in list(state["positions"].keys()):
+        pos = state["positions"][sym]
+        px = prices.get(sym, pos.get("avg_price", 0.0))
+        avg = pos.get("avg_price", 0.0)
+        if avg and px <= avg * (1 - STOP_LOSS_PCT):
+            proceeds = pos["qty"] * px
+            cost = proceeds * COST_PER_SIDE
+            cost_total += cost
+            state["cash"] += proceeds - cost
+            loss_pct = round((px / avg - 1) * 100, 2)
+            trades.append({"action": "SELL", "symbol": sym,
+                           "name": names.get(sym, sym), "qty": pos["qty"],
+                           "price": round(px, 2), "reason": "stop_loss"})
+            risk_events.append({"type": "stop_loss", "symbol": sym,
+                                "name": names.get(sym, sym), "loss_pct": loss_pct})
+            blocked.add(sym)
+            state["positions"].pop(sym)
+
+    # Drop blocked names from today's target set.
+    targets = [t for t in targets if t["symbol"] not in blocked]
+    target_syms = {t["symbol"] for t in targets}
+
+    # 1b) SELL everything not in the new target set (signal no longer BUY).
     for sym in list(state["positions"].keys()):
         if sym not in target_syms:
             pos = state["positions"].pop(sym)
@@ -149,19 +191,40 @@ def run() -> dict:
             state["cash"] += proceeds - cost
             trades.append({"action": "SELL", "symbol": sym,
                            "name": names.get(sym, sym), "qty": pos["qty"],
-                           "price": round(px, 2)})
+                           "price": round(px, 2), "reason": "exit_signal"})
 
-    # 2) Determine equal-weight budget per target from total investable value.
+    # 2) Determine equal-weight budget per target, then apply position & sector
+    # caps so a single name or sector can't dominate the book.
     total_value = state["cash"] + _market_value(state["positions"], prices)
     if targets:
-        budget = total_value / len(targets)
-        # 3) BUY/top-up each target toward the equal-weight budget.
+        base_budget = total_value / len(targets)
+        pos_cap = MAX_POSITION_PCT * total_value
+        sector_cap = MAX_SECTOR_PCT * total_value
+        # Running sector exposure (value already held this run).
+        sector_alloc: dict[str, float] = {}
+        for sym, pos in state["positions"].items():
+            sec = sectors.get(sym, "Unknown")
+            sector_alloc[sec] = sector_alloc.get(sec, 0.0) + pos["qty"] * prices.get(sym, 0)
+
+        # 3) BUY/top-up each target toward its capped budget (highest score first).
         for t in targets:
             sym = t["symbol"]
             px = prices[sym]
+            sec = sectors.get(sym, "Unknown")
             held_qty = state["positions"].get(sym, {}).get("qty", 0)
             held_val = held_qty * px
-            want_val = budget - held_val
+
+            # Target value for this name = equal weight, capped by position cap.
+            target_val = min(base_budget, pos_cap)
+            # Respect remaining sector capacity.
+            sector_room = sector_cap - sector_alloc.get(sec, 0.0)
+            if sector_room <= 0:
+                risk_events.append({"type": "sector_cap_skip", "symbol": sym,
+                                    "name": names.get(sym, sym), "sector": sec})
+                continue
+            target_val = min(target_val, held_val + sector_room)
+
+            want_val = target_val - held_val
             if want_val <= px:  # nothing meaningful to add
                 continue
             # Reserve for cost so we don't overspend cash.
@@ -173,6 +236,7 @@ def run() -> dict:
             cost = spend * COST_PER_SIDE
             cost_total += cost
             state["cash"] -= spend + cost
+            sector_alloc[sec] = sector_alloc.get(sec, 0.0) + spend
             old = state["positions"].get(sym)
             if old:
                 new_qty = old["qty"] + buy_qty
@@ -222,6 +286,7 @@ def run() -> dict:
         "alpha_pct": alpha_pct,
         "n_positions": len(state["positions"]),
         "n_trades": len(trades),
+        "n_stops": sum(1 for e in risk_events if e["type"] == "stop_loss"),
         "costs": round(cost_total, 2),
     }
 
@@ -265,12 +330,22 @@ def run() -> dict:
         "alpha_pct": alpha_pct,
         "n_positions": len(state["positions"]),
         "today_trades": trades,
+        "risk_events": risk_events,
+        "risk_settings": {
+            "stop_loss_pct": round(STOP_LOSS_PCT * 100, 1),
+            "max_position_pct": round(MAX_POSITION_PCT * 100, 1),
+            "max_sector_pct": round(MAX_SECTOR_PCT * 100, 1),
+            "top_n": TOP_N,
+        },
         "positions": positions_view,
         "history": state["history"][-120:],
         "strategy": (
-            f"Equal-weight top {TOP_N} BUY-ranked stocks from the daily Top-50 "
-            f"analysis, rebalanced each close. {COST_PER_SIDE*100:.2f}% cost per "
-            "trade leg. Simulation only — not investment advice."
+            f"Equal-weight top {TOP_N} BUY-ranked stocks (technicals + news) from "
+            f"the daily Top-50 analysis, rebalanced each close. Risk controls: "
+            f"{STOP_LOSS_PCT*100:.0f}% stop-loss, {MAX_POSITION_PCT*100:.0f}% max "
+            f"per stock, {MAX_SECTOR_PCT*100:.0f}% max per sector. "
+            f"{COST_PER_SIDE*100:.2f}% cost per trade leg. Simulation only — not "
+            "investment advice."
         ),
     }
     ds.write_json(LATEST_FILE, latest)
