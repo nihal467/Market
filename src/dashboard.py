@@ -268,6 +268,18 @@ INDEX_HTML = """<!DOCTYPE html>
   .maintab.active { color:var(--txt); border-bottom-color:#2f81f7; }
   .sec { font-size:18px; margin:34px 0 4px; }
   .secsub { color:var(--mut); font-size:12px; font-weight:400; }
+  .livebanner { background:linear-gradient(180deg,rgba(31,157,85,.10),transparent);
+                border:1px solid var(--line); border-left:3px solid var(--buy);
+                border-radius:10px; padding:14px 16px 4px; margin-bottom:22px; }
+  .livebanner.down { background:linear-gradient(180deg,rgba(229,72,77,.10),transparent);
+                     border-left-color:var(--sell); }
+  .livehead { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700;
+              letter-spacing:.05em; color:var(--mut); text-transform:uppercase; margin-bottom:12px; }
+  .livedot { width:9px; height:9px; border-radius:50%; background:var(--buy);
+             box-shadow:0 0 0 0 rgba(31,157,85,.6); animation:pulse 1.6s infinite; }
+  .livebanner.down .livedot { background:var(--sell); box-shadow:0 0 0 0 rgba(229,72,77,.6); }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(31,157,85,.5);} 70%{box-shadow:0 0 0 7px rgba(31,157,85,0);} 100%{box-shadow:0 0 0 0 rgba(31,157,85,0);} }
+  .livebanner .cards { margin-bottom:8px; }
   .tabs { display:flex; gap:8px; margin:12px 0 14px; flex-wrap:wrap; }
   .tab { background:var(--card); border:1px solid var(--line); color:var(--mut);
          padding:7px 14px; border-radius:8px; font-size:13px; cursor:pointer; }
@@ -553,7 +565,32 @@ async function initPaper(){
     }catch(e){}
     return null;
   }
-  const [p, bt] = await Promise.all([load('paper'), load('backtest')]);
+  const [p, bt, live] = await Promise.all([load('paper'), load('backtest'), load('paper/live')]);
+
+  // --- LIVE intraday banner (only meaningful while market is open) ---
+  function renderLive(){
+    if(!live || !live.market_open){ return ''; }
+    const dcl = live.day_pnl>0?'up':(live.day_pnl<0?'down':'');
+    const when = live.ist ? new Date(live.ist).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
+    const nb = (live.intraday_trades||[]).filter(t=>t.action==='BUY').length;
+    const ns = (live.stops||[]).length;
+    return `<div class=\"livebanner ${dcl}\">
+      <div class=livehead><span class=livedot></span> LIVE · virtual ₹5L · updates every ~15 min during market hours</div>
+      <div class=cards>
+        <div class=card><div class=k>Live value</div><div class=v>${inr(live.value)}</div>
+          <div class=chg>as of ${when} IST</div></div>
+        <div class=\"card\"><div class=k>Today's P&L (live)</div>
+          <div class=\"v ${dcl}\">${sign(live.day_pnl)}${inr(live.day_pnl)}</div>
+          <div class=\"chg ${dcl}\">${sign(live.day_pnl_pct)}${(live.day_pnl_pct||0).toFixed(2)}%</div></div>
+        <div class=card><div class=k>Holdings</div><div class=v>${live.n_positions||0}</div>
+          <div class=chg>cash ${inr(live.cash)}</div></div>
+        <div class=card><div class=k>Intraday actions</div><div class=v>${nb} buys · ${ns} stops</div>
+          <div class=chg>real-time</div></div>
+      </div>
+      ${ns?`<div class=foot>🛑 Stopped out live: ${(live.stops||[]).map(s=>`<b>${s.name||s.symbol}</b> at ${s.loss_pct}%`).join(' · ')}</div>`:''}
+      <div class=foot>${live.note||''}</div>
+    </div>`;
+  }
 
   // --- Backtest summary (historical proof) ---
   function renderBacktest(){
@@ -580,7 +617,7 @@ async function initPaper(){
 
   if(!p){
     upd.textContent = bt ? ('· backtest ' + bt.start_date + '–' + bt.end_date) : '';
-    body.innerHTML = renderBacktest()
+    body.innerHTML = renderLive() + renderBacktest()
       + '<div class=empty>Live paper trading has not placed its first trade yet. '
       + 'It runs after market close (16:30 IST) each trading day, simulating a virtual '
       + '₹5,00,000 across the day\\'s top BUY-ranked stocks.</div>';
@@ -658,7 +695,7 @@ async function initPaper(){
 
   const note = p.strategy ? `<div class=foot>${p.strategy}</div>` : '';
 
-  body.innerHTML = cards + riskBar + riskEvents + trTable + posTable
+  body.innerHTML = renderLive() + cards + riskBar + riskEvents + trTable + posTable
     + histTable + renderBacktest() + note;
 }
 </script>

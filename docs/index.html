@@ -51,6 +51,18 @@
   .maintab.active { color:var(--txt); border-bottom-color:#2f81f7; }
   .sec { font-size:18px; margin:34px 0 4px; }
   .secsub { color:var(--mut); font-size:12px; font-weight:400; }
+  .livebanner { background:linear-gradient(180deg,rgba(31,157,85,.10),transparent);
+                border:1px solid var(--line); border-left:3px solid var(--buy);
+                border-radius:10px; padding:14px 16px 4px; margin-bottom:22px; }
+  .livebanner.down { background:linear-gradient(180deg,rgba(229,72,77,.10),transparent);
+                     border-left-color:var(--sell); }
+  .livehead { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700;
+              letter-spacing:.05em; color:var(--mut); text-transform:uppercase; margin-bottom:12px; }
+  .livedot { width:9px; height:9px; border-radius:50%; background:var(--buy);
+             box-shadow:0 0 0 0 rgba(31,157,85,.6); animation:pulse 1.6s infinite; }
+  .livebanner.down .livedot { background:var(--sell); box-shadow:0 0 0 0 rgba(229,72,77,.6); }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(31,157,85,.5);} 70%{box-shadow:0 0 0 7px rgba(31,157,85,0);} 100%{box-shadow:0 0 0 0 rgba(31,157,85,0);} }
+  .livebanner .cards { margin-bottom:8px; }
   .tabs { display:flex; gap:8px; margin:12px 0 14px; flex-wrap:wrap; }
   .tab { background:var(--card); border:1px solid var(--line); color:var(--mut);
          padding:7px 14px; border-radius:8px; font-size:13px; cursor:pointer; }
@@ -120,10 +132,10 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T20:23:35.498338+00:00",
+  "generated_at": "2026-06-29T20:30:57.778948+00:00",
   "hide_amounts": true,
   "totals": {
-    "pnl_pct": 7.0
+    "pnl_pct": 6.88
   },
   "signal_counts": {
     "BUY": 2,
@@ -136,8 +148,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.73,
-      "pnl_pct": -3.45,
+      "allocation_pct": 2.77,
+      "pnl_pct": -2.04,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -150,7 +162,7 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.49,
-      "pnl_pct": 4.4,
+      "pnl_pct": 4.12,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -162,8 +174,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.52,
-      "pnl_pct": -1.03,
+      "allocation_pct": 2.51,
+      "pnl_pct": -1.5,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -188,8 +200,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 3.99,
-      "pnl_pct": -2.61,
+      "allocation_pct": 3.97,
+      "pnl_pct": -3.06,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -214,8 +226,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.48,
-      "pnl_pct": 5.5,
+      "allocation_pct": 2.46,
+      "pnl_pct": 4.59,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -231,10 +243,10 @@ const d = {
       "pnl_pct": 15.6,
       "signal": "HOLD",
       "reasons": [
-        "Price below SMA50 (129.09)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 34.58 neutral",
-        "Positive news (score 0.375, 8 headlines)"
+        "Price below SMA50 (129.09) \u2014 downtrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.375)"
       ],
       "rsi": 34.58
     },
@@ -243,15 +255,15 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 25.42,
+      "allocation_pct": 25.45,
       "pnl_pct": 2.93,
       "signal": "BUY",
       "reasons": [
-        "Price above SMA50 (74.34)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 63.88 neutral",
-        "Near 52-week high",
-        "Positive news (score 0.5, 8 headlines)"
+        "Price above SMA50 (74.34) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.5)"
       ],
       "rsi": 63.88
     },
@@ -260,14 +272,14 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 17.25,
-      "pnl_pct": 39.63,
+      "allocation_pct": 17.18,
+      "pnl_pct": 38.95,
       "signal": "BUY",
       "reasons": [
-        "Price above SMA50 (320.62)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 45.87 neutral",
-        "Positive news (score 0.25, 8 headlines)"
+        "Price above SMA50 (320.62) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.25)"
       ],
       "rsi": 45.87
     },
@@ -276,15 +288,15 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 18.83,
+      "allocation_pct": 18.85,
       "pnl_pct": 1.48,
       "signal": "HOLD",
       "reasons": [
-        "Price above SMA50 (231.12)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 64.11 neutral",
-        "Near 52-week high",
-        "Positive news (score 0.125, 8 headlines)"
+        "Price above SMA50 (231.12) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Neutral news sentiment (0.125)"
       ],
       "rsi": 64.11
     },
@@ -294,12 +306,12 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 0.77,
-      "pnl_pct": 37.83,
+      "pnl_pct": 37.45,
       "signal": "HOLD",
       "reasons": [
-        "Price above SMA50 (1553.51)",
         "RSI 62.13 neutral",
-        "Positive news (score 0.125, 8 headlines)"
+        "Price above SMA50 (1553.51) \u2014 uptrend",
+        "Neutral news sentiment (0.125)"
       ],
       "rsi": 62.13
     },
@@ -308,7 +320,7 @@ const d = {
       "broker": "5paisa",
       "type": "mutual_fund",
       "tradable": false,
-      "allocation_pct": 14.3,
+      "allocation_pct": 14.32,
       "pnl_pct": -3.96,
       "signal": "SIP",
       "reasons": [
@@ -320,9 +332,9 @@ const d = {
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "Kf3DVZ8w6MbLhUKHz5WYtw==",
-    "iv": "oaMnvNQv6ecNGdBj",
-    "ct": "h5bmeOcavYieGORR+ZZkuFvxfFmP8oDXqDvKjKiyhvqDj5lTxS0sa8zKM8YdxPA1i+PXjzGPoG9PrrOVBXIphTDZ+9PPY07xb5+qDddbsrvRlKuvmwhCjlRGAq4x4daWcwN0Cve8WWOMt3PBqgnc+bWBZU1yV/kx9uZ6LY/Fx8DZIEGHREDQpPNSnp2/5ofCqY7BBEpCfK550Mcnm0yek2WoBxVXUDkYrseAq3E5TPK2A/PiIpYmpa7mCMv/sAoL7A+YnvALcQe05BUnO4cV6wQhFIxLSIapKMRYF9MqJX3F6BxSL31hhOp56yJLKoNszNaEt0bcAEi+JbrgxM2QGLdKodQ+DZBh20PoPVP6YaXT3UlBP/I/NjWEqseMOLLd1u/LzWz5++0Rs3o8iJjD02f7i9HlGm1vo3h5PNiYbBQYeqpUZF1610G7ZcU3CFMZqRL5ZnNvQQHi6Yrp51FtSuhVWQ/AOKziDtj0GjOLMf099+3EuT3UUaLfPC6OaeWrYs35wsgXJ4iqeE3we4V4Z/hHKll/pyLvJ4K6aJkuitEkfgOoLApFXxZQbWDOKrQQxuHoGgQXGZ5oF4iBIJmmUZN4M1JAcamZaDIa/tr3iiEc3LZEdvQBVaezhaO6WMIB0J73hkiYoBvCy14Z4zM937D3qJa8DR/fngHxpJx8NYdQvYAYGfq5pCtrH5DdPjSud+doPPFpJmlCW/wCEkcuBmpmk6BYjjqFE3T3FQIRiKroJ1MrSWd1wsNKReR7I3uZkbynyCtjv3fFXDZqJNdFbm/uLxGGS23y3wHj6otvWJsM6WWt9Wij2R7/VLq+TaSJRXRalQH/fbXpkKob0r6GGwCqjF1QXak30NhvYKdUPaw63drZrOxEqMLSl0o+vPlUu9OPfzYaaZgdbxF4an0pOLhxh8Q4wAWkd9TcjhVKIOglit1Jo0nP7Jw2YdCxbW4c0HOKU9arKxiHuocNskQH3pkXngdqYg6NXGO+449uZ1Lkk1BSevQGXTBu9189+rt3Dce0rHGgCHJyDQirNUvlJbjlQT0WHXHuYKp7VSiQQ3Ph3rhcKCY1N2Tde0/22a0AdzdFAKKnktJE5KmGxEMiZKqKhgT0VFRdDmszwgRMsOzDWqyRq5Bp/wPcac4Hfr/sTc+87gsH8bYRkuTShWA86B8u7Uqkswz0Me5tcJUvIKyiZjJn/gxZz4US3t9qQoevuvyo/sboWFJD7OI46Q2GjA==",
+    "salt": "QKityMT79H0nxtAEQ6Q13A==",
+    "iv": "BY5P8Er6yZqdYjCI",
+    "ct": "S/teoLhWpuC8DGY4Wzdou9X49acFpcPQ3zd0lSTMUQ5Dkkrl1jUIp3MFOeB1noVF0gM2JaC8Omd91WNLe90bP1NMsEfDNJKMiwAmdvIUawS5FIdds5GOYuE91TpXZ4g/cd04m7QCHQ1kz9N8nYAzBxekgfke2esapgfVrmBT/7Zt0l+xwqjMLh947253lubrYHfGaKMt8S4tvwpPaQzh6/G786mZyPUFCqyLQxks/cFkWcIh9UGFKTjl5LKk8iPdg3j04qvcN6zFeqB6MUAfAyO1FD3o1LVvRsmVD9fhWucbkD4ihGqZhmcJ914KTQvQPKMhe48ntbtXUdkRIWzXtqwNxdC5mdCI97z2SQDaJbobkFrsecSocOYGtSJT4h4yLTWQdAD65ViZwCjwm+Jd7s49TLJH4s7Io0KSurVMJGXBu93F5JZo7C4mXLGj+KMAqCzWRXw2GoC5dEPi1D1OFqgJR8/NANYWFhb3LEpMjb0n7v+hVAh26lB8gW5yrr45EGIdg/9ad4zCbNVkkDQ1NUP64+hJe5qYgphzpp/BKle8RjlhpzIrr6mVLIMMsceHJRQuRcJl40sidMHk7/LtUGjd3Ro/Q/I5DBjUwpGmIku2+URQwBM3z0LyntuROHZfTTDwNzN10SC1AT8K78UbK3uWBcmEgyi/GqLHXo0VzMu63IWKpwldZuzn6yEMwYMc+ZdtrJAaDAk0ptfPfXnRJyAquPo6U5Kb7mVVvnSDwFW9rDo+xqspDlFwmuyGT2ALW8sN03F90QNYwctu2ofiIdiPiaUZXwQwd7RpHEYP6nr6f1G0mXBdEQPBME6/hUWjRBpOymwszbeZ5JMtfxS6EV5QJvNicNcUsGsKwvWJt6c0jTsL5JsVLhz38QtWZIMCIwT1IlDYNEtPL4E3EfhK0lnSmhLWvownEg2NuXN9jFU3cmYmV6qb/OQ6ygzAR2/1strkpjIjg1ex5bmPd1axza+FhL0uV6bgWXy/bv89pVVBwV/3qhsCiWM0dSDgffOCkGL7vAFYONj7vtTOjgKe4abfXripg3bOqlJgS++4sAPflOO/0V8HojHVR14tnxKY4lSZwtLxqjNDxsSfROoqhc4dLnhmFe/1/8zSqAXGDfU240Fdz8yUlx87GPJRybT1jt6xbeTGK7vlYgablS/ryfWkJoHDEcuz799KDkePSy8U5gnwGj/7vD+YIzy306/hDQRn54Ien1U9ko0mpAQIdPde56M=",
     "iter": 200000
   },
   "has_secret": true
@@ -544,7 +556,32 @@ async function initPaper(){
     }catch(e){}
     return null;
   }
-  const [p, bt] = await Promise.all([load('paper'), load('backtest')]);
+  const [p, bt, live] = await Promise.all([load('paper'), load('backtest'), load('paper/live')]);
+
+  // --- LIVE intraday banner (only meaningful while market is open) ---
+  function renderLive(){
+    if(!live || !live.market_open){ return ''; }
+    const dcl = live.day_pnl>0?'up':(live.day_pnl<0?'down':'');
+    const when = live.ist ? new Date(live.ist).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
+    const nb = (live.intraday_trades||[]).filter(t=>t.action==='BUY').length;
+    const ns = (live.stops||[]).length;
+    return `<div class="livebanner ${dcl}">
+      <div class=livehead><span class=livedot></span> LIVE · virtual ₹5L · updates every ~15 min during market hours</div>
+      <div class=cards>
+        <div class=card><div class=k>Live value</div><div class=v>${inr(live.value)}</div>
+          <div class=chg>as of ${when} IST</div></div>
+        <div class="card"><div class=k>Today's P&L (live)</div>
+          <div class="v ${dcl}">${sign(live.day_pnl)}${inr(live.day_pnl)}</div>
+          <div class="chg ${dcl}">${sign(live.day_pnl_pct)}${(live.day_pnl_pct||0).toFixed(2)}%</div></div>
+        <div class=card><div class=k>Holdings</div><div class=v>${live.n_positions||0}</div>
+          <div class=chg>cash ${inr(live.cash)}</div></div>
+        <div class=card><div class=k>Intraday actions</div><div class=v>${nb} buys · ${ns} stops</div>
+          <div class=chg>real-time</div></div>
+      </div>
+      ${ns?`<div class=foot>🛑 Stopped out live: ${(live.stops||[]).map(s=>`<b>${s.name||s.symbol}</b> at ${s.loss_pct}%`).join(' · ')}</div>`:''}
+      <div class=foot>${live.note||''}</div>
+    </div>`;
+  }
 
   // --- Backtest summary (historical proof) ---
   function renderBacktest(){
@@ -571,7 +608,7 @@ async function initPaper(){
 
   if(!p){
     upd.textContent = bt ? ('· backtest ' + bt.start_date + '–' + bt.end_date) : '';
-    body.innerHTML = renderBacktest()
+    body.innerHTML = renderLive() + renderBacktest()
       + '<div class=empty>Live paper trading has not placed its first trade yet. '
       + 'It runs after market close (16:30 IST) each trading day, simulating a virtual '
       + '₹5,00,000 across the day\'s top BUY-ranked stocks.</div>';
@@ -649,7 +686,7 @@ async function initPaper(){
 
   const note = p.strategy ? `<div class=foot>${p.strategy}</div>` : '';
 
-  body.innerHTML = cards + riskBar + riskEvents + trTable + posTable
+  body.innerHTML = renderLive() + cards + riskBar + riskEvents + trTable + posTable
     + histTable + renderBacktest() + note;
 }
 </script>

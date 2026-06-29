@@ -66,6 +66,12 @@ jobs:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
         run: python src/intraday.py
 
+      - name: Intraday paper trade (live dummy Rs 5L)
+        if: steps.gate.outputs.open == 'true'
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+        run: python src/intraday_trader.py
+
       - name: Commit & push data
         if: steps.gate.outputs.open == 'true'
         working-directory: data-branch
