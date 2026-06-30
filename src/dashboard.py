@@ -687,6 +687,39 @@ async function initPaper(){
   const acl = (p.alpha_pct||0)>0?'up':((p.alpha_pct||0)<0?'down':'');
   const bname = p.benchmark_name||'NIFTY 50';
 
+  function tradeTime(t, fallback){
+    const raw = t.ist || t.time || t.generated_at || fallback || '';
+    if(!raw) return '—';
+    try{ return new Date(raw).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}); }
+    catch(e){ return raw; }
+  }
+  function tradeValue(t){
+    const v = (t.qty||0) * (t.price||0);
+    return v ? inr(v) : '—';
+  }
+  function tradeReason(t){
+    return (t.reason || t.phase || 'paper_trade').replace(/_/g,' ');
+  }
+
+  const livePnl = live && live.market_open ? live : null;
+  const pnlSource = livePnl || p;
+  const pnlUpdated = livePnl ? live.ist : p.ist;
+  const pnlDcl = (pnlSource.day_pnl||0)>0?'up':((pnlSource.day_pnl||0)<0?'down':'');
+  const pnlTcl = (pnlSource.total_pnl||0)>0?'up':((pnlSource.total_pnl||0)<0?'down':'');
+  const pnlOnly = `<h2 class=sec>P&L only <span class=secsub>${livePnl?'live market snapshot':'latest paper close'}</span></h2>
+    <div class=cards>
+      <div class=card><div class=k>Current value</div><div class=v>${inr(pnlSource.value)}</div>
+        <div class=chg>${pnlUpdated ? 'updated ' + tradeTime({ist:pnlUpdated}) : ''}</div></div>
+      <div class=card><div class=k>Today P&L</div>
+        <div class="v ${pnlDcl}">${sign(pnlSource.day_pnl)}${inr(pnlSource.day_pnl)}</div>
+        <div class="chg ${pnlDcl}">${sign(pnlSource.day_pnl_pct)}${(pnlSource.day_pnl_pct||0).toFixed(2)}%</div></div>
+      <div class=card><div class=k>Total P&L</div>
+        <div class="v ${pnlTcl}">${sign(pnlSource.total_pnl)}${inr(pnlSource.total_pnl)}</div>
+        <div class="chg ${pnlTcl}">${sign(pnlSource.total_pnl_pct)}${(pnlSource.total_pnl_pct||0).toFixed(2)}%</div></div>
+      <div class=card><div class=k>Cash</div><div class=v>${inr(pnlSource.cash)}</div>
+        <div class=chg>${pnlSource.n_positions||0} holdings</div></div>
+    </div>`;
+
   const cards = `<div class=cards>
     <div class=card><div class=k>Portfolio value</div><div class=v>${inr(p.value)}</div>
       <div class=chg>started ${inr(p.start_capital)}</div></div>
@@ -727,15 +760,22 @@ async function initPaper(){
        <tbody>${pos}</tbody></table>`
     : '<div class=empty>No open positions.</div>';
 
-  const tr = (p.today_trades||[]);
-  const trTable = tr.length
-    ? `<h2 class=sec>Today's trades</h2>
-       <table><thead><tr><th>Action</th><th>Stock</th><th>Qty</th><th>Price</th></tr></thead>
-       <tbody>${tr.map(t=>`<tr>
-         <td class=\"${t.action==='BUY'?'up':'down'}\">${t.action}${t.reason==='stop_loss'?' 🛑':''}</td>
-         <td>${t.name||t.symbol}</td><td>${t.qty}</td>
-         <td>₹${(t.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td></tr>`).join('')}</tbody></table>`
-    : '';
+  const liveTrades = (live && live.intraday_trades ? live.intraday_trades : [])
+    .map(t=>({...t, source:'Live market'}));
+  const eodTrades = (p.today_trades||[]).map(t=>({...t, source:'EOD paper'}));
+  const allTrades = liveTrades.concat(eodTrades);
+  const trTable = `<h2 class=sec>Dummy transactions <span class=secsub>live market + daily paper allocation</span></h2>
+     ${allTrades.length ? `<table><thead><tr><th>Time</th><th>Source</th><th>Action</th><th>Stock</th><th>Qty</th><th>Price</th><th>Value</th><th>Reason</th></tr></thead>
+     <tbody>${allTrades.map(t=>`<tr>
+       <td>${tradeTime(t, p.ist)}</td>
+       <td>${t.source}</td>
+       <td class="${t.action==='BUY'?'up':'down'}">${t.action}${(t.reason||'')==='stop_loss'?' STOP':''}</td>
+       <td><div>${t.name||t.symbol}</div><div class=broker>${t.symbol||''}</div></td>
+       <td>${t.qty||0}</td>
+       <td>₹${(t.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td>
+       <td>${tradeValue(t)}</td>
+       <td>${tradeReason(t)}</td></tr>`).join('')}</tbody></table>`
+       : '<div class=empty>No dummy transactions recorded for the latest run. During market hours, live protective actions appear here; end-of-day allocation trades appear after the daily paper run.</div>'}`;
 
   const hist = (p.history||[]).slice().reverse();
   const histTable = hist.length
@@ -749,7 +789,7 @@ async function initPaper(){
 
   const note = p.strategy ? `<div class=foot>${p.strategy}</div>` : '';
 
-  body.innerHTML = renderLive() + renderReadiness() + cards + riskBar + riskEvents + trTable + posTable
+  body.innerHTML = renderLive() + pnlOnly + renderReadiness() + trTable + cards + riskBar + riskEvents + posTable
     + histTable + renderBacktest() + note;
 }
 </script>

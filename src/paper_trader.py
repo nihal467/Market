@@ -238,7 +238,8 @@ def run() -> dict:
             loss_pct = round((px / avg - 1) * 100, 2)
             trades.append({"action": "SELL", "symbol": sym,
                            "name": names.get(sym, sym), "qty": pos["qty"],
-                           "price": round(px, 2), "reason": stop_reason})
+                           "price": round(px, 2), "reason": stop_reason,
+                           "date": today, "ist": ist.isoformat(), "phase": "eod"})
             risk_events.append({"type": stop_reason, "symbol": sym,
                                 "name": names.get(sym, sym), "loss_pct": loss_pct,
                                 "peak_price": pos.get("peak_price")})
@@ -275,7 +276,8 @@ def run() -> dict:
             state["cash"] += proceeds - cost
             trades.append({"action": "SELL", "symbol": sym,
                            "name": names.get(sym, sym), "qty": pos["qty"],
-                           "price": round(px, 2), "reason": "exit_signal"})
+                           "price": round(px, 2), "reason": "exit_signal",
+                           "date": today, "ist": ist.isoformat(), "phase": "eod"})
 
     # 2) Determine equal-weight budget per target, then apply position & sector
     # caps so a single name or sector can't dominate the book.
@@ -344,7 +346,8 @@ def run() -> dict:
                     "peak_price": round(px, 2), "name": names.get(sym, sym)}
             trades.append({"action": "BUY", "symbol": sym,
                            "name": names.get(sym, sym), "qty": buy_qty,
-                           "price": round(px, 2)})
+                           "price": round(px, 2), "reason": "weekly_rebalance",
+                           "date": today, "ist": ist.isoformat(), "phase": "eod"})
     elif rebalance_due and targets:
         print("Risk guard active — new buys skipped today.")
 
