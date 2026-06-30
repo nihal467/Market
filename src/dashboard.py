@@ -584,9 +584,7 @@ async function initPaper(){
     const when = live.ist ? new Date(live.ist).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
     const nb = (live.intraday_trades||[]).filter(t=>t.action==='BUY').length;
     const ns = (live.stops||[]).length;
-    const rt = live.realtime
-      ? '<span class=\"srcbadge rt\">● REAL-TIME · Groww</span>'
-      : '<span class=\"srcbadge dl\">● ~15-min delayed · Yahoo</span>';
+    const rt = '<span class=\"srcbadge dl\">● ~15-min delayed · Yahoo</span>';
     return `<div class=\"livebanner ${dcl}\">
       <div class=livehead><span class=livedot></span> LIVE · virtual ₹5L · updates every ~15 min during market hours ${rt}</div>
       <div class=cards>
