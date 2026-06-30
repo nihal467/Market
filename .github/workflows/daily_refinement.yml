@@ -1,0 +1,154 @@
+name: Daily Refinement Task
+
+# Creates one post-market observation/refinement issue per trading day.
+# Cloudflare Worker `market-intraday-watchdog` dispatches this after the
+# close/dashboard/data jobs have had time to publish.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: daily-refinement-task
+  cancel-in-progress: false
+
+jobs:
+  create-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (main)
+        uses: actions/checkout@v4
+
+      - name: Checkout data branch
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: data-branch
+
+      - name: Create post-market refinement issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COPILOT_ASSIGNEE: ${{ secrets.COPILOT_ASSIGNEE }}
+        run: |
+          set -euo pipefail
+
+          today="$(TZ=Asia/Kolkata date +%F)"
+          title="Post-market dummy refinement: ${today}"
+
+          existing="$(gh issue list \
+            --state open \
+            --label daily-refinement \
+            --search "${title} in:title" \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -n "$existing" ]; then
+            echo "Issue already exists: #${existing}"
+            exit 0
+          fi
+
+          paper="data-branch/paper/latest.json"
+          live="data-branch/paper/live.json"
+          ready="data-branch/paper/readiness.json"
+          daily="data-branch/daily/latest.json"
+          backtest="data-branch/backtest/latest.json"
+
+          paper_summary="$(jq -r '
+            [
+              "- Paper date: " + (.history[-1].date // .ist // "unknown"),
+              "- Portfolio value: ₹" + ((.value // 0) | tostring),
+              "- Today P&L: ₹" + ((.day_pnl // 0) | tostring) + " (" + ((.day_pnl_pct // 0) | tostring) + "%)",
+              "- Total P&L: ₹" + ((.total_pnl // 0) | tostring) + " (" + ((.total_pnl_pct // 0) | tostring) + "%)",
+              "- Alpha vs NIFTY: " + ((.alpha_pct // 0) | tostring) + "%",
+              "- Positions: " + ((.n_positions // 0) | tostring),
+              "- Trades in latest paper run: " + (((.today_trades // []) | length) | tostring)
+            ] | join("\n")
+          ' "$paper" 2>/dev/null || echo "- Paper data unavailable")"
+
+          readiness_summary="$(jq -r '
+            [
+              "- Decision: " + (.decision // "unknown"),
+              "- Days: " + ((.summary.paper_days // 0) | tostring) + "/" + ((.summary.min_trading_days // 20) | tostring),
+              "- Blocking checks: " + ((.summary.passed_blocking // 0) | tostring) + "/" + ((.summary.blocking_criteria // 0) | tostring),
+              "- Failed checks: " + (([.criteria[]? | select(.passed == false) | .key] | join(", ")) // "none")
+            ] | join("\n")
+          ' "$ready" 2>/dev/null || echo "- Readiness data unavailable")"
+
+          live_summary="$(jq -r '
+            [
+              "- Live snapshot IST: " + (.ist // "unknown"),
+              "- Market open flag: " + ((.market_open // false) | tostring),
+              "- Live day P&L: ₹" + ((.day_pnl // 0) | tostring) + " (" + ((.day_pnl_pct // 0) | tostring) + "%)",
+              "- Live actions: " + (((.intraday_trades // []) | length) | tostring),
+              "- Stops: " + (((.stops // []) | length) | tostring)
+            ] | join("\n")
+          ' "$live" 2>/dev/null || echo "- Live data unavailable")"
+
+          transaction_summary="$(jq -r '
+            (.today_trades // [])[:10]
+            | if length == 0 then "- No EOD paper trades in latest run"
+              else map("- " + (.action // "?") + " " + (.symbol // "?") + " qty " + ((.qty // 0) | tostring) + " @ ₹" + ((.price // 0) | tostring) + " (" + ((.reason // "paper_trade") | tostring) + ")") | join("\n")
+              end
+          ' "$paper" 2>/dev/null || echo "- Transaction data unavailable")"
+
+          signal_summary="$(jq -r '
+            [
+              "- Trading date: " + (.trading_date // "unknown"),
+              "- Signal counts: BUY " + ((.signal_counts.BUY // 0) | tostring) + ", HOLD " + ((.signal_counts.HOLD // 0) | tostring) + ", SELL " + ((.signal_counts.SELL // 0) | tostring),
+              "- Market regime: " + (((.market_regime.reason // "unknown") | tostring))
+            ] | join("\n")
+          ' "$daily" 2>/dev/null || echo "- Daily analysis unavailable")"
+
+          lab_summary="$(jq -r '
+            ((.strategy_lab.variants // [])[:3])
+            | if length == 0 then "- No strategy lab variants available"
+              else map("- " + (.id // "?") + ": return " + ((.total_return_pct // 0) | tostring) + "%, alpha " + ((.alpha_pct // 0) | tostring) + "%, maxDD " + ((.max_drawdown_pct // 0) | tostring) + "%") | join("\n")
+              end
+          ' "$backtest" 2>/dev/null || echo "- Backtest lab unavailable")"
+
+          cat > /tmp/refinement-issue.md <<EOF
+          ## Goal
+          Assign this issue to Copilot as a daily post-market refinement task.
+
+          Review today's dummy-trading behavior, identify only evidence-backed improvements, and propose a small safe change if the data justifies it. Do not add strategy parameters randomly.
+
+          ## Latest Paper P&L
+          ${paper_summary}
+
+          ## Incubation Gate
+          ${readiness_summary}
+
+          ## Live Market Snapshot
+          ${live_summary}
+
+          ## Latest Dummy Transactions
+          ${transaction_summary}
+
+          ## Daily Analysis Context
+          ${signal_summary}
+
+          ## Backtest Lab Context
+          ${lab_summary}
+
+          ## Copilot Instructions
+          - Inspect the dashboard/data outputs and current strategy code.
+          - Look for repeated or material failure patterns: stale data, bad churn, weak ranking, poor risk behavior, oversized drawdown, or confusing UI.
+          - If there is no strong evidence for a code change, say so and leave the system unchanged.
+          - If a change is justified, keep it small, testable, and paper-only.
+          - Preserve the one-month incubation rule. Do not recommend real-money trading.
+          - Include validation steps and expected effect on the readiness gate.
+          EOF
+
+          gh label create daily-refinement --color 1f883d --description "Daily dummy trading observation/refinement" 2>/dev/null || true
+          gh label create copilot-task --color 0969da --description "Candidate task for GitHub Copilot coding agent" 2>/dev/null || true
+          gh label create paper-trading --color fbca04 --description "Virtual/paper trading system" 2>/dev/null || true
+
+          create_args=(--title "$title" --body-file /tmp/refinement-issue.md --label daily-refinement --label copilot-task --label paper-trading)
+          if [ -n "${COPILOT_ASSIGNEE:-}" ]; then
+            create_args+=(--assignee "$COPILOT_ASSIGNEE")
+          fi
+
+          issue_url="$(gh issue create "${create_args[@]}")"
+          echo "Created ${issue_url}"
