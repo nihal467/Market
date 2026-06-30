@@ -30,9 +30,10 @@ def _headers(bearer: str) -> dict:
         "x-request-id": str(uuid.uuid4()),
         "Authorization": "Bearer " + bearer,
         "Content-Type": "application/json",
+        "x-client-id": "growwapi",
+        "x-client-platform": "growwapi-python-client",
+        "x-client-platform-version": "1.5.0",
         "x-api-version": "1.0",
-        "x-client-id": "market-bot",
-        "x-client-platform": "market-bot",
     }
 
 
