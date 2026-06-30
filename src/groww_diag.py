@@ -106,13 +106,17 @@ def main() -> None:
         except Exception as exc:  # noqa: BLE001
             print(f"[{name}] ERROR {exc}")
 
-    # Sanity: does the same token work on a non-live-data endpoint (holdings)?
-    print("\n-- Step 3: control endpoint (GET /holdings/user) --")
+    # Sanity: does the same token work on a non-live-data endpoint? Use the
+    # margin endpoint (returns no holdings/PII) just to confirm the token is
+    # valid and the failure is specific to live-data. We deliberately do NOT
+    # call /holdings to avoid printing account data into public CI logs.
+    print("\n-- Step 3: control endpoint (GET /margins/detail/user) --")
     try:
-        resp = requests.get(f"{GROWW_BASE}/holdings/user", headers=_headers(token), timeout=20)
-        print(f"[holdings] status={resp.status_code} body={resp.text[:200]}")
+        resp = requests.get(f"{GROWW_BASE}/margins/detail/user", headers=_headers(token), timeout=20)
+        ok = resp.status_code == 200
+        print(f"[margins] status={resp.status_code} token_valid={ok}")
     except Exception as exc:  # noqa: BLE001
-        print(f"[holdings] ERROR {exc}")
+        print(f"[margins] ERROR {exc}")
 
     print("\nRESULT: see per-endpoint statuses above. 403 on live-data only => "
           "the API key needs a market-data subscription enabled on Groww.")
