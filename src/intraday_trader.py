@@ -63,12 +63,6 @@ def _live_prices() -> dict:
     return prices
 
 
-def _data_source() -> str:
-    """Whether intraday prices are real-time (groww) or delayed (yfinance)."""
-    snap = ds.read_json("intraday/latest.json", default={}) or {}
-    return snap.get("data_source", "yfinance")
-
-
 def run() -> dict:
     ist = now_ist()
     today = ist.strftime("%Y-%m-%d")
@@ -219,8 +213,6 @@ def run() -> dict:
         "ist": ist.isoformat(),
         "market_open": True,
         "as_of_prices": "intraday/latest.json",
-        "data_source": _data_source(),
-        "realtime": _data_source() == "groww",
         "start_capital": state["start_capital"],
         "value": round(end_value, 2),
         "cash": round(state["cash"], 2),

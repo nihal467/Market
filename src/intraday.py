@@ -19,7 +19,6 @@ import pandas as pd
 import yfinance as yf
 
 import datastore as ds
-import live_provider
 from market_calendar import is_market_open, now_ist, session_phase
 
 INDEX_PROXIES = [
@@ -91,19 +90,6 @@ def _snapshot(symbols: list[str]) -> dict[str, dict]:
         except (KeyError, TypeError, IndexError):
             continue
 
-    # Overlay Groww real-time LTPs where available (replaces Yahoo's ~15-min
-    # delayed price and recomputes % change against the same prev close). No-op
-    # when Groww isn't configured — yfinance prices are kept as-is.
-    live = live_provider.live_ltps(symbols)
-    if live:
-        for sym, ltp in live.items():
-            rec = out.get(sym)
-            if not rec:
-                continue
-            rec["price"] = ltp
-            rec["source"] = "groww"
-            pc = rec.get("prev_close")
-            rec["chg_pct"] = round((ltp - pc) / pc * 100, 2) if pc else rec.get("chg_pct")
     return out
 
 
@@ -141,16 +127,11 @@ def run() -> dict:
 
     movers.sort(key=lambda r: abs(r.get("chg_pct") or 0), reverse=True)
 
-    sources = {r.get("source", "yfinance") for r in rows}
-    data_source = "groww" if "groww" in sources else "yfinance"
-
     payload = {
         "generated_at": ds.now_utc().isoformat(),
         "ist": ist.isoformat(),
         "phase": phase,
         "count": len(rows),
-        "data_source": data_source,
-        "realtime": data_source == "groww",
         "movers": movers,
         "snapshots": rows,
     }
