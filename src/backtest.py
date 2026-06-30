@@ -45,7 +45,9 @@ from paper_trader import (
     START_CAPITAL,
     STOP_LOSS_PCT,
     TOP_N,
+    TRAILING_STOP_PCT,
 )
+from strategy_config import strategy_metadata
 
 BENCHMARK = "^NSEI"
 LOOKBACK = "2y"
@@ -184,6 +186,8 @@ def run() -> dict:
     daily_returns: list[float] = []
     n_rebalances = 0
     n_stops = 0
+    total_costs = 0.0
+    turnover = 0.0
     prev_value = START_CAPITAL
 
     def price_at(sym, date):
@@ -216,14 +220,26 @@ def run() -> dict:
             scored.sort(key=lambda x: (x[0], -x[1]), reverse=True)
             targets = scored[:TOP_N]
             target_syms = {t[2] for t in targets}
+            regime_row = bclose[bclose.index <= pd.Timestamp(date)].tail(200)
+            risk_on = True
+            if len(regime_row) >= 200:
+                bsma50 = float(regime_row.rolling(50).mean().iloc[-1])
+                bsma200 = float(regime_row.rolling(200).mean().iloc[-1])
+                bpx = float(regime_row.iloc[-1])
+                risk_on = bpx >= bsma50 and bsma50 >= bsma200
 
             # Stop-loss exits first.
             for sym in list(positions.keys()):
                 px = prices_today.get(sym) or positions[sym]["avg"]
                 avg = positions[sym]["avg"]
-                if avg and px <= avg * (1 - STOP_LOSS_PCT):
+                positions[sym]["peak"] = max(positions[sym].get("peak", px), px)
+                if avg and (px <= avg * (1 - STOP_LOSS_PCT) or
+                            px <= positions[sym]["peak"] * (1 - TRAILING_STOP_PCT)):
                     proceeds = positions[sym]["qty"] * px
-                    cash += proceeds * (1 - COST_PER_SIDE)
+                    cost = proceeds * COST_PER_SIDE
+                    total_costs += cost
+                    turnover += proceeds
+                    cash += proceeds - cost
                     positions.pop(sym)
                     target_syms.discard(sym)
                     targets = [t for t in targets if t[2] != sym]
@@ -234,14 +250,17 @@ def run() -> dict:
                 if sym not in target_syms:
                     px = prices_today.get(sym) or positions[sym]["avg"]
                     proceeds = positions[sym]["qty"] * px
-                    cash += proceeds * (1 - COST_PER_SIDE)
+                    cost = proceeds * COST_PER_SIDE
+                    total_costs += cost
+                    turnover += proceeds
+                    cash += proceeds - cost
                     positions.pop(sym)
 
             # Allocate to targets with caps.
             total_value = cash + sum(
                 positions[s]["qty"] * (prices_today.get(s) or positions[s]["avg"])
                 for s in positions)
-            if targets:
+            if targets and risk_on:
                 base_budget = total_value / len(targets)
                 pos_cap = MAX_POSITION_PCT * total_value
                 sector_cap = MAX_SECTOR_PCT * total_value
@@ -270,15 +289,19 @@ def run() -> dict:
                     if qty <= 0:
                         continue
                     spend = qty * px
-                    cash -= spend * (1 + COST_PER_SIDE)
+                    cost = spend * COST_PER_SIDE
+                    total_costs += cost
+                    turnover += spend
+                    cash -= spend + cost
                     sector_alloc[sec] = sector_alloc.get(sec, 0.0) + spend
                     if sym in positions:
                         old = positions[sym]
                         nq = old["qty"] + qty
                         old["avg"] = (old["avg"] * old["qty"] + spend) / nq
                         old["qty"] = nq
+                        old["peak"] = max(old.get("peak", px), px)
                     else:
-                        positions[sym] = {"qty": qty, "avg": px}
+                        positions[sym] = {"qty": qty, "avg": px, "peak": px}
 
         # End-of-day mark to market.
         mv = 0.0
@@ -301,6 +324,10 @@ def run() -> dict:
     sharpe = _sharpe(daily_returns)
     win_rate = round(100 * sum(1 for r in daily_returns if r > 0) / len(daily_returns), 1) \
         if daily_returns else 0.0
+    half = max(1, len(equity) // 2)
+    first_half_ret = round((equity[half - 1] / START_CAPITAL - 1) * 100, 2)
+    second_half_ret = round((equity[-1] / equity[half - 1] - 1) * 100, 2) if equity[half - 1] else 0.0
+    turnover_pct = round(turnover / max(START_CAPITAL, 1) * 100, 2)
 
     # Benchmark buy & hold over the same window.
     bench_ret = None
@@ -337,6 +364,8 @@ def run() -> dict:
         "trading_days": len(equity),
         "n_rebalances": n_rebalances,
         "n_stops": n_stops,
+        "costs": round(total_costs, 2),
+        "turnover_pct_of_start": turnover_pct,
         "final_value": end_v,
         "total_return_pct": total_ret,
         "cagr_pct": cagr,
@@ -347,10 +376,19 @@ def run() -> dict:
         "sharpe": sharpe,
         "win_rate_pct": win_rate,
         "params": {
-            "top_n": TOP_N, "cost_per_side_pct": round(COST_PER_SIDE * 100, 3),
-            "stop_loss_pct": round(STOP_LOSS_PCT * 100, 1),
-            "max_position_pct": round(MAX_POSITION_PCT * 100, 1),
-            "max_sector_pct": round(MAX_SECTOR_PCT * 100, 1),
+            **strategy_metadata(),
+            "rebalance_every_days": REBALANCE_EVERY,
+            "lookback": LOOKBACK,
+        },
+        "validation": {
+            "first_half_return_pct": first_half_ret,
+            "second_half_return_pct": second_half_ret,
+            "out_of_sample_warning": "single-history replay; not a true train/test optimization",
+            "bias_warnings": [
+                "today's universe only (survivorship bias)",
+                "news sentiment excluded historically",
+                "daily close fills; intraday delayed data not modeled",
+            ],
         },
         "equity_curve": curve,
         "benchmark_curve": bench_curve,

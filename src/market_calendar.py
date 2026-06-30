@@ -4,10 +4,9 @@ GitHub Actions cron runs in UTC and is not precise, so we gate work in Python:
 intraday jobs no-op outside market hours / on weekends, and we annotate every
 snapshot with the IST timestamp and session phase.
 
-NOTE: this does not account for NSE trading holidays (no free reliable feed
-without hitting NSE, which blocks CI IPs). Holiday runs simply produce a
-snapshot with little price movement — harmless. A holiday list can be added to
-``nse_holidays`` below if desired.
+The holiday list is intentionally static so CI does not depend on NSE's website
+(which often blocks datacenter IPs). Refresh it yearly from the NSE/Nifty
+Indices trading-holiday calendar.
 """
 from __future__ import annotations
 
@@ -18,8 +17,27 @@ IST = timezone(timedelta(hours=5, minutes=30))
 MARKET_OPEN = time(9, 15)
 MARKET_CLOSE = time(15, 30)
 
-# Optional manual holiday list (YYYY-MM-DD). Extend as needed each year.
-nse_holidays: set[str] = set()
+# NSE equity trading holidays for calendar year 2026 (YYYY-MM-DD).
+nse_holidays: set[str] = {
+    "2026-01-15",  # Makar Sankranti / Pongal
+    "2026-01-26",  # Republic Day
+    "2026-02-15",  # Maha Shivaratri
+    "2026-03-04",  # Holi
+    "2026-03-21",  # Id-Ul-Fitr / Ramzan Id
+    "2026-03-26",  # Ram Navami
+    "2026-03-31",  # Mahavir Jayanti
+    "2026-04-03",  # Good Friday
+    "2026-04-14",  # Dr. Baba Saheb Ambedkar Jayanti
+    "2026-05-01",  # Maharashtra Day
+    "2026-05-27",  # Bakri Id
+    "2026-08-15",  # Independence Day
+    "2026-08-28",  # Ganesh Chaturthi
+    "2026-10-02",  # Mahatma Gandhi Jayanti
+    "2026-10-20",  # Diwali Laxmi Pujan
+    "2026-10-21",  # Diwali Balipratipada
+    "2026-11-24",  # Guru Nanak Jayanti
+    "2026-12-25",  # Christmas
+}
 
 
 def now_ist() -> datetime:

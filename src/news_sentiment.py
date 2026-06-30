@@ -9,6 +9,9 @@ from __future__ import annotations
 import re
 import urllib.parse
 import xml.etree.ElementTree as ET
+from datetime import timezone
+from email.utils import parsedate_to_datetime
+from typing import Optional
 
 import requests
 
@@ -32,21 +35,23 @@ _TOKEN_RE = re.compile(r"[a-zA-Z']+")
 
 def get_news_sentiment(query: str, max_items: int = 8) -> dict:
     """Return {'score': float, 'count': int, 'headlines': [...]} for a query."""
-    headlines = _fetch_headlines(query, max_items)
-    if not headlines:
-        return {"score": 0.0, "count": 0, "headlines": []}
+    items = _fetch_headlines(query, max_items)
+    if not items:
+        return {"score": 0.0, "count": 0, "headlines": [], "items": []}
 
-    scores = [_score_text(h) for h in headlines]
+    scores = [_score_text(item["clean_title"]) for item in items]
     avg = round(sum(scores) / len(scores), 3)
     return {
         "score": avg,
-        "count": len(headlines),
-        "headlines": headlines[:5],
+        "count": len(items),
+        "headlines": [item["title"] for item in items[:5]],
+        "items": items[:5],
+        "newest_published": items[0].get("published_at"),
     }
 
 
-def _fetch_headlines(query: str, max_items: int) -> list[str]:
-    url = GOOGLE_NEWS_RSS.format(query=urllib.parse.quote(query))
+def _fetch_headlines(query: str, max_items: int) -> list[dict]:
+    url = GOOGLE_NEWS_RSS.format(query=urllib.parse.quote(query + " when:10d"))
     try:
         resp = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
         resp.raise_for_status()
@@ -55,11 +60,51 @@ def _fetch_headlines(query: str, max_items: int) -> list[str]:
         print(f"  ! news fetch failed for '{query}': {exc}")
         return []
 
-    titles = [
-        item.findtext("title", default="").strip()
-        for item in root.iter("item")
-    ]
-    return [t for t in titles if t][:max_items]
+    out = []
+    seen = set()
+    for item in root.iter("item"):
+        title = item.findtext("title", default="").strip()
+        if not title:
+            continue
+        clean, source = _clean_title(title)
+        key = _dedupe_key(clean)
+        if key in seen:
+            continue
+        seen.add(key)
+        published = _parse_pubdate(item.findtext("pubDate", default=""))
+        out.append({
+            "title": title,
+            "clean_title": clean,
+            "source": source,
+            "published_at": published,
+        })
+        if len(out) >= max_items:
+            break
+    return out
+
+
+def _clean_title(title: str) -> tuple[str, Optional[str]]:
+    parts = title.rsplit(" - ", 1)
+    if len(parts) == 2:
+        return parts[0].strip(), parts[1].strip()
+    return title.strip(), None
+
+
+def _dedupe_key(text: str) -> str:
+    tokens = [t.lower() for t in _TOKEN_RE.findall(text)]
+    return " ".join(tokens[:14])
+
+
+def _parse_pubdate(raw: str) -> Optional[str]:
+    if not raw:
+        return None
+    try:
+        dt = parsedate_to_datetime(raw)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).isoformat()
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def _score_text(text: str) -> float:

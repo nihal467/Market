@@ -29,16 +29,20 @@ import sys
 
 import datastore as ds
 from market_calendar import now_ist
+from strategy_config import (
+    COST_PER_SIDE,
+    MAX_DAILY_LOSS_PCT,
+    MAX_DRAWDOWN_PCT,
+    MAX_POSITION_PCT,
+    MAX_SECTOR_PCT,
+    START_CAPITAL,
+    STOP_LOSS_PCT,
+    TOP_N,
+    TRAILING_STOP_PCT,
+    strategy_metadata,
+)
 
-START_CAPITAL = 500000.0
-TOP_N = 10               # equal-weight this many top BUY-ranked stocks
-COST_PER_SIDE = 0.0010   # 0.10% per buy/sell leg (brokerage+slippage+taxes proxy)
 BENCHMARK = "^NSEI"      # NIFTY 50 — the "do nothing, just hold the index" baseline
-
-# --- Risk controls ---------------------------------------------------------
-STOP_LOSS_PCT = 0.08     # force-exit a holding down >8% from its avg buy price
-MAX_POSITION_PCT = 0.15  # no single stock may exceed 15% of the book
-MAX_SECTOR_PCT = 0.40    # no single sector may exceed 40% of the book
 
 STATE_FILE = "paper/state.json"
 LATEST_FILE = "paper/latest.json"
@@ -124,12 +128,12 @@ def _sector_map() -> dict:
 
 def run() -> dict:
     ist = now_ist()
-    today = ist.strftime("%Y-%m-%d")
 
     daily = ds.read_json("daily/latest.json", default=None)
     if not daily or not daily.get("analysis"):
         print("No daily analysis available yet — run daily_analysis first.")
         return {"skipped": True, "reason": "no_daily"}
+    today = daily.get("trading_date") or ist.strftime("%Y-%m-%d")
 
     analysis = daily["analysis"]
     prices = {a["symbol"]: a["price"] for a in analysis if a.get("price")}
@@ -147,12 +151,16 @@ def run() -> dict:
     # day's stored closing NAV (true day-over-day mark-to-market). On the first
     # ever run there is no prior snapshot, so we anchor to the start capital.
     prev_value = state["history"][-1]["value"] if state["history"] else state["start_capital"]
+    equity_peak = max([h.get("value", state["start_capital"]) for h in state["history"]] or
+                      [state["start_capital"]])
 
     targets = _pick_targets(analysis)
+    regime = daily.get("market_regime") or {}
     sectors = _sector_map()
     trades: list[dict] = []
     risk_events: list[dict] = []
     cost_total = 0.0
+    risk_block_new_buys = False
 
     # 1a) STOP-LOSS: force-exit any holding down more than STOP_LOSS_PCT from its
     # average buy price, regardless of signal. These symbols are blocked from
@@ -161,8 +169,14 @@ def run() -> dict:
     for sym in list(state["positions"].keys()):
         pos = state["positions"][sym]
         px = prices.get(sym, pos.get("avg_price", 0.0))
+        pos["peak_price"] = round(max(pos.get("peak_price", px), px), 2)
         avg = pos.get("avg_price", 0.0)
+        stop_reason = None
         if avg and px <= avg * (1 - STOP_LOSS_PCT):
+            stop_reason = "stop_loss"
+        elif px <= pos["peak_price"] * (1 - TRAILING_STOP_PCT):
+            stop_reason = "trailing_stop"
+        if stop_reason:
             proceeds = pos["qty"] * px
             cost = proceeds * COST_PER_SIDE
             cost_total += cost
@@ -170,9 +184,10 @@ def run() -> dict:
             loss_pct = round((px / avg - 1) * 100, 2)
             trades.append({"action": "SELL", "symbol": sym,
                            "name": names.get(sym, sym), "qty": pos["qty"],
-                           "price": round(px, 2), "reason": "stop_loss"})
-            risk_events.append({"type": "stop_loss", "symbol": sym,
-                                "name": names.get(sym, sym), "loss_pct": loss_pct})
+                           "price": round(px, 2), "reason": stop_reason})
+            risk_events.append({"type": stop_reason, "symbol": sym,
+                                "name": names.get(sym, sym), "loss_pct": loss_pct,
+                                "peak_price": pos.get("peak_price")})
             blocked.add(sym)
             state["positions"].pop(sym)
 
@@ -196,7 +211,17 @@ def run() -> dict:
     # 2) Determine equal-weight budget per target, then apply position & sector
     # caps so a single name or sector can't dominate the book.
     total_value = state["cash"] + _market_value(state["positions"], prices)
-    if targets:
+    if prev_value and (total_value / prev_value - 1) <= -MAX_DAILY_LOSS_PCT:
+        risk_block_new_buys = True
+        risk_events.append({"type": "daily_loss_guard", "loss_pct": round((total_value / prev_value - 1) * 100, 2)})
+    if equity_peak and (total_value / equity_peak - 1) <= -MAX_DRAWDOWN_PCT:
+        risk_block_new_buys = True
+        risk_events.append({"type": "drawdown_guard", "drawdown_pct": round((total_value / equity_peak - 1) * 100, 2)})
+    if regime and not regime.get("risk_on", True):
+        risk_block_new_buys = True
+        risk_events.append({"type": "market_regime_guard", "reason": regime.get("reason")})
+
+    if targets and not risk_block_new_buys:
         base_budget = total_value / len(targets)
         pos_cap = MAX_POSITION_PCT * total_value
         sector_cap = MAX_SECTOR_PCT * total_value
@@ -243,13 +268,16 @@ def run() -> dict:
                 old["avg_price"] = round(
                     (old["avg_price"] * old["qty"] + spend) / new_qty, 2)
                 old["qty"] = new_qty
+                old["peak_price"] = round(max(old.get("peak_price", px), px), 2)
             else:
                 state["positions"][sym] = {
                     "qty": buy_qty, "avg_price": round(px, 2),
-                    "name": names.get(sym, sym)}
+                    "peak_price": round(px, 2), "name": names.get(sym, sym)}
             trades.append({"action": "BUY", "symbol": sym,
                            "name": names.get(sym, sym), "qty": buy_qty,
                            "price": round(px, 2)})
+    elif targets:
+        print("Risk guard active — new buys skipped today.")
 
     # 4) Mark to market at today's close.
     end_value = state["cash"] + _market_value(state["positions"], prices)
@@ -287,6 +315,7 @@ def run() -> dict:
         "n_positions": len(state["positions"]),
         "n_trades": len(trades),
         "n_stops": sum(1 for e in risk_events if e["type"] == "stop_loss"),
+        "risk_block_new_buys": risk_block_new_buys,
         "costs": round(cost_total, 2),
     }
 
@@ -309,6 +338,7 @@ def run() -> dict:
             "symbol": sym, "name": pos.get("name", sym), "qty": pos["qty"],
             "avg_price": pos["avg_price"], "price": round(px, 2),
             "value": mv, "pnl": pnl,
+            "peak_price": pos.get("peak_price"),
             "pnl_pct": round((px / pos["avg_price"] - 1) * 100, 2)
             if pos["avg_price"] else 0.0,
         })
@@ -331,18 +361,16 @@ def run() -> dict:
         "n_positions": len(state["positions"]),
         "today_trades": trades,
         "risk_events": risk_events,
-        "risk_settings": {
-            "stop_loss_pct": round(STOP_LOSS_PCT * 100, 1),
-            "max_position_pct": round(MAX_POSITION_PCT * 100, 1),
-            "max_sector_pct": round(MAX_SECTOR_PCT * 100, 1),
-            "top_n": TOP_N,
-        },
+        "risk_settings": strategy_metadata(),
+        "market_regime": regime,
         "positions": positions_view,
         "history": state["history"][-120:],
+        "strategy_config": strategy_metadata(),
         "strategy": (
             f"Equal-weight top {TOP_N} BUY-ranked stocks (technicals + news) from "
             f"the daily Top-50 analysis, rebalanced each close. Risk controls: "
-            f"{STOP_LOSS_PCT*100:.0f}% stop-loss, {MAX_POSITION_PCT*100:.0f}% max "
+            f"{STOP_LOSS_PCT*100:.0f}% stop-loss, {TRAILING_STOP_PCT*100:.0f}% trailing stop, "
+            f"{MAX_POSITION_PCT*100:.0f}% max "
             f"per stock, {MAX_SECTOR_PCT*100:.0f}% max per sector. "
             f"{COST_PER_SIDE*100:.2f}% cost per trade leg. Simulation only — not "
             "investment advice."
