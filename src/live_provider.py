@@ -122,14 +122,28 @@ def live_ltps(yf_symbols: list[str]) -> dict[str, float]:
     if not token:
         return {}
 
-    # Build Groww symbols and a reverse map back to yfinance symbols.
+    # Build Groww symbols and reverse maps back to yfinance symbols. We keep
+    # several lookup keys (full "NSE_RELIANCE", bare "RELIANCE") because the LTP
+    # response may key results slightly differently from the request.
     g_to_yf: dict[str, str] = {}
+    bare_to_yf: dict[str, str] = {}
     for s in yf_symbols:
         g = _to_groww_symbol(s)
         if g:
             g_to_yf[g] = s
+            bare_to_yf[g.split("_", 1)[-1]] = s
     if not g_to_yf:
         return {}
+
+    def _resolve(key: str) -> str | None:
+        """Map a response key back to the original yfinance symbol, robustly."""
+        if key in g_to_yf:
+            return g_to_yf[key]
+        norm = key.replace("-", "_").upper()
+        if norm in g_to_yf:
+            return g_to_yf[norm]
+        bare = norm.split("_", 1)[-1]
+        return bare_to_yf.get(bare)
 
     out: dict[str, float] = {}
     g_symbols = list(g_to_yf.keys())
@@ -145,10 +159,10 @@ def live_ltps(yf_symbols: list[str]) -> dict[str, float]:
             resp.raise_for_status()
             body = resp.json()
             payload = body.get("payload", body) if isinstance(body, dict) else {}
-            for g_sym, val in (payload or {}).items():
+            for key, val in (payload or {}).items():
                 ltp = _extract_ltp(val)
-                yf_sym = g_to_yf.get(g_sym) or g_to_yf.get(g_sym.replace("NSE-", "NSE_"))
-                if ltp is not None and yf_sym:
+                yf_sym = _resolve(key)
+                if ltp is not None and ltp > 0 and yf_sym:
                     out[yf_sym] = round(ltp, 2)
         except Exception as exc:  # noqa: BLE001
             print(f"  ! Groww LTP batch failed ({exc}); falling back for these.")
