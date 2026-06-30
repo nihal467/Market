@@ -2,8 +2,9 @@
 
 Reads data/portfolio.json and data/signals.json, plus the dashboard settings in
 holdings.yaml, and writes:
-  - docs/data.json   (sanitized data the page fetches)
-  - docs/index.html  (the dashboard, committed once)
+  - data/dashboard.json  (sanitized data archive)
+  - docs/index.html      (dashboard copy)
+  - index.html           (GitHub Pages source for this repo)
 
 Privacy: if dashboard.hide_amounts is true, rupee values are omitted and only
 percentages + signals are published (safe for a public GitHub Pages site).
@@ -211,7 +212,10 @@ def write() -> None:
     html = INDEX_HTML.replace("/*__DATA__*/null", payload)
     with open(os.path.join(DOCS_DIR, "index.html"), "w", encoding="utf-8") as fh:
         fh.write(html)
+    with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as fh:
+        fh.write(html)
     print(f"Dashboard written -> {os.path.join(DOCS_DIR, 'index.html')}")
+    print(f"Dashboard written -> {os.path.join(ROOT, 'index.html')}")
     print(f"  positions: {len(data['positions'])}  signals: {data['signal_counts']}")
 
 
@@ -581,7 +585,9 @@ async function initPaper(){
 
   // --- LIVE intraday banner (only meaningful while market is open) ---
   function renderLive(){
-    if(!live || !live.market_open){ return ''; }
+    if(!live){ return ''; }
+    const liveAgeMin = live.ist ? ((Date.now() - new Date(live.ist).getTime()) / 60000) : null;
+    const freshLive = live.market_open && liveAgeMin !== null && liveAgeMin <= 90;
     const dcl = live.day_pnl>0?'up':(live.day_pnl<0?'down':'');
     const when = live.ist ? new Date(live.ist).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
     const nb = (live.intraday_trades||[]).filter(t=>t.action==='BUY').length;
@@ -592,17 +598,17 @@ async function initPaper(){
       ? `<span class=\"srcbadge rt\">● real-time · ${src}</span>`
       : `<span class=\"srcbadge dl\">● ${delay} · ${src}</span>`;
     return `<div class=\"livebanner ${dcl}\">
-      <div class=livehead><span class=livedot></span> LIVE · virtual ₹5L · updates every ~15 min during market hours ${rt}</div>
+      <div class=livehead><span class=livedot></span> ${freshLive?'LIVE':'LATEST LIVE SNAPSHOT'} · virtual ₹5L · updates every ~15 min during market hours ${rt}</div>
       <div class=cards>
         <div class=card><div class=k>Live value</div><div class=v>${inr(live.value)}</div>
-          <div class=chg>as of ${when} IST</div></div>
+          <div class=chg>as of ${when} IST${freshLive?'':' · not current'}</div></div>
         <div class=\"card\"><div class=k>Today's P&L (live)</div>
           <div class=\"v ${dcl}\">${sign(live.day_pnl)}${inr(live.day_pnl)}</div>
           <div class=\"chg ${dcl}\">${sign(live.day_pnl_pct)}${(live.day_pnl_pct||0).toFixed(2)}%</div></div>
         <div class=card><div class=k>Holdings</div><div class=v>${live.n_positions||0}</div>
           <div class=chg>cash ${inr(live.cash)}</div></div>
         <div class=card><div class=k>Intraday actions</div><div class=v>${nb} buys · ${ns} stops</div>
-          <div class=chg>${live.realtime?'real-time':'delayed feed'}</div></div>
+          <div class=chg>${freshLive ? (live.realtime?'real-time':'delayed feed') : 'stale snapshot'}</div></div>
       </div>
       ${ns?`<div class=foot>🛑 Stopped out live: ${(live.stops||[]).map(s=>`<b>${s.name||s.symbol}</b> at ${s.loss_pct}%`).join(' · ')}</div>`:''}
       <div class=foot>${live.note||''}</div>
@@ -701,7 +707,8 @@ async function initPaper(){
     return (t.reason || t.phase || 'paper_trade').replace(/_/g,' ');
   }
 
-  const livePnl = live && live.market_open ? live : null;
+  const liveAgeMin = live && live.ist ? ((Date.now() - new Date(live.ist).getTime()) / 60000) : null;
+  const livePnl = live && live.market_open && liveAgeMin !== null && liveAgeMin <= 90 ? live : null;
   const pnlSource = livePnl || p;
   const pnlUpdated = livePnl ? live.ist : p.ist;
   const pnlDcl = (pnlSource.day_pnl||0)>0?'up':((pnlSource.day_pnl||0)<0?'down':'');
