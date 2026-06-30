@@ -565,7 +565,14 @@ async function initPaper(){
     }catch(e){}
     return null;
   }
-  const [p, bt, live] = await Promise.all([load('paper'), load('backtest'), load('paper/live')]);
+  async function loadFile(path){
+    try{
+      const r = await fetch(base + '/' + path + '?t=' + Date.now(), {cache:'no-store'});
+      if(r.ok) return await r.json();
+    }catch(e){}
+    return null;
+  }
+  const [p, bt, live] = await Promise.all([load('paper'), load('backtest'), loadFile('paper/live.json')]);
 
   // --- LIVE intraday banner (only meaningful while market is open) ---
   function renderLive(){
