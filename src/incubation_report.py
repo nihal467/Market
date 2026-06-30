@@ -87,12 +87,14 @@ def run() -> dict:
     history = list(by_date.values())
     paper_days = len(history)
     max_dd = _max_drawdown_pct(history)
-    trade_days = sum(1 for row in history if row.get("n_trades", 0) > 0)
-    # Exclude the first day (initial portfolio construction) from churn
-    # calculation — buying TOP_N stocks on inception is not turnover.
-    post_inception = history[1:] if len(history) > 1 else history
+    # Exclude inception day from churn metrics — buying TOP_N stocks on
+    # day 1 is portfolio construction, not turnover.
+    post_inception = history[1:]
+    post_inception_days = len(post_inception)
+    trade_days = sum(1 for row in post_inception if row.get("n_trades", 0) > 0)
     avg_trades_per_day = (
-        sum(row.get("n_trades", 0) for row in post_inception) / max(len(post_inception), 1)
+        sum(row.get("n_trades", 0) for row in post_inception) / post_inception_days
+        if post_inception_days else 0.0
     )
 
     daily_dt = _parse_date(daily.get("trading_date"))
