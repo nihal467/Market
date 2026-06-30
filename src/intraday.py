@@ -14,6 +14,8 @@ low-latency trading trigger. The job no-ops outside market hours.
 from __future__ import annotations
 
 import sys
+import time
+from typing import Optional
 
 import pandas as pd
 import yfinance as yf
@@ -28,6 +30,12 @@ INDEX_PROXIES = [
 ]
 
 MOVE_THRESHOLD = 2.0  # abs % change vs prev close to flag as a mover
+DATA_SOURCE = "yfinance"
+SOURCE_LABEL = "Yahoo Finance"
+REALTIME = False
+DELAY_NOTE = "~15-min delayed"
+CHUNK_SIZE = 25
+DOWNLOAD_RETRIES = 3
 
 
 def _watchlist_symbols() -> list[dict]:
@@ -53,29 +61,41 @@ def _intraday_rsi(series: pd.Series, period: int = 14):
     return round(100 - (100 / (1 + lg / ll)), 2)
 
 
-def _snapshot(symbols: list[str]) -> dict[str, dict]:
-    """Batched intraday + prev-close fetch for all symbols."""
-    out: dict[str, dict] = {}
-    try:
-        intraday = yf.download(
-            symbols, period="1d", interval="15m",
-            auto_adjust=False, progress=False, group_by="ticker", threads=True,
-        )
-        daily = yf.download(
-            symbols, period="5d", interval="1d",
-            auto_adjust=False, progress=False, group_by="ticker", threads=True,
-        )
-    except Exception as exc:  # noqa: BLE001
-        print(f"  ! intraday download failed: {exc}")
-        return out
+def _download(symbols: list[str], *, period: str, interval: str) -> Optional[pd.DataFrame]:
+    for attempt in range(1, DOWNLOAD_RETRIES + 1):
+        try:
+            data = yf.download(
+                symbols, period=period, interval=interval,
+                auto_adjust=False, progress=False, group_by="ticker", threads=True,
+            )
+            if data is not None and not data.empty:
+                return data
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! {interval} download attempt {attempt}/{DOWNLOAD_RETRIES} failed: {exc}")
+        time.sleep(attempt * 2)
+    return None
 
+
+def _extract_close(data: Optional[pd.DataFrame], sym: str, *, single: bool) -> pd.Series:
+    if data is None or data.empty:
+        return pd.Series(dtype="float64")
+    try:
+        close = data["Close"] if single else data[sym]["Close"]
+        return close.dropna()
+    except (KeyError, TypeError):
+        return pd.Series(dtype="float64")
+
+
+def _snapshot_chunk(symbols: list[str]) -> dict[str, dict]:
+    """Batched intraday + prev-close fetch for one small chunk."""
+    out: dict[str, dict] = {}
+    intraday = _download(symbols, period="1d", interval="15m")
+    daily = _download(symbols, period="5d", interval="1d")
     single = len(symbols) == 1
     for sym in symbols:
         try:
-            intr = intraday["Close"] if single else intraday[sym]["Close"]
-            day = daily["Close"] if single else daily[sym]["Close"]
-            intr = intr.dropna()
-            day = day.dropna()
+            intr = _extract_close(intraday, sym, single=single)
+            day = _extract_close(daily, sym, single=single)
             if intr.empty or len(day) < 2:
                 continue
             last = round(float(intr.iloc[-1]), 2)
@@ -90,6 +110,17 @@ def _snapshot(symbols: list[str]) -> dict[str, dict]:
         except (KeyError, TypeError, IndexError):
             continue
 
+    return out
+
+
+def _snapshot(symbols: list[str]) -> dict[str, dict]:
+    """Fetch in chunks to reduce Yahoo rate-limit and partial-failure pain."""
+    out: dict[str, dict] = {}
+    for i in range(0, len(symbols), CHUNK_SIZE):
+        chunk = symbols[i:i + CHUNK_SIZE]
+        print(f"  fetching {len(chunk)} symbols from {SOURCE_LABEL}...")
+        out.update(_snapshot_chunk(chunk))
+        time.sleep(1)
     return out
 
 
@@ -126,12 +157,19 @@ def run() -> dict:
             movers.append(row)
 
     movers.sort(key=lambda r: abs(r.get("chg_pct") or 0), reverse=True)
+    if not rows:
+        print(f"  ! no prices captured from {SOURCE_LABEL}; leaving previous snapshot untouched.")
+        return {"skipped": True, "reason": "no_prices", "source": DATA_SOURCE}
 
     payload = {
         "generated_at": ds.now_utc().isoformat(),
         "ist": ist.isoformat(),
         "phase": phase,
         "count": len(rows),
+        "data_source": DATA_SOURCE,
+        "source_label": SOURCE_LABEL,
+        "realtime": REALTIME,
+        "delay": DELAY_NOTE,
         "movers": movers,
         "snapshots": rows,
     }
@@ -139,6 +177,8 @@ def run() -> dict:
     ds.append_jsonl(ds.intraday_path(ist), {
         "ist": ist.isoformat(),
         "phase": phase,
+        "data_source": DATA_SOURCE,
+        "realtime": REALTIME,
         "movers": [
             {"symbol": m["symbol"], "chg_pct": m["chg_pct"], "rsi": m["rsi"],
              "flags": m["flags"]}

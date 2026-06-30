@@ -63,6 +63,16 @@ def _live_prices() -> dict:
     return prices
 
 
+def _price_source() -> dict:
+    snap = ds.read_json("intraday/latest.json", default={}) or {}
+    return {
+        "data_source": snap.get("data_source", "yfinance"),
+        "source_label": snap.get("source_label", "Yahoo Finance"),
+        "realtime": bool(snap.get("realtime", False)),
+        "delay": snap.get("delay", "~15-min delayed"),
+    }
+
+
 def run() -> dict:
     ist = now_ist()
     today = ist.strftime("%Y-%m-%d")
@@ -213,6 +223,7 @@ def run() -> dict:
         "ist": ist.isoformat(),
         "market_open": True,
         "as_of_prices": "intraday/latest.json",
+        **_price_source(),
         "start_capital": state["start_capital"],
         "value": round(end_value, 2),
         "cash": round(state["cash"], 2),
@@ -224,8 +235,8 @@ def run() -> dict:
         "intraday_trades": trades,
         "stops": stops,
         "positions": positions_view,
-        "note": ("Live (~15-min) intraday mark-to-market of the virtual Rs 5L "
-                 "book. Stop-losses execute in real time; full rebalance is at "
+        "note": ("Delayed intraday mark-to-market of the virtual Rs 5L "
+                 "book. Stop-loss checks run every ~15 minutes; full rebalance is at "
                  "the close. Simulation only — not investment advice."),
     }
     ds.write_json(LIVE_FILE, live)

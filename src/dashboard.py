@@ -584,7 +584,11 @@ async function initPaper(){
     const when = live.ist ? new Date(live.ist).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
     const nb = (live.intraday_trades||[]).filter(t=>t.action==='BUY').length;
     const ns = (live.stops||[]).length;
-    const rt = '<span class=\"srcbadge dl\">● ~15-min delayed · Yahoo</span>';
+    const src = live.source_label || 'Yahoo Finance';
+    const delay = live.delay || '~15-min delayed';
+    const rt = live.realtime
+      ? `<span class=\"srcbadge rt\">● real-time · ${src}</span>`
+      : `<span class=\"srcbadge dl\">● ${delay} · ${src}</span>`;
     return `<div class=\"livebanner ${dcl}\">
       <div class=livehead><span class=livedot></span> LIVE · virtual ₹5L · updates every ~15 min during market hours ${rt}</div>
       <div class=cards>
@@ -596,7 +600,7 @@ async function initPaper(){
         <div class=card><div class=k>Holdings</div><div class=v>${live.n_positions||0}</div>
           <div class=chg>cash ${inr(live.cash)}</div></div>
         <div class=card><div class=k>Intraday actions</div><div class=v>${nb} buys · ${ns} stops</div>
-          <div class=chg>real-time</div></div>
+          <div class=chg>${live.realtime?'real-time':'delayed feed'}</div></div>
       </div>
       ${ns?`<div class=foot>🛑 Stopped out live: ${(live.stops||[]).map(s=>`<b>${s.name||s.symbol}</b> at ${s.loss_pct}%`).join(' · ')}</div>`:''}
       <div class=foot>${live.note||''}</div>
