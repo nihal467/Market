@@ -94,6 +94,29 @@ def main() -> None:
 
     print("\n-- Step 2: live LTP (GET /live-data/ltp) --")
     symbols = "NSE_RELIANCE,NSE_TCS,NSE_INFY"
+    probes = [
+        ("ltp",   "GET", f"{GROWW_BASE}/live-data/ltp",   {"segment": "CASH", "exchange_symbols": symbols}),
+        ("ohlc",  "GET", f"{GROWW_BASE}/live-data/ohlc",  {"segment": "CASH", "exchange_symbols": symbols}),
+        ("quote", "GET", f"{GROWW_BASE}/live-data/quote", {"exchange": "NSE", "segment": "CASH", "trading_symbol": "RELIANCE"}),
+    ]
+    for name, _m, url, params in probes:
+        try:
+            resp = requests.get(url, headers=_headers(token), params=params, timeout=20)
+            print(f"[{name}] status={resp.status_code} body={resp.text[:200]}")
+        except Exception as exc:  # noqa: BLE001
+            print(f"[{name}] ERROR {exc}")
+
+    # Sanity: does the same token work on a non-live-data endpoint (holdings)?
+    print("\n-- Step 3: control endpoint (GET /holdings/user) --")
+    try:
+        resp = requests.get(f"{GROWW_BASE}/holdings/user", headers=_headers(token), timeout=20)
+        print(f"[holdings] status={resp.status_code} body={resp.text[:200]}")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[holdings] ERROR {exc}")
+
+    print("\nRESULT: see per-endpoint statuses above. 403 on live-data only => "
+          "the API key needs a market-data subscription enabled on Groww.")
+    return
     try:
         resp = requests.get(
             f"{GROWW_BASE}/live-data/ltp",
