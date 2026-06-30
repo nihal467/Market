@@ -1,0 +1,59 @@
+name: Intraday Watchdog
+
+on:
+  schedule:
+    # GitHub cron is best-effort. Run a tiny checker frequently; it starts the
+    # heavy intraday loop only when one is missing.
+    - cron: "*/5 3-10 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: intraday-watchdog
+  cancel-in-progress: true
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check and start intraday loop
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY' > /tmp/gate.env
+          from datetime import datetime, time, timedelta, timezone
+          ist = datetime.now(timezone(timedelta(hours=5, minutes=30)))
+          # Start checking a bit before open. Stop shortly after close so a late
+          # cron can still recover a final tick.
+          active = ist.weekday() < 5 and time(9, 5) <= ist.time() <= time(15, 35)
+          print(f"IST={ist.isoformat()}")
+          print(f"ACTIVE={'true' if active else 'false'}")
+          PY
+          cat /tmp/gate.env
+          . /tmp/gate.env
+
+          if [ "$ACTIVE" != "true" ]; then
+            echo "Outside market watchdog window; no dispatch."
+            exit 0
+          fi
+
+          running="$(gh run list \
+            --repo "$REPO" \
+            --workflow intraday.yml \
+            --json databaseId,status,event,createdAt \
+            --jq '[.[] | select(.status == "in_progress" or .status == "queued" or .status == "pending")] | length')"
+
+          echo "Active intraday runs: $running"
+          if [ "$running" -gt 0 ]; then
+            echo "Intraday loop already active; no dispatch."
+            exit 0
+          fi
+
+          echo "No intraday loop active; dispatching intraday.yml."
+          gh workflow run intraday.yml --repo "$REPO" --ref main
