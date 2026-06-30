@@ -2,6 +2,11 @@ name: Intraday Watchdog
 
 on:
   schedule:
+    # Explicit smoke-test minutes for 2026-06-30 while verifying scheduler
+    # behavior. Keep the general watchdog cron below for normal operation.
+    - cron: "53 8 * * 1-5"
+    - cron: "58 8 * * 1-5"
+    - cron: "3 9 * * 1-5"
     # GitHub cron is best-effort. Run a tiny checker frequently; it starts the
     # heavy intraday loop only when one is missing.
     - cron: "*/5 3-10 * * 1-5"
