@@ -132,10 +132,10 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-06-29T20:32:33.796315+00:00",
+  "generated_at": "2026-06-30T04:33:53.266643+00:00",
   "hide_amounts": true,
   "totals": {
-    "pnl_pct": 7.0
+    "pnl_pct": 6.88
   },
   "signal_counts": {
     "BUY": 2,
@@ -148,8 +148,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.73,
-      "pnl_pct": -3.45,
+      "allocation_pct": 2.77,
+      "pnl_pct": -2.04,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -162,7 +162,7 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.49,
-      "pnl_pct": 4.4,
+      "pnl_pct": 4.12,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -174,8 +174,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.52,
-      "pnl_pct": -1.03,
+      "allocation_pct": 2.51,
+      "pnl_pct": -1.5,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -200,8 +200,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 3.99,
-      "pnl_pct": -2.61,
+      "allocation_pct": 3.97,
+      "pnl_pct": -3.06,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -226,8 +226,8 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.48,
-      "pnl_pct": 5.5,
+      "allocation_pct": 2.46,
+      "pnl_pct": 4.59,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
@@ -243,10 +243,10 @@ const d = {
       "pnl_pct": 15.6,
       "signal": "HOLD",
       "reasons": [
-        "Price below SMA50 (129.09)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 34.58 neutral",
-        "Positive news (score 0.375, 8 headlines)"
+        "Price below SMA50 (129.09) \u2014 downtrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.375)"
       ],
       "rsi": 34.58
     },
@@ -255,15 +255,15 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 25.42,
+      "allocation_pct": 25.45,
       "pnl_pct": 2.93,
       "signal": "BUY",
       "reasons": [
-        "Price above SMA50 (74.34)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 63.88 neutral",
-        "Near 52-week high",
-        "Positive news (score 0.5, 8 headlines)"
+        "Price above SMA50 (74.34) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.5)"
       ],
       "rsi": 63.88
     },
@@ -272,14 +272,14 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 17.25,
-      "pnl_pct": 39.63,
+      "allocation_pct": 17.18,
+      "pnl_pct": 38.95,
       "signal": "BUY",
       "reasons": [
-        "Price above SMA50 (320.62)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 45.87 neutral",
-        "Positive news (score 0.25, 8 headlines)"
+        "Price above SMA50 (320.62) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.25)"
       ],
       "rsi": 45.87
     },
@@ -288,15 +288,15 @@ const d = {
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 18.83,
+      "allocation_pct": 18.85,
       "pnl_pct": 1.48,
       "signal": "HOLD",
       "reasons": [
-        "Price above SMA50 (231.12)",
-        "Golden cross (SMA50>SMA200)",
         "RSI 64.11 neutral",
-        "Near 52-week high",
-        "Positive news (score 0.125, 8 headlines)"
+        "Price above SMA50 (231.12) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Neutral news sentiment (0.125)"
       ],
       "rsi": 64.11
     },
@@ -306,12 +306,12 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 0.77,
-      "pnl_pct": 37.83,
+      "pnl_pct": 37.45,
       "signal": "HOLD",
       "reasons": [
-        "Price above SMA50 (1553.51)",
         "RSI 62.13 neutral",
-        "Neutral/weak news (score 0.083, 8 headlines)"
+        "Price above SMA50 (1553.51) \u2014 uptrend",
+        "Neutral news sentiment (0.125)"
       ],
       "rsi": 62.13
     },
@@ -320,7 +320,7 @@ const d = {
       "broker": "5paisa",
       "type": "mutual_fund",
       "tradable": false,
-      "allocation_pct": 14.3,
+      "allocation_pct": 14.32,
       "pnl_pct": -3.96,
       "signal": "SIP",
       "reasons": [
@@ -332,9 +332,9 @@ const d = {
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "zUspyvoI4RlT9dotbqXmow==",
-    "iv": "kIR6n17zMoya4AB/",
-    "ct": "KKF7mM6LicDcWxeWeZBDJNKjklkSHOrVRdWXqfySXprdktpFUor/18BmvAgLumEyev5KRmfpXV9SYgwjBNX86L3fpPXk+dQ8n9+9u6bSLh/EQuscFrDbNS57G7tW9H//7l4oF5ki4tQj70Z1qyJ758jbHVId4cLkfCL0Cq7y1Wt64y3J7MOhnxxvIcQMHblLOo+jT4qoZOnImXpLAn+VBvBEVRNA0aou88UugNuadpa0HNCe93/t9R4T7wVlAFYXBrzHcTjPiMQhTLL7CCP6NMGi2Ewjsw7P7FAAu4gTHeTllUy+pH4bj1dOzlgLhX/iFPGbGfZD6Cpb6IBeQ7LSCGN560ZJ/GtpkX8X5q5rwMVT2Lv8PUfIZOPMfoprQ2zEqyNhwiz3sbhQGlqz6ltd0Z00ywZ6O3VuTm0HNs85/8+RMBWeFcSYaReJcmKIy5i3pjLaZl7EN8gLV1z6boiOSerUxxMhmd771+HB1Elo2uXGpBGv45NkpX1nUFpLbGf23zDShFBP9gKMR1gGfw/zuxBpR+LXXylWrQlkTGyr9XOrWfeqDrs3g8Z/srpypibEMLERLWB7NcUhuo5/dibWRWVUcOuXIbAMm8x3m7YrceW5OxljguE8nTnW9DED8+kI57rgeITWQK5SSTWvUcySgfb3lm0urAnORT4sZDnJ/FxcH8uzWnTw7XDu/w49A8vaBrOQdEmnzBE375nvmn/GFmgv/o8eLtT9vn/qhrl2R8CA1Sj6NHVwyopIMT+oLnpIFcss9FUF+PIAxLmQQEdHu0LkewfGrmny3Q/kQ/U2u9Qd1CE+3xdtzcYD1q5muOKwncwcQRZM6Sj6ddiP4HGEEMyMFI9QlK7oz1fcbPrb41uaNSkLBq53rmwgcBoKgiwKZC8nhA49YZMHXGQ2tFr+Ic5yIwNbPuf2J7ssNOhkM0M4urnl982Bmghe7L19JE64hAgPjDmL68nbZX0+03xZ/RvXctEy9m2Nofp3rRedAXBOVDRZT6rlX88gF2+WrWqLynJGwbabuJidoESf4Ejge+oRsLBeBrGO018bgyIcx8Bm9h5JYnzpzau+E91BqM1o1kCAvn5MFxYY5c02PxSsI8EYvzXPapaq9rAhm56lWpp+TPybBukjiw/ATMkMK0Ui8EZd7Gz5I6GsHb077F2ZOY7JZv1jz3cbcryJP00IDOE9r25ceypALmCeXt0fps5oq6s8GGBMHyx46opMYUhDoQ==",
+    "salt": "R6AXINS1BgYttqeih13qGw==",
+    "iv": "tqJ4VAYXcw2aOXFh",
+    "ct": "ubOutPJ1NgrtN42ZV0y3rTVssqzBxFkVxfHDKoeEaPC4qx6zSo5pHC+4PZ9DjkmZCUMt5931cg33CAAk6CxQCsvz9TKFoLqr7mcIjRv943FT9kx+YbNSKJqgpuBvk1+3U0T7KKS5JO8tBGEv8AOXzr6DtWiGoVQAWQJfMzm2p5fZ3CdlB5MLV0Hb+Ei/3ayZ30mztJZnh4488FfwjLDjTxGJfbGI+DvuDEKzRLnv2GlPvl1KBFKbjX1dPTjZ+4hvYaHY+idMC1efsg9KoG3Kd9RUq2GyOQe8CrSYIQ5CvcpTx8rKFI1SOtHtOBoZ26A4WCSjhUzrKlXQTvLAKjvWyRoFClhV++FwrNOy+poD+3Peudqeg6a/5PAInwr/VFVqyPfK1xkFK73V3YI2SL4di2rIKR6TqDzHMmuajA7/eLuicDrKFZ129M3G4qgV1/BJBFoFeYCjdg5LUMRmoZCaFgXtyQYGMod+3hKhp+C7v1+1VjJL80fSRHnGuBaCVWhwN6FI6/vxIaqiudgudBDQfhEICVhU07k7OjM9FobmDkYJr1XRTGexZaLPiXvt/vpym0PAVAA2llT59Lt3mpaevm0Qrcq5vScGw/byD/YaIjiVBJDNuiRwfZgd0dlckeCnh9/djqpl93SgAWc89BRvMFaCyBaQSWSy+8IFhgYbbAhsDfbot7ItfLMhjAsaisBClJorny3/iugGmZvJMVjN/sz7iBrM6IIZc2GWd0ts5qZsMsPOz/1MqIZpHPSQWIjcfTFLi0pDztPm/m+4UVAJJpExiJb+nwRZUW8ymiX/HVxFx7ZfV3GFoF8htIQH3BZRb8C1cpd/CMDWaRh9sYS83Kx25WDS3s2thQawvkjQrM3Azh8Bex/rtLe1HmIMITY38Z44CGtSE/4t3lFfkWPUrxRZPfEDkR6bH7l6FtM6Slv3d/qWkzSrMBp3WajkMIFeS9KmfyLIqwjIhRwQDTlvKgp7Btcu61phfN9fZDd4urOUlx5lzeofT8MwZ7OETM/pqkPBpRZ7XgHry+R5ZsA5hAzAZDoCDB3UrL89TIdOrMZmonvEYtpYqRNFUn29YPd4TTZD6TXSBGiP/lSoViMI8J75VYf470nGKg/n3qTkN5RmaoEhrt+TAqCG58DU5nc9nYYLR//66gqTOYVYmCFtP6yEgps339gaxgzQwnZchBDHox4USXLtjxjdm98oO6m9W7wy3r+nWqeiH9dtNZGBq9vkEug=",
     "iter": 200000
   },
   "has_secret": true
@@ -556,7 +556,14 @@ async function initPaper(){
     }catch(e){}
     return null;
   }
-  const [p, bt, live] = await Promise.all([load('paper'), load('backtest'), load('paper/live')]);
+  async function loadFile(path){
+    try{
+      const r = await fetch(base + '/' + path + '?t=' + Date.now(), {cache:'no-store'});
+      if(r.ok) return await r.json();
+    }catch(e){}
+    return null;
+  }
+  const [p, bt, live] = await Promise.all([load('paper'), load('backtest'), loadFile('paper/live.json')]);
 
   // --- LIVE intraday banner (only meaningful while market is open) ---
   function renderLive(){
