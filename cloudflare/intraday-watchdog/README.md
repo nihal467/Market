@@ -1,16 +1,17 @@
-# Cloudflare Intraday Watchdog
+# Cloudflare Market Scheduler
 
-Free Cloudflare Worker cron for starting the GitHub intraday watchdog when
-GitHub's own scheduled workflows are delayed or dropped.
+Free Cloudflare Worker cron for starting all scheduled GitHub workflows when
+GitHub's own scheduler is delayed or dropped.
 
 Flow:
 
 ```text
-Cloudflare Cron -> GitHub workflow_dispatch -> intraday_watchdog.yml -> intraday.yml
+Cloudflare Cron -> GitHub workflow_dispatch -> GitHub workflow
 ```
 
-The GitHub watchdog checks whether an intraday loop is already queued/running, so
-frequent Cloudflare pings do not duplicate market-data loops.
+The intraday GitHub watchdog still checks whether an intraday loop is already
+queued/running, so frequent Cloudflare pings do not duplicate market-data loops.
+The daily/weekly jobs use Worker-side duplicate checks before dispatching.
 
 Deployed URL:
 
@@ -38,10 +39,18 @@ Optional manual trigger secret:
 openssl rand -hex 24 | npx wrangler secret put TRIGGER_SECRET
 ```
 
-## Cron
+## Schedule
 
-`wrangler.toml` runs every 5 minutes on weekdays from `03:00-10:59 UTC`
-(`08:30-16:29 IST`). The Worker itself gates dispatches to `09:05-15:35 IST`.
+`wrangler.toml` runs every 5 minutes. The Worker dispatches only when one of
+these IST schedules is due:
+
+| Task | GitHub workflow | Cloudflare schedule |
+| --- | --- | --- |
+| Intraday watchdog | `intraday_watchdog.yml` | Mon-Fri 09:05-15:35 IST |
+| Dashboard deploy | `daily.yml` | Mon-Fri 16:00 IST |
+| Daily analysis close | `daily_analysis.yml` | Mon-Fri 16:30 IST |
+| Daily analysis overnight | `daily_analysis.yml` | Tue-Sat 01:00 IST |
+| Weekly watchlist | `weekly_watchlist.yml` | Sun 17:30 IST |
 
 ## Verify
 
@@ -53,6 +62,5 @@ gh run list --workflow=intraday_watchdog.yml --limit 5
 gh run list --workflow=intraday.yml --limit 5
 ```
 
-You should see `intraday_watchdog.yml` runs with `event=workflow_dispatch`
-created by Cloudflare, and then `intraday.yml` running if no intraday loop was
-already active.
+You should see workflow runs with `event=workflow_dispatch` created by
+Cloudflare at the schedule times.

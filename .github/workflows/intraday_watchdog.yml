@@ -1,10 +1,6 @@
 name: Intraday Watchdog
 
 on:
-  schedule:
-    # GitHub cron is best-effort. Run a tiny checker frequently; it starts the
-    # heavy intraday loop only when one is missing.
-    - cron: "*/5 3-10 * * 1-5"
   workflow_dispatch: {}
 
 permissions:

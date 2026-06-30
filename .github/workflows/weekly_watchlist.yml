@@ -1,10 +1,9 @@
 name: Weekly Watchlist
 
 # Builds the Top-50 stocks-to-watch from technicals + news, once a week.
-# Sunday 12:00 UTC = 17:30 IST (weekend prep for the coming week).
+# Cloudflare Worker `market-intraday-watchdog` dispatches this Sunday 17:30 IST
+# for weekend prep before the coming week.
 on:
-  schedule:
-    - cron: "0 12 * * 0"
   workflow_dispatch: {}
 
 permissions:
