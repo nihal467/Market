@@ -1,0 +1,17 @@
+name: Cron Probe
+
+on:
+  schedule:
+    - cron: "17/5 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "cron probe event=${{ github.event_name }}"
+          date -u
