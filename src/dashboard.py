@@ -237,9 +237,10 @@ INDEX_HTML = """<!DOCTYPE html>
   .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
            gap:12px; margin-bottom:24px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:10px;
-          padding:14px; }
+          padding:14px; min-width:0; }
   .card .k { color:var(--mut); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
-  .card .v { font-size:24px; font-weight:600; margin-top:6px; }
+  .card .v { font-size:24px; font-weight:600; margin-top:6px; overflow-wrap:anywhere; }
+  .card .v.compact { font-size:18px; line-height:1.25; }
   table { width:100%; border-collapse:collapse; background:var(--card);
           border:1px solid var(--line); border-radius:10px; overflow:hidden; }
   th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line);
@@ -278,7 +279,8 @@ INDEX_HTML = """<!DOCTYPE html>
   .livebanner.down { background:linear-gradient(180deg,rgba(229,72,77,.10),transparent);
                      border-left-color:var(--sell); }
   .livehead { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700;
-              letter-spacing:.05em; color:var(--mut); text-transform:uppercase; margin-bottom:12px; }
+              letter-spacing:.05em; color:var(--mut); text-transform:uppercase; margin-bottom:12px;
+              flex-wrap:wrap; overflow-wrap:anywhere; }
   .livedot { width:9px; height:9px; border-radius:50%; background:var(--buy);
              box-shadow:0 0 0 0 rgba(31,157,85,.6); animation:pulse 1.6s infinite; }
   .livebanner.down .livedot { background:var(--sell); box-shadow:0 0 0 0 rgba(229,72,77,.6); }
@@ -302,6 +304,35 @@ INDEX_HTML = """<!DOCTYPE html>
   .rank { color:var(--mut); font-size:12px; }
   .chg { color:var(--mut); font-size:12px; margin-top:2px; }
   .mut { color:var(--mut); }
+  .txlist { display:grid; gap:8px; margin-bottom:22px; }
+  .tx { display:grid; grid-template-columns:1fr auto; gap:8px 12px; background:var(--card);
+        border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
+  .tx .meta { color:var(--mut); font-size:11px; text-transform:uppercase; letter-spacing:.03em; }
+  .tx .name { font-size:14px; font-weight:700; overflow-wrap:anywhere; }
+  .tx .detail { color:var(--mut); font-size:12px; line-height:1.35; }
+  .tx .side { text-align:right; }
+  .tx .value { font-size:14px; font-weight:700; margin-top:4px; }
+  .filters { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 12px; }
+  .filters label { color:var(--mut); font-size:12px; font-weight:700; text-transform:uppercase; }
+  .filters select { background:var(--card); border:1px solid var(--line); color:var(--txt);
+                    border-radius:8px; padding:7px 10px; font-size:13px; }
+  .panel, .livebanner { min-width:0; max-width:100%; }
+  #panel-paper table { display:block; max-width:100%; overflow-x:auto; }
+  #panel-paper th, #panel-paper td { white-space:nowrap; }
+  #panel-paper td:nth-child(2), #panel-paper td:nth-child(3), #panel-paper td:nth-child(4) {
+    white-space:normal; min-width:120px;
+  }
+  @media (max-width: 520px) {
+    .wrap { padding:18px 14px 44px; overflow-x:hidden; }
+    .cards { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .card { padding:12px; border-radius:8px; }
+    .card .v { font-size:20px; }
+    .card .v.compact { font-size:15px; }
+    .livebanner { padding:12px 12px 2px; }
+    th,td { padding:9px 10px; font-size:12px; }
+    .maintabs { gap:4px; }
+    .maintab { font-size:13px; padding:9px 4px; flex:1; }
+  }
 </style>
 </head>
 <body>
@@ -652,6 +683,10 @@ async function initPaper(){
     const s = ready.summary || {};
     const crit = ready.criteria || [];
     const decision = (ready.decision || 'incubating').replace(/_/g,' ');
+    const profile = s.active_profile || '—';
+    const profileLabel = profile === 'momentum_weekly_churn_control'
+      ? 'Momentum weekly'
+      : profile.replace(/_/g,' ');
     const passed = crit.filter(c=>c.blocking && c.passed).length;
     const blocking = crit.filter(c=>c.blocking).length;
     const cls = ready.decision === 'eligible_for_review' ? 'up'
@@ -669,8 +704,8 @@ async function initPaper(){
           <div class=chg>minimum trading days</div></div>
         <div class=card><div class=k>Blocking checks</div><div class=v>${passed}/${blocking}</div>
           <div class=chg>must pass before review</div></div>
-        <div class=card><div class=k>Active profile</div><div class=v>${s.active_profile||'—'}</div>
-          <div class=chg>${s.best_lab_variant?('best lab: '+(s.best_lab_variant.label||s.best_lab_variant.id)):'waiting for lab'}</div></div>
+        <div class=card><div class=k>Active profile</div><div class="v compact">${profileLabel}</div>
+          <div class=chg>${profile}${s.best_lab_variant?(' · best lab: '+(s.best_lab_variant.label||s.best_lab_variant.id)):' · waiting for lab'}</div></div>
       </div>
       ${rows?`<table><thead><tr><th>Status</th><th>Criterion</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table>`:''}`;
   }
@@ -705,6 +740,16 @@ async function initPaper(){
   }
   function tradeReason(t){
     return (t.reason || t.phase || 'paper_trade').replace(/_/g,' ');
+  }
+  function dateKey(raw){
+    if(!raw) return '';
+    try{
+      const d = new Date(raw);
+      if(!Number.isNaN(d.getTime())){
+        return d.toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'});
+      }
+    }catch(e){}
+    return String(raw).slice(0,10);
   }
 
   const liveAgeMin = live && live.ist ? ((Date.now() - new Date(live.ist).getTime()) / 60000) : null;
@@ -771,17 +816,37 @@ async function initPaper(){
     .map(t=>({...t, source:'Live market'}));
   const eodTrades = (p.today_trades||[]).map(t=>({...t, source:'EOD paper'}));
   const allTrades = liveTrades.concat(eodTrades);
+  const latestTradeDate = (p.history||[]).length
+    ? (p.history[p.history.length - 1].date || dateKey(p.ist))
+    : dateKey(p.ist);
+  function txCard(t){
+    const key = dateKey(t.ist || t.date || p.ist);
+    const sourceKey = t.source === 'Live market' ? 'live' : 'eod';
+    return `<div class=tx data-date="${key}" data-source="${sourceKey}">
+      <div>
+        <div class=meta>${tradeTime(t, p.ist)} · ${t.source}</div>
+        <div class=name>${t.name||t.symbol}</div>
+        <div class=detail>${t.symbol||''} · qty ${t.qty||0} · ₹${(t.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</div>
+        <div class=detail>${tradeReason(t)}</div>
+      </div>
+      <div class=side>
+        <div class="${t.action==='BUY'?'up':'down'}">${t.action}${(t.reason||'')==='stop_loss'?' STOP':''}</div>
+        <div class=value>${tradeValue(t)}</div>
+      </div>
+    </div>`;
+  }
   const trTable = `<h2 class=sec>Dummy transactions <span class=secsub>live market + daily paper allocation</span></h2>
-     ${allTrades.length ? `<table><thead><tr><th>Time</th><th>Source</th><th>Action</th><th>Stock</th><th>Qty</th><th>Price</th><th>Value</th><th>Reason</th></tr></thead>
-     <tbody>${allTrades.map(t=>`<tr>
-       <td>${tradeTime(t, p.ist)}</td>
-       <td>${t.source}</td>
-       <td class="${t.action==='BUY'?'up':'down'}">${t.action}${(t.reason||'')==='stop_loss'?' STOP':''}</td>
-       <td><div>${t.name||t.symbol}</div><div class=broker>${t.symbol||''}</div></td>
-       <td>${t.qty||0}</td>
-       <td>₹${(t.price||0).toLocaleString('en-IN',{maximumFractionDigits:2})}</td>
-       <td>${tradeValue(t)}</td>
-       <td>${tradeReason(t)}</td></tr>`).join('')}</tbody></table>`
+     ${allTrades.length ? `<div class=filters>
+       <label for=tx-filter>Show</label>
+       <select id=tx-filter>
+         <option value=today selected>Today only</option>
+         <option value=live>Live market</option>
+         <option value=eod>EOD paper</option>
+         <option value=all>All</option>
+       </select>
+       <span class=mut id=tx-count></span>
+     </div>
+     <div class=txlist data-latest-date="${latestTradeDate}">${allTrades.map(txCard).join('')}</div>`
        : '<div class=empty>No dummy transactions recorded for the latest run. During market hours, live protective actions appear here; end-of-day allocation trades appear after the daily paper run.</div>'}`;
 
   const hist = (p.history||[]).slice().reverse();
@@ -798,6 +863,29 @@ async function initPaper(){
 
   body.innerHTML = renderLive() + pnlOnly + renderReadiness() + trTable + cards + riskBar + riskEvents + posTable
     + histTable + renderBacktest() + note;
+  setupTxFilter();
+}
+
+function setupTxFilter(){
+  const sel = document.getElementById('tx-filter');
+  const list = document.querySelector('.txlist');
+  const count = document.getElementById('tx-count');
+  if(!sel || !list){ return; }
+  const latest = list.getAttribute('data-latest-date') || '';
+  function apply(){
+    let shown = 0;
+    document.querySelectorAll('.tx').forEach(el=>{
+      const mode = sel.value;
+      const ok = mode === 'all'
+        || (mode === 'today' && el.getAttribute('data-date') === latest)
+        || (mode === el.getAttribute('data-source'));
+      el.style.display = ok ? '' : 'none';
+      if(ok) shown += 1;
+    });
+    if(count){ count.textContent = `${shown} shown`; }
+  }
+  sel.addEventListener('change', apply);
+  apply();
 }
 </script>
 </body>
