@@ -39,17 +39,34 @@ jobs:
         run: python src/run_daily.py
 
       - name: Commit dashboard
+        env:
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/index.html
-          if git diff --staged --quiet; then
-            echo "No dashboard changes."; exit 0
-          fi
-          git commit -m "chore: daily dashboard update [skip ci]"
+
+          commit_dashboard() {
+            git add docs/index.html
+            if git diff --staged --quiet; then
+              echo "No dashboard changes."; return 1
+            fi
+            git commit -m "chore: daily dashboard update [skip ci]"
+            return 0
+          }
+
+          commit_dashboard || exit 0
           for i in 1 2 3 4 5; do
-            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
-            echo "push retry $i"; sleep $((RANDOM % 8 + 2))
+            if git pull --rebase --autostash origin main && git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push retry $i"
+            git rebase --abort 2>/dev/null || true
+            git fetch origin main
+            git reset --hard origin/main
+            python src/run_daily.py
+            commit_dashboard || exit 0
+            sleep $((RANDOM % 8 + 2))
           done
           echo "push failed after retries"; exit 1
 
