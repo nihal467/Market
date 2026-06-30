@@ -9,7 +9,10 @@ name: Intraday Monitor
 # skipped under load. This is near-real-time monitoring, NOT a trading trigger.
 on:
   schedule:
-    - cron: "*/15 3-10 * * 1-5"
+    # Offset minutes (07/22/37/52) instead of */15: GitHub's shared scheduler is
+    # most congested — and most likely to drop runs — on the round :00/:15/:30/:45
+    # slots, so odd offsets land more reliably. 03:37-10:07 UTC covers 09:07-15:37 IST.
+    - cron: "7,22,37,52 3-10 * * 1-5"
   workflow_dispatch: {}
 
 permissions:
