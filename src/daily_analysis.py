@@ -117,6 +117,7 @@ def run() -> dict:
             "rsi14": ind["rsi14"] if ind else None,
             "price": ind["price"] if ind else None,
             "price_date": ind.get("price_date") if ind else None,
+            "ret_3m": ind.get("ret_3m") if ind else None,
             "pct_from_high": ind["pct_from_high"] if ind else None,
             "reasons": rec["reasons"],
             "news_score": sent.get("score"),

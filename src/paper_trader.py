@@ -7,9 +7,9 @@ Strategy (transparent, rule-based — NOT advice):
   - Each trading day, after close, read the latest end-of-day analysis
     (data/daily/latest.json) which holds a BUY/HOLD/SELL signal + score +
     close price for every Top-50 watchlist stock.
-  - Target portfolio = the TOP_N highest-scoring BUY-signal stocks, equally
-    weighted. Anything currently held that is no longer a BUY is SOLD; new
-    BUYs are bought with the freed cash (integer share quantities).
+  - Incubation profile: rank by 3-month momentum, buy the top TOP_N names, and
+    only rebalance weekly. Existing positions are held until they fall outside
+    HOLD_UNTIL_RANK, which reduces churn during the one-month dummy run.
   - A small round-trip cost (COST_PER_SIDE) approximates brokerage + slippage
     + taxes so returns are not overstated.
   - Mark the book to market at the day's close, record the day's P&L, and
@@ -26,15 +26,19 @@ twice-daily Daily Analysis workflow won't double-trade.
 from __future__ import annotations
 
 import sys
+from datetime import date
 
 import datastore as ds
 from market_calendar import now_ist
 from strategy_config import (
+    ACTIVE_PROFILE,
     COST_PER_SIDE,
+    HOLD_UNTIL_RANK,
     MAX_DAILY_LOSS_PCT,
     MAX_DRAWDOWN_PCT,
     MAX_POSITION_PCT,
     MAX_SECTOR_PCT,
+    REBALANCE_INTERVAL,
     START_CAPITAL,
     STOP_LOSS_PCT,
     TOP_N,
@@ -110,10 +114,53 @@ def _market_value(positions: dict, prices: dict) -> float:
 
 
 def _pick_targets(analysis: list[dict]) -> list[dict]:
-    buys = [a for a in analysis if a.get("signal") == "BUY" and a.get("price")]
-    buys.sort(key=lambda a: (a.get("score", 0), -(a.get("pct_from_high") or 0)),
-              reverse=True)
-    return buys[:TOP_N]
+    return _rank_candidates(analysis)[:TOP_N]
+
+
+def _rank_candidates(analysis: list[dict]) -> list[dict]:
+    ranked: list[dict] = []
+    fallback: list[dict] = []
+    for row in analysis:
+        if not row.get("price"):
+            continue
+        item = dict(row)
+        if ACTIVE_PROFILE == "momentum_weekly_churn_control":
+            ret_3m = item.get("ret_3m")
+            if ret_3m is not None and ret_3m > 0:
+                item["_sort_key"] = (
+                    float(ret_3m),
+                    float(item.get("score") or 0),
+                    -(item.get("pct_from_high") or 0),
+                )
+                ranked.append(item)
+                continue
+            if ret_3m is None and item.get("signal") == "BUY":
+                fb = dict(item)
+                fb["_sort_key"] = (float(fb.get("score") or 0), -(fb.get("pct_from_high") or 0))
+                fb["ranking_method"] = "buy_score_fallback"
+                fallback.append(fb)
+                continue
+        else:
+            if item.get("signal") != "BUY":
+                continue
+            item["_sort_key"] = (float(item.get("score") or 0), -(item.get("pct_from_high") or 0))
+            ranked.append(item)
+    if not ranked:
+        ranked = fallback
+    ranked.sort(key=lambda a: a["_sort_key"], reverse=True)
+    for idx, item in enumerate(ranked, start=1):
+        item["rank"] = idx
+        item.pop("_sort_key", None)
+    return ranked
+
+
+def _rebalance_key(trading_date: str) -> str:
+    try:
+        d = date.fromisoformat(trading_date)
+    except ValueError:
+        d = now_ist().date()
+    iso = d.isocalendar()
+    return f"{iso.year}-W{iso.week:02d}"
 
 
 def _sector_map() -> dict:
@@ -154,7 +201,14 @@ def run() -> dict:
     equity_peak = max([h.get("value", state["start_capital"]) for h in state["history"]] or
                       [state["start_capital"]])
 
-    targets = _pick_targets(analysis)
+    ranked_candidates = _rank_candidates(analysis)
+    candidate_rank = {r["symbol"]: r["rank"] for r in ranked_candidates}
+    targets = ranked_candidates[:TOP_N]
+    rebalance_key = _rebalance_key(today)
+    rebalance_due = (
+        REBALANCE_INTERVAL != "weekly" or
+        state.get("last_rebalance_key") != rebalance_key
+    )
     regime = daily.get("market_regime") or {}
     sectors = _sector_map()
     trades: list[dict] = []
@@ -195,9 +249,24 @@ def run() -> dict:
     targets = [t for t in targets if t["symbol"] not in blocked]
     target_syms = {t["symbol"] for t in targets}
 
-    # 1b) SELL everything not in the new target set (signal no longer BUY).
+    # 1b) On weekly rebalance only: trim holdings that have fallen outside the
+    # hold band. On non-rebalance days, only stops can change the book.
+    if rebalance_due:
+        keep_syms = {
+            sym for sym in state["positions"]
+            if candidate_rank.get(sym, 10**9) <= HOLD_UNTIL_RANK
+        }
+        target_syms |= keep_syms
+    else:
+        target_syms = set(state["positions"].keys())
+        risk_events.append({
+            "type": "rebalance_skip",
+            "reason": f"{REBALANCE_INTERVAL} cadence",
+            "next_rebalance_key": state.get("last_rebalance_key"),
+        })
+
     for sym in list(state["positions"].keys()):
-        if sym not in target_syms:
+        if rebalance_due and sym not in target_syms:
             pos = state["positions"].pop(sym)
             px = prices.get(sym, pos.get("avg_price", 0.0))
             proceeds = pos["qty"] * px
@@ -221,7 +290,7 @@ def run() -> dict:
         risk_block_new_buys = True
         risk_events.append({"type": "market_regime_guard", "reason": regime.get("reason")})
 
-    if targets and not risk_block_new_buys:
+    if rebalance_due and targets and not risk_block_new_buys:
         base_budget = total_value / len(targets)
         pos_cap = MAX_POSITION_PCT * total_value
         sector_cap = MAX_SECTOR_PCT * total_value
@@ -276,8 +345,11 @@ def run() -> dict:
             trades.append({"action": "BUY", "symbol": sym,
                            "name": names.get(sym, sym), "qty": buy_qty,
                            "price": round(px, 2)})
-    elif targets:
+    elif rebalance_due and targets:
         print("Risk guard active — new buys skipped today.")
+
+    if rebalance_due:
+        state["last_rebalance_key"] = rebalance_key
 
     # 4) Mark to market at today's close.
     end_value = state["cash"] + _market_value(state["positions"], prices)
@@ -316,6 +388,9 @@ def run() -> dict:
         "n_trades": len(trades),
         "n_stops": sum(1 for e in risk_events if e["type"] == "stop_loss"),
         "risk_block_new_buys": risk_block_new_buys,
+        "rebalance_due": rebalance_due,
+        "rebalance_key": rebalance_key,
+        "active_profile": ACTIVE_PROFILE,
         "costs": round(cost_total, 2),
     }
 
@@ -363,12 +438,27 @@ def run() -> dict:
         "risk_events": risk_events,
         "risk_settings": strategy_metadata(),
         "market_regime": regime,
+        "rebalance_due": rebalance_due,
+        "rebalance_key": rebalance_key,
+        "active_profile": ACTIVE_PROFILE,
+        "ranked_candidates": [
+            {
+                "rank": r.get("rank"),
+                "symbol": r.get("symbol"),
+                "name": r.get("name"),
+                "ret_3m": r.get("ret_3m"),
+                "score": r.get("score"),
+                "signal": r.get("signal"),
+            }
+            for r in ranked_candidates[:HOLD_UNTIL_RANK]
+        ],
         "positions": positions_view,
         "history": state["history"][-120:],
         "strategy_config": strategy_metadata(),
         "strategy": (
-            f"Equal-weight top {TOP_N} BUY-ranked stocks (technicals + news) from "
-            f"the daily Top-50 analysis, rebalanced each close. Risk controls: "
+            f"Incubation profile {ACTIVE_PROFILE}: rank liquid Top-50 names by "
+            f"positive 3-month momentum, buy top {TOP_N}, rebalance {REBALANCE_INTERVAL}, "
+            f"and hold existing names until rank > {HOLD_UNTIL_RANK}. Risk controls: "
             f"{STOP_LOSS_PCT*100:.0f}% stop-loss, {TRAILING_STOP_PCT*100:.0f}% trailing stop, "
             f"{MAX_POSITION_PCT*100:.0f}% max "
             f"per stock, {MAX_SECTOR_PCT*100:.0f}% max per sector. "
