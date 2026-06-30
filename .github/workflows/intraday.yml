@@ -17,6 +17,10 @@ name: Intraday Monitor
 # A loop that hits the per-job time cap is picked up by the next queued kickoff.
 on:
   schedule:
+    # TEMP scheduler verification on 2026-06-30. Remove after confirming an
+    # event=schedule run appears in GitHub Actions.
+    - cron: "50 7 * * 1-5"   # 13:20 IST - scheduler smoke test
+    - cron: "55 7 * * 1-5"   # 13:25 IST - scheduler smoke test backup
     # IST = UTC + 5:30. Spread across the session so at least one lands even when
     # GitHub drops some. Each either starts the loop or queues as a restart.
     - cron: "35 3 * * 1-5"   # 09:05 IST - just before open
