@@ -28,6 +28,14 @@ const TASKS = [
     dedupe: true,
   },
   {
+    id: "daily-refinement-task",
+    workflow: "daily_refinement.yml",
+    mode: "at",
+    days: [1, 2, 3, 4, 5],
+    at: "17:15",
+    dedupe: true,
+  },
+  {
     id: "daily-analysis-overnight",
     workflow: "daily_analysis.yml",
     mode: "at",
