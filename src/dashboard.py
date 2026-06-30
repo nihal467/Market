@@ -575,7 +575,9 @@ async function initPaper(){
     }catch(e){}
     return null;
   }
-  const [p, bt, live] = await Promise.all([load('paper'), load('backtest'), loadFile('paper/live.json')]);
+  const [p, bt, live, ready] = await Promise.all([
+    load('paper'), load('backtest'), loadFile('paper/live.json'), loadFile('paper/readiness.json')
+  ]);
 
   // --- LIVE intraday banner (only meaningful while market is open) ---
   function renderLive(){
@@ -639,9 +641,37 @@ async function initPaper(){
       <div class=foot>${bt.note||''} Params: top ${pr.top_n}, ${pr.stop_loss_pct}% stop, ${pr.trailing_stop_pct||0}% trail, ${pr.max_drawdown_pct||0}% maxDD guard, ${pr.cost_per_side_pct}% cost/leg.</div>`;
   }
 
+  function renderReadiness(){
+    if(!ready){ return ''; }
+    const s = ready.summary || {};
+    const crit = ready.criteria || [];
+    const decision = (ready.decision || 'incubating').replace(/_/g,' ');
+    const passed = crit.filter(c=>c.blocking && c.passed).length;
+    const blocking = crit.filter(c=>c.blocking).length;
+    const cls = ready.decision === 'eligible_for_review' ? 'up'
+      : (ready.decision === 'not_ready' ? 'down' : '');
+    const rows = crit.map(c=>`<tr>
+      <td>${c.passed?'PASS':'WAIT'}</td>
+      <td>${c.label}</td>
+      <td>${c.detail||''}</td>
+    </tr>`).join('');
+    return `<h2 class=sec>Dummy incubation <span class=secsub>one-month gate before real money</span></h2>
+      <div class=cards>
+        <div class=card><div class=k>Decision</div><div class="v ${cls}">${decision}</div>
+          <div class=chg>${ready.note||''}</div></div>
+        <div class=card><div class=k>Paper days</div><div class=v>${s.paper_days||0}/${s.min_trading_days||20}</div>
+          <div class=chg>minimum trading days</div></div>
+        <div class=card><div class=k>Blocking checks</div><div class=v>${passed}/${blocking}</div>
+          <div class=chg>must pass before review</div></div>
+        <div class=card><div class=k>Active profile</div><div class=v>${s.active_profile||'—'}</div>
+          <div class=chg>${s.best_lab_variant?('best lab: '+(s.best_lab_variant.label||s.best_lab_variant.id)):'waiting for lab'}</div></div>
+      </div>
+      ${rows?`<table><thead><tr><th>Status</th><th>Criterion</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table>`:''}`;
+  }
+
   if(!p){
     upd.textContent = bt ? ('· backtest ' + bt.start_date + '–' + bt.end_date) : '';
-    body.innerHTML = renderLive() + renderBacktest()
+    body.innerHTML = renderLive() + renderReadiness() + renderBacktest()
       + '<div class=empty>Live paper trading has not placed its first trade yet. '
       + 'It runs after market close (16:30 IST) each trading day, simulating a virtual '
       + '₹5,00,000 across the day\\'s top BUY-ranked stocks.</div>';
@@ -719,7 +749,7 @@ async function initPaper(){
 
   const note = p.strategy ? `<div class=foot>${p.strategy}</div>` : '';
 
-  body.innerHTML = renderLive() + cards + riskBar + riskEvents + trTable + posTable
+  body.innerHTML = renderLive() + renderReadiness() + cards + riskBar + riskEvents + trTable + posTable
     + histTable + renderBacktest() + note;
 }
 </script>

@@ -10,11 +10,9 @@ close it manages the portfolio live:
   - Executes protective STOP-LOSS sells in real time: any holding down more than
     STOP_LOSS_PCT from its average buy price is sold immediately rather than
     waiting for the close.
-  - Deploys idle cash intraday into the day's top BUY-ranked targets (from
-    daily/latest.json) that it is under-allocated to, respecting the same
-    position and sector caps. It does NOT trim winners intraday — full
-    rebalancing happens once at the close (paper_trader.py), which keeps
-    turnover (and costs) sane.
+  - During the weekly incubation profile, intraday does not deploy idle cash.
+    It only marks to market and executes protective exits; allocation decisions
+    happen in the end-of-day paper trader.
 
 Granularity note: GitHub Actions cron is best-effort, so "real time" here means
 "every ~15 minutes during market hours", not tick-by-tick. True low-latency
@@ -48,6 +46,7 @@ from paper_trader import (
     _sector_map,
 )
 from strategy_config import strategy_metadata
+from strategy_config import ACTIVE_PROFILE, REBALANCE_INTERVAL
 
 LIVE_FILE = "paper/live.json"
 
@@ -120,6 +119,7 @@ def run() -> dict:
         state["intraday_date"] = today
         trades = []
     cost_total = 0.0
+    intraday_deploy_enabled = REBALANCE_INTERVAL != "weekly"
 
     def mark_value():
         total = state["cash"]
@@ -166,7 +166,8 @@ def run() -> dict:
     if regime and not regime.get("risk_on", True):
         risk_block_new_buys = True
 
-    if total_value > 0 and idle > MIN_DEPLOY_FRACTION * total_value and not risk_block_new_buys:
+    if (intraday_deploy_enabled and total_value > 0 and
+            idle > MIN_DEPLOY_FRACTION * total_value and not risk_block_new_buys):
         targets = _pick_targets(daily.get("analysis", []))
         # Block names we just stopped out of (avoid immediate re-entry).
         stopped = {s["symbol"] for s in stops}
@@ -259,12 +260,15 @@ def run() -> dict:
         "intraday_trades": trades,
         "stops": stops,
         "risk_block_new_buys": risk_block_new_buys,
+        "intraday_deploy_enabled": intraday_deploy_enabled,
+        "active_profile": ACTIVE_PROFILE,
         "risk_settings": strategy_metadata(),
         "market_regime": regime,
         "positions": positions_view,
         "note": ("Delayed intraday mark-to-market of the virtual Rs 5L "
-                 "book. Stop-loss checks run every ~15 minutes; full rebalance is at "
-                 "the close. Simulation only — not investment advice."),
+                 "book. Stop-loss checks run every ~15 minutes; weekly allocation "
+                 "happens in the end-of-day paper trader. Simulation only — not "
+                 "investment advice."),
     }
     ds.write_json(LIVE_FILE, live)
 

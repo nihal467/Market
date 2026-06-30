@@ -5,10 +5,13 @@ version so performance can be interpreted after future changes.
 """
 from __future__ import annotations
 
-STRATEGY_VERSION = "2026-06-30.regime-liquidity-risk-v1"
+STRATEGY_VERSION = "2026-06-30.momentum-weekly-incubation-v1"
+ACTIVE_PROFILE = "momentum_weekly_churn_control"
 
 START_CAPITAL = 500000.0
 TOP_N = 10
+HOLD_UNTIL_RANK = 20
+REBALANCE_INTERVAL = "weekly"
 COST_PER_SIDE = 0.0010
 
 STOP_LOSS_PCT = 0.08
@@ -25,7 +28,10 @@ MIN_PRICE = 20.0
 def strategy_metadata() -> dict:
     return {
         "version": STRATEGY_VERSION,
+        "active_profile": ACTIVE_PROFILE,
         "top_n": TOP_N,
+        "hold_until_rank": HOLD_UNTIL_RANK,
+        "rebalance_interval": REBALANCE_INTERVAL,
         "cost_per_side_pct": round(COST_PER_SIDE * 100, 3),
         "stop_loss_pct": round(STOP_LOSS_PCT * 100, 1),
         "trailing_stop_pct": round(TRAILING_STOP_PCT * 100, 1),
