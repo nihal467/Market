@@ -1,23 +1,36 @@
 name: Intraday Monitor
 
-# Snapshots the Top-50 watchlist every ~15 min during market hours and logs
-# movers. NSE 09:15-15:30 IST = 03:45-10:00 UTC. The cron window is wide; a
-# cheap pre-gate (pure stdlib, no pip install) exits in ~5s when the market is
-# closed so closed-market runs cost almost nothing.
+# Real-time-ish intraday engine for the dummy Rs 5L bot.
 #
-# NOTE: GitHub Actions cron is best-effort - runs can be delayed 5-20+ min or
-# skipped under load. This is near-real-time monitoring, NOT a trading trigger.
+# WHY A SELF-LOOPING JOB (not one cron per 15 min):
+# GitHub's scheduled-cron is best-effort and on this repo it frequently drops
+# almost every */15 tick - so relying on GitHub to fire a fresh run every 15
+# minutes left the dashboard stale. Instead, ONE job kicks off in the morning
+# and loops internally every ~15 minutes until the market closes. We then only
+# need GitHub to fire ONE of several redundant kickoff crons per day, which is
+# far more reliable. This repo is PUBLIC, so Actions minutes are unlimited and a
+# long-running loop costs nothing.
+#
+# REDUNDANCY: several kickoff crons are declared. concurrency (cancel-in-progress
+# false) serializes them, so extra kickoffs QUEUE behind the active loop and act
+# as automatic restarts if the running loop dies or GitHub drops an earlier cron.
+# A loop that hits the per-job time cap is picked up by the next queued kickoff.
 on:
   schedule:
-    # Offset minutes (07/22/37/52) instead of */15: GitHub's shared scheduler is
-    # most congested — and most likely to drop runs — on the round :00/:15/:30/:45
-    # slots, so odd offsets land more reliably. 03:37-10:07 UTC covers 09:07-15:37 IST.
-    - cron: "7,22,37,52 3-10 * * 1-5"
+    # IST = UTC + 5:30. Spread across the session so at least one lands even when
+    # GitHub drops some. Each either starts the loop or queues as a restart.
+    - cron: "35 3 * * 1-5"   # 09:05 IST - just before open
+    - cron: "0 5 * * 1-5"    # 10:30 IST
+    - cron: "30 6 * * 1-5"   # 12:00 IST
+    - cron: "0 8 * * 1-5"    # 13:30 IST
+    - cron: "30 9 * * 1-5"   # 15:00 IST - covers the tail if an earlier loop timed out
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
+# Serialize all market-data writers. cancel-in-progress:false => redundant
+# kickoffs queue (do NOT duplicate) and resume the loop if it ever stops.
 concurrency:
   group: market-data
   cancel-in-progress: false
@@ -25,69 +38,117 @@ concurrency:
 jobs:
   intraday:
     runs-on: ubuntu-latest
+    # GitHub hard-caps a job at 6h; the NSE session is 6h15m. Cap below 6h so the
+    # job ends cleanly and a queued kickoff covers any remaining minutes.
+    timeout-minutes: 350
     steps:
-      # Cheap gate FIRST (no checkout, no pip): skip the costly steps when the
-      # NSE market is closed. Saves runner minutes if the repo is ever private.
+      # Cheap pre-gate (no checkout / no pip): on weekends or after close, exit in
+      # seconds without spinning up the loop.
       - name: Market-hours gate
         id: gate
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           from datetime import datetime, time, timedelta, timezone
           ist = datetime.now(timezone(timedelta(hours=5, minutes=30)))
-          is_open = (ist.weekday() < 5 and time(9, 15) <= ist.time() <= time(15, 30))
-          print("open=" + ("true" if is_open else "false"))
+          # Run the loop on weekdays any time up to close; the loop itself waits
+          # for the 09:15 open if a kickoff fires a little early.
+          active = (ist.weekday() < 5 and ist.time() <= time(15, 30))
+          print("active=" + ("true" if active else "false"))
           print("ist=" + ist.isoformat())
           PY
 
       - name: Status
-        run: echo "Market open=${{ steps.gate.outputs.open }} (IST ${{ steps.gate.outputs.ist }})"
+        run: echo "Loop active=${{ steps.gate.outputs.active }} (IST ${{ steps.gate.outputs.ist }})"
 
       - name: Checkout code (main)
-        if: steps.gate.outputs.open == 'true'
+        if: steps.gate.outputs.active == 'true'
         uses: actions/checkout@v4
 
       - name: Checkout data branch
-        if: steps.gate.outputs.open == 'true'
+        if: steps.gate.outputs.active == 'true'
         uses: actions/checkout@v4
         with:
           ref: data
           path: data-branch
 
       - uses: actions/setup-python@v5
-        if: steps.gate.outputs.open == 'true'
+        if: steps.gate.outputs.active == 'true'
         with:
           python-version: "3.11"
           cache: pip
 
       - name: Install dependencies
-        if: steps.gate.outputs.open == 'true'
+        if: steps.gate.outputs.active == 'true'
         run: pip install -r requirements.txt
 
-      - name: Intraday snapshot
-        if: steps.gate.outputs.open == 'true'
+      - name: Intraday loop (every ~15 min until close)
+        if: steps.gate.outputs.active == 'true'
         env:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
-        run: python src/intraday.py
-
-      - name: Intraday paper trade (live dummy Rs 5L)
-        if: steps.gate.outputs.open == 'true'
-        env:
-          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
-        run: python src/intraday_trader.py
-
-      - name: Commit & push data
-        if: steps.gate.outputs.open == 'true'
-        working-directory: data-branch
+          # Groww real-time data (optional). When these repo secrets are set the
+          # loop trades on live LTPs; otherwise it falls back to free yfinance.
+          GROWW_API_KEY: ${{ secrets.GROWW_API_KEY }}
+          GROWW_API_SECRET: ${{ secrets.GROWW_API_SECRET }}
+          GROWW_ACCESS_TOKEN: ${{ secrets.GROWW_ACCESS_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --staged --quiet; then
-            echo "No data changes."; exit 0
+          set -e
+          git -C data-branch config user.name "github-actions[bot]"
+          git -C data-branch config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          ist_epoch() { TZ="Asia/Kolkata" date +%s; }
+          ist_hm()    { TZ="Asia/Kolkata" date +%H:%M; }
+          # Seconds-since-IST-midnight for "now".
+          ist_secs()  { TZ="Asia/Kolkata" date +%H:%M:%S | awk -F: '{print $1*3600+$2*60+$3}'; }
+
+          OPEN=$((9*3600+15*60))     # 09:15
+          CLOSE=$((15*3600+30*60))   # 15:30
+
+          # If a kickoff fired before the open, wait for it (cap the wait so a very
+          # early/erroneous trigger can't hang the job).
+          now_s=$(ist_secs)
+          if [ "$now_s" -lt "$OPEN" ]; then
+            wait=$((OPEN - now_s))
+            [ "$wait" -gt 1200 ] && wait=1200
+            echo "Pre-open: waiting ${wait}s for 09:15 IST..."
+            sleep "$wait"
           fi
-          git commit -m "data: intraday $(date -u +%Y-%m-%dT%H:%MZ)"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin data && git push origin HEAD:data && exit 0
-            echo "push retry $i"; sleep $((RANDOM % 8 + 2))
+
+          iteration=0
+          while true; do
+            now_s=$(ist_secs)
+            dow=$(TZ="Asia/Kolkata" date +%u)   # 1-5 = Mon-Fri
+            if [ "$dow" -gt 5 ] || [ "$now_s" -gt "$CLOSE" ]; then
+              echo "Market closed (IST $(ist_hm)). Ending intraday loop after ${iteration} ticks."
+              break
+            fi
+
+            iteration=$((iteration + 1))
+            echo "=== Tick ${iteration} @ $(ist_hm) IST ==="
+            # Best-effort: a single bad tick must not kill the whole day's loop.
+            python src/intraday.py || echo "WARN intraday.py failed this tick"
+            python src/intraday_trader.py || echo "WARN intraday_trader.py failed this tick"
+
+            # Commit & push whatever changed this tick.
+            (
+              cd data-branch
+              git add -A
+              if git diff --staged --quiet; then
+                echo "No data changes this tick."
+              else
+                git commit -m "data: intraday $(date -u +%Y-%m-%dT%H:%MZ)"
+                for i in 1 2 3 4 5; do
+                  git pull --rebase origin data && git push origin HEAD:data && break
+                  echo "push retry $i"; sleep $((RANDOM % 8 + 2))
+                done
+              fi
+            ) || echo "WARN commit/push failed this tick"
+
+            # Stop if the next 15-min sleep would carry us past the close.
+            now_s=$(ist_secs)
+            if [ $((now_s + 900)) -gt $((CLOSE + 60)) ]; then
+              echo "Near close (IST $(ist_hm)); final tick done. Ending loop."
+              break
+            fi
+            echo "Sleeping 15 min until next tick..."
+            sleep 900
           done
-          echo "push failed after retries"; exit 1
