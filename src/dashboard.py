@@ -280,6 +280,9 @@ INDEX_HTML = """<!DOCTYPE html>
   .livebanner.down .livedot { background:var(--sell); box-shadow:0 0 0 0 rgba(229,72,77,.6); }
   @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(31,157,85,.5);} 70%{box-shadow:0 0 0 7px rgba(31,157,85,0);} 100%{box-shadow:0 0 0 0 rgba(31,157,85,0);} }
   .livebanner .cards { margin-bottom:8px; }
+  .srcbadge { font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; margin-left:8px; letter-spacing:.03em; }
+  .srcbadge.rt { background:rgba(31,157,85,.18); color:var(--buy); }
+  .srcbadge.dl { background:rgba(154,164,178,.15); color:var(--mut); }
   .tabs { display:flex; gap:8px; margin:12px 0 14px; flex-wrap:wrap; }
   .tab { background:var(--card); border:1px solid var(--line); color:var(--mut);
          padding:7px 14px; border-radius:8px; font-size:13px; cursor:pointer; }
@@ -581,8 +584,11 @@ async function initPaper(){
     const when = live.ist ? new Date(live.ist).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
     const nb = (live.intraday_trades||[]).filter(t=>t.action==='BUY').length;
     const ns = (live.stops||[]).length;
+    const rt = live.realtime
+      ? '<span class=\"srcbadge rt\">● REAL-TIME · Groww</span>'
+      : '<span class=\"srcbadge dl\">● ~15-min delayed · Yahoo</span>';
     return `<div class=\"livebanner ${dcl}\">
-      <div class=livehead><span class=livedot></span> LIVE · virtual ₹5L · updates every ~15 min during market hours</div>
+      <div class=livehead><span class=livedot></span> LIVE · virtual ₹5L · updates every ~15 min during market hours ${rt}</div>
       <div class=cards>
         <div class=card><div class=k>Live value</div><div class=v>${inr(live.value)}</div>
           <div class=chg>as of ${when} IST</div></div>
