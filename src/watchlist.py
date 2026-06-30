@@ -13,6 +13,7 @@ the run fast and gentle on the source.
 from __future__ import annotations
 
 import sys
+from typing import Optional
 
 import pandas as pd
 import yfinance as yf
@@ -20,6 +21,7 @@ import yfinance as yf
 import datastore as ds
 from market_calendar import now_ist
 from news_sentiment import get_news_sentiment
+from strategy_config import MIN_AVG_DAILY_VALUE, MIN_PRICE, strategy_metadata
 from universe import load_universe
 
 TOP_N = 50
@@ -46,9 +48,9 @@ def _rsi(close: pd.Series, period: int = 14):
     return round(100 - (100 / (1 + lg / ll)), 2)
 
 
-def _download(symbols: list[str]) -> dict[str, pd.Series]:
-    """Return {symbol: close-series} using batched downloads."""
-    closes: dict[str, pd.Series] = {}
+def _download(symbols: list[str]) -> dict[str, pd.DataFrame]:
+    """Return {symbol: OHLCV frame} using batched downloads."""
+    frames: dict[str, pd.DataFrame] = {}
     for i in range(0, len(symbols), BATCH):
         chunk = symbols[i:i + BATCH]
         print(f"  downloading {i + 1}-{i + len(chunk)} of {len(symbols)} ...")
@@ -62,19 +64,18 @@ def _download(symbols: list[str]) -> dict[str, pd.Series]:
             continue
         for sym in chunk:
             try:
-                if len(chunk) == 1:
-                    series = data["Close"]
-                else:
-                    series = data[sym]["Close"]
-                series = series.dropna()
-                if len(series) >= 30:
-                    closes[sym] = series
+                frame = data if len(chunk) == 1 else data[sym]
+                frame = frame[["Close", "Volume"]].dropna(subset=["Close"])
+                if len(frame) >= 30:
+                    frames[sym] = frame
             except (KeyError, TypeError):
                 continue
-    return closes
+    return frames
 
 
-def _tech_score(close: pd.Series) -> dict:
+def _tech_score(frame: pd.DataFrame) -> dict:
+    close = frame["Close"].dropna()
+    volume = frame["Volume"].fillna(0)
     last = float(close.iloc[-1])
     sma50 = _sma(close, 50)
     sma200 = _sma(close, 200)
@@ -83,6 +84,8 @@ def _tech_score(close: pd.Series) -> dict:
     low52 = round(float(close.min()), 2)
     ret_1m = _pct_return(close, 21)
     ret_3m = _pct_return(close, 63)
+    avg_volume_20 = float(volume.tail(20).mean()) if len(volume) else 0.0
+    avg_value_20 = avg_volume_20 * last
 
     score = 0.0
     reasons: list[str] = []
@@ -130,9 +133,19 @@ def _tech_score(close: pd.Series) -> dict:
         "ret_1m": ret_1m,
         "ret_3m": ret_3m,
         "pct_from_high": pct_from_high,
+        "avg_volume_20": round(avg_volume_20, 0),
+        "avg_value_20": round(avg_value_20, 2),
         "tech_score": round(score, 2),
         "reasons": reasons,
     }
+
+
+def _liquidity_ok(row: dict) -> tuple[bool, Optional[str]]:
+    if row["price"] < MIN_PRICE:
+        return False, f"price below Rs {MIN_PRICE:g}"
+    if row.get("avg_value_20", 0) < MIN_AVG_DAILY_VALUE:
+        return False, f"20d traded value below Rs {MIN_AVG_DAILY_VALUE:,.0f}"
+    return True, None
 
 
 def _pct_return(close: pd.Series, lookback: int):
@@ -150,12 +163,17 @@ def build() -> dict:
     symbols = list(by_symbol)
     print(f"Building watchlist from {len(symbols)} universe symbols ...")
 
-    closes = _download(symbols)
-    print(f"  got history for {len(closes)} symbols")
+    frames = _download(symbols)
+    print(f"  got history for {len(frames)} symbols")
 
     scored = []
-    for sym, series in closes.items():
-        t = _tech_score(series)
+    rejected = []
+    for sym, frame in frames.items():
+        t = _tech_score(frame)
+        ok, why = _liquidity_ok(t)
+        if not ok:
+            rejected.append({"symbol": sym, "reason": why})
+            continue
         meta = by_symbol[sym]
         scored.append({
             "symbol": sym,
@@ -185,8 +203,10 @@ def build() -> dict:
         "generated_ist": now_ist().isoformat(),
         "universe_size": len(symbols),
         "evaluated": len(scored),
+        "liquidity_rejected": len(rejected),
         "top_n": TOP_N,
         "watchlist": top,
+        "strategy": strategy_metadata(),
         "disclaimer": (
             "Ranked by transparent technical + news rules. Not investment "
             "advice. Verify before acting."

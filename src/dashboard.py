@@ -627,7 +627,7 @@ async function initPaper(){
         <div class=card><div class=k>Sharpe</div><div class=v>${bt.sharpe}</div>
           <div class=chg>win days ${bt.win_rate_pct}%</div></div>
       </div>
-      <div class=foot>${bt.note||''} Params: top ${pr.top_n}, ${pr.stop_loss_pct}% stop, ${pr.max_position_pct}% max/stock, ${pr.max_sector_pct}% max/sector, ${pr.cost_per_side_pct}% cost/leg.</div>`;
+      <div class=foot>${bt.note||''} Params: top ${pr.top_n}, ${pr.stop_loss_pct}% stop, ${pr.trailing_stop_pct||0}% trail, ${pr.max_drawdown_pct||0}% maxDD guard, ${pr.cost_per_side_pct}% cost/leg.</div>`;
   }
 
   if(!p){
@@ -666,7 +666,7 @@ async function initPaper(){
 
   const rs = p.risk_settings;
   const riskBar = rs
-    ? `<div class=foot>🛡️ Risk controls: <b>${rs.stop_loss_pct}%</b> stop-loss · <b>${rs.max_position_pct}%</b> max per stock · <b>${rs.max_sector_pct}%</b> max per sector · top <b>${rs.top_n}</b> equal-weight</div>`
+    ? `<div class=foot>🛡️ Risk controls: <b>${rs.stop_loss_pct}%</b> stop · <b>${rs.trailing_stop_pct||0}%</b> trail · <b>${rs.max_daily_loss_pct||0}%</b> daily loss guard · <b>${rs.max_drawdown_pct||0}%</b> drawdown guard · top <b>${rs.top_n}</b></div>`
     : '';
 
   const re = (p.risk_events||[]).filter(e=>e.type==='stop_loss');

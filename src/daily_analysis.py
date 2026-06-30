@@ -15,8 +15,10 @@ import yfinance as yf
 
 import datastore as ds
 from market_calendar import now_ist
+from market_regime import current_regime
 from news_sentiment import get_news_sentiment
 from strategy import decide
+from strategy_config import strategy_metadata
 
 BATCH = 50
 
@@ -44,6 +46,7 @@ def _indicators_from_close(close: pd.Series) -> dict | None:
         if past:
             ret_3m = round((last / past - 1) * 100, 2)
     return {
+        "price_date": close.index[-1].strftime("%Y-%m-%d") if hasattr(close.index[-1], "strftime") else None,
         "price": round(last, 2),
         "sma50": sma(50),
         "sma200": sma(200),
@@ -93,6 +96,7 @@ def run() -> dict:
     print(f"Daily analysis for {len(symbols)} watchlist symbols ...")
 
     closes = _download(symbols)
+    regime = current_regime()
     prev = (ds.read_json("daily/latest.json", default={}) or {})
     prev_by = {r["symbol"]: r for r in prev.get("analysis", [])}
 
@@ -112,10 +116,12 @@ def run() -> dict:
             "score": rec["score"],
             "rsi14": ind["rsi14"] if ind else None,
             "price": ind["price"] if ind else None,
+            "price_date": ind.get("price_date") if ind else None,
             "pct_from_high": ind["pct_from_high"] if ind else None,
             "reasons": rec["reasons"],
             "news_score": sent.get("score"),
             "components": rec.get("components", {}),
+            "entry_allowed": bool(regime.get("risk_on", True)),
         }
         results.append(row)
 
@@ -144,9 +150,13 @@ def run() -> dict:
     payload = {
         "generated_at": ds.now_utc().isoformat(),
         "ist": ist.isoformat(),
+        "trading_date": max([r.get("price_date") for r in results if r.get("price_date")] or
+                            [ist.strftime("%Y-%m-%d")]),
         "watchlist_size": len(symbols),
         "analyzed": len(results),
         "signal_counts": counts,
+        "market_regime": regime,
+        "strategy": strategy_metadata(),
         "changes_since_prev": changes,
         "analysis": results,
         "disclaimer": "Rule-based EOD analysis. Not investment advice.",

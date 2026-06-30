@@ -34,16 +34,20 @@ from market_calendar import is_market_open, now_ist
 # Reuse the single source of truth for capital, caps, costs and file paths.
 from paper_trader import (
     COST_PER_SIDE,
+    MAX_DAILY_LOSS_PCT,
+    MAX_DRAWDOWN_PCT,
     MAX_POSITION_PCT,
     MAX_SECTOR_PCT,
     STATE_FILE,
     STOP_LOSS_PCT,
     TOP_N,
+    TRAILING_STOP_PCT,
     _load_state,
     _market_value,
     _pick_targets,
     _sector_map,
 )
+from strategy_config import strategy_metadata
 
 LIVE_FILE = "paper/live.json"
 
@@ -100,9 +104,12 @@ def run() -> dict:
     # Day baseline = the last official close NAV (yesterday). Live day-P&L is
     # measured against this so it lines up with the EOD bot's day P&L.
     prev_value = state["history"][-1]["value"] if state["history"] else state["start_capital"]
+    equity_peak = max([h.get("value", state["start_capital"]) for h in state["history"]] or
+                      [state["start_capital"]])
 
     names = {}
     daily = ds.read_json("daily/latest.json", default={}) or {}
+    regime = daily.get("market_regime") or {}
     for a in daily.get("analysis", []):
         names[a["symbol"]] = a.get("name", a["symbol"])
 
@@ -128,23 +135,38 @@ def run() -> dict:
         if px is None:
             continue
         avg = pos.get("avg_price", 0.0)
+        pos["peak_price"] = round(max(pos.get("peak_price", px), px), 2)
+        stop_reason = None
         if avg and px <= avg * (1 - STOP_LOSS_PCT):
+            stop_reason = "stop_loss"
+        elif px <= pos["peak_price"] * (1 - TRAILING_STOP_PCT):
+            stop_reason = "trailing_stop"
+        if stop_reason:
             proceeds = pos["qty"] * px
             cost = proceeds * COST_PER_SIDE
             cost_total += cost
             state["cash"] += proceeds - cost
             loss_pct = round((px / avg - 1) * 100, 2)
             t = {"action": "SELL", "symbol": sym, "name": names.get(sym, sym),
-                 "qty": pos["qty"], "price": round(px, 2), "reason": "stop_loss",
+                 "qty": pos["qty"], "price": round(px, 2), "reason": stop_reason,
                  "ist": ist.isoformat()}
             trades.append(t)
-            stops.append({"symbol": sym, "name": names.get(sym, sym), "loss_pct": loss_pct})
+            stops.append({"symbol": sym, "name": names.get(sym, sym),
+                          "loss_pct": loss_pct, "type": stop_reason})
             state["positions"].pop(sym)
 
     # 2) Deploy idle cash intraday into under-allocated top targets.
     total_value = mark_value()
     idle = state["cash"]
-    if total_value > 0 and idle > MIN_DEPLOY_FRACTION * total_value:
+    risk_block_new_buys = False
+    if prev_value and (total_value / prev_value - 1) <= -MAX_DAILY_LOSS_PCT:
+        risk_block_new_buys = True
+    if equity_peak and (total_value / equity_peak - 1) <= -MAX_DRAWDOWN_PCT:
+        risk_block_new_buys = True
+    if regime and not regime.get("risk_on", True):
+        risk_block_new_buys = True
+
+    if total_value > 0 and idle > MIN_DEPLOY_FRACTION * total_value and not risk_block_new_buys:
         targets = _pick_targets(daily.get("analysis", []))
         # Block names we just stopped out of (avoid immediate re-entry).
         stopped = {s["symbol"] for s in stops}
@@ -188,9 +210,10 @@ def run() -> dict:
                 nq = old["qty"] + qty
                 old["avg_price"] = round((old["avg_price"] * old["qty"] + spend) / nq, 2)
                 old["qty"] = nq
+                old["peak_price"] = round(max(old.get("peak_price", px), px), 2)
             else:
                 state["positions"][sym] = {"qty": qty, "avg_price": round(px, 2),
-                                           "name": names.get(sym, sym)}
+                                           "peak_price": round(px, 2), "name": names.get(sym, sym)}
             trades.append({"action": "BUY", "symbol": sym, "name": names.get(sym, sym),
                            "qty": qty, "price": round(px, 2), "reason": "intraday_deploy",
                            "ist": ist.isoformat()})
@@ -215,6 +238,7 @@ def run() -> dict:
             "avg_price": pos["avg_price"], "price": round(px, 2),
             "value": round(pos["qty"] * px, 2),
             "pnl": round((px - pos["avg_price"]) * pos["qty"], 2),
+            "peak_price": pos.get("peak_price"),
             "pnl_pct": round((px / pos["avg_price"] - 1) * 100, 2) if pos["avg_price"] else 0.0,
         })
 
@@ -234,6 +258,9 @@ def run() -> dict:
         "n_positions": len(state["positions"]),
         "intraday_trades": trades,
         "stops": stops,
+        "risk_block_new_buys": risk_block_new_buys,
+        "risk_settings": strategy_metadata(),
+        "market_regime": regime,
         "positions": positions_view,
         "note": ("Delayed intraday mark-to-market of the virtual Rs 5L "
                  "book. Stop-loss checks run every ~15 minutes; full rebalance is at "
