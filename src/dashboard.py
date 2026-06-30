@@ -613,6 +613,14 @@ async function initPaper(){
     const a = bt.alpha_pct, acl = (a>0)?'up':((a<0)?'down':'');
     const tcl = (bt.total_return_pct>0)?'up':((bt.total_return_pct<0)?'down':'');
     const pr = bt.params||{};
+    const lab = ((bt.strategy_lab||{}).variants||[]).slice(0,5);
+    const labRows = lab.length ? `<table><thead><tr><th>Variant</th><th>Return</th><th>Alpha</th><th>Turnover</th><th>Max DD</th></tr></thead><tbody>${
+      lab.map(v=>{
+        const rc=(v.total_return_pct>0)?'up':((v.total_return_pct<0)?'down':'');
+        const ac=(v.alpha_pct>0)?'up':((v.alpha_pct<0)?'down':'');
+        return `<tr><td>${v.label||v.id}</td><td class="${rc}">${sign(v.total_return_pct)}${(v.total_return_pct||0).toFixed(2)}%</td><td class="${ac}">${v.alpha_pct==null?'—':sign(v.alpha_pct)+v.alpha_pct.toFixed(2)+'%'}</td><td>${(v.turnover_pct_of_start||0).toFixed(0)}%</td><td class=down>${(v.max_drawdown_pct||0).toFixed(2)}%</td></tr>`;
+      }).join('')
+    }</tbody></table>` : '';
     return `<h2 class=sec>Backtest <span class=secsub>${bt.start_date} → ${bt.end_date} · ${bt.trading_days} trading days · ${bt.lookback} lookback</span></h2>
       <div class=cards>
         <div class=card><div class=k>Strategy return</div>
@@ -627,6 +635,7 @@ async function initPaper(){
         <div class=card><div class=k>Sharpe</div><div class=v>${bt.sharpe}</div>
           <div class=chg>win days ${bt.win_rate_pct}%</div></div>
       </div>
+      ${labRows}
       <div class=foot>${bt.note||''} Params: top ${pr.top_n}, ${pr.stop_loss_pct}% stop, ${pr.trailing_stop_pct||0}% trail, ${pr.max_drawdown_pct||0}% maxDD guard, ${pr.cost_per_side_pct}% cost/leg.</div>`;
   }
 
