@@ -1,0 +1,14 @@
+name = "market-intraday-watchdog"
+main = "src/index.js"
+compatibility_date = "2026-06-30"
+workers_dev = true
+preview_urls = false
+
+[vars]
+GITHUB_OWNER = "nihal467"
+GITHUB_REPO = "Market"
+GITHUB_REF = "main"
+WORKFLOW_FILE = "intraday_watchdog.yml"
+
+[triggers]
+crons = ["*/5 3-10 * * 1-5"]
