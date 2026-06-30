@@ -2,32 +2,10 @@ name: Intraday Monitor
 
 # Real-time-ish intraday engine for the dummy Rs 5L bot.
 #
-# WHY A SELF-LOOPING JOB (not one cron per 15 min):
-# GitHub's scheduled-cron is best-effort and on this repo it frequently drops
-# almost every */15 tick - so relying on GitHub to fire a fresh run every 15
-# minutes left the dashboard stale. Instead, ONE job kicks off in the morning
-# and loops internally every ~15 minutes until the market closes. We then only
-# need GitHub to fire ONE of several redundant kickoff crons per day, which is
-# far more reliable. This repo is PUBLIC, so Actions minutes are unlimited and a
-# long-running loop costs nothing.
-#
-# REDUNDANCY: several kickoff crons are declared. concurrency (cancel-in-progress
-# false) serializes them, so extra kickoffs QUEUE behind the active loop and act
-# as automatic restarts if the running loop dies or GitHub drops an earlier cron.
-# A loop that hits the per-job time cap is picked up by the next queued kickoff.
+# This workflow is intentionally dispatch-only. A tiny scheduled watchdog
+# (`intraday_watchdog.yml`) checks every few minutes during market hours and
+# dispatches this long-running loop only when no loop is already active.
 on:
-  schedule:
-    # TEMP scheduler verification on 2026-06-30. Remove after confirming an
-    # event=schedule run appears in GitHub Actions.
-    - cron: "50 7 * * 1-5"   # 13:20 IST - scheduler smoke test
-    - cron: "55 7 * * 1-5"   # 13:25 IST - scheduler smoke test backup
-    # IST = UTC + 5:30. Spread across the session so at least one lands even when
-    # GitHub drops some. Each either starts the loop or queues as a restart.
-    - cron: "35 3 * * 1-5"   # 09:05 IST - just before open
-    - cron: "0 5 * * 1-5"    # 10:30 IST
-    - cron: "30 6 * * 1-5"   # 12:00 IST
-    - cron: "0 8 * * 1-5"    # 13:30 IST
-    - cron: "30 9 * * 1-5"   # 15:00 IST - covers the tail if an earlier loop timed out
   workflow_dispatch: {}
 
 permissions:
