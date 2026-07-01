@@ -68,6 +68,15 @@ def _empty_state() -> dict:
     }
 
 
+def _normalize_history(history: list[dict]) -> list[dict]:
+    """Deduplicate by trading date and return rows in chronological order."""
+    by_date = {
+        row.get("date"): row for row in history
+        if row.get("date")
+    }
+    return [by_date[d] for d in sorted(by_date)]
+
+
 def _benchmark_level() -> float | None:
     """Latest NIFTY 50 closing level, or None if it can't be fetched.
 
@@ -102,6 +111,9 @@ def _load_state() -> dict:
     # Backfill any missing keys for forward-compatibility.
     base = _empty_state()
     base.update(st)
+    base["history"] = _normalize_history(base.get("history") or [])
+    if base["history"]:
+        base["last_date"] = base["history"][-1].get("date")
     return base
 
 
@@ -399,7 +411,7 @@ def run() -> dict:
 
     state["last_date"] = today
     state["history"].append(snapshot)
-    state["history"] = state["history"][-400:]  # keep ~1.5 yrs of trading days
+    state["history"] = _normalize_history(state["history"])[-400:]  # keep ~1.5 yrs of trading days
 
     # Persist full state + compact dashboard view + history line.
     ds.write_json(STATE_FILE, state)

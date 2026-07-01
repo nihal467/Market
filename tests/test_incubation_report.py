@@ -112,6 +112,19 @@ class IncubationReportTests(unittest.TestCase):
         self.assertIn("5.00 average trades/day after inception", criterion["detail"])
         self.assertIn("2 trade days", criterion["detail"])
 
+    def test_history_is_sorted_before_churn_window(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-02", "value": 501000, "n_trades": 6},
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+            {"date": "2026-07-03", "value": 502000, "n_trades": 0},
+        ])
+
+        criterion = self.churn_criterion()
+
+        self.assertTrue(criterion["passed"])
+        self.assertIn("3.00 average trades/day after inception", criterion["detail"])
+        self.assertIn("1 trade days", criterion["detail"])
+
 
 if __name__ == "__main__":
     unittest.main()
