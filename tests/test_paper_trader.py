@@ -31,6 +31,23 @@ class PaperTraderTests(unittest.TestCase):
             ],
         )
 
+    def test_normalize_history_drops_rows_before_inception(self) -> None:
+        rows = [
+            {"date": "2026-06-29", "value": 499},
+            {"date": "2026-06-30", "value": 500},
+            {"date": "2026-07-01", "value": 501},
+        ]
+
+        normalized = _normalize_history(rows, inception="2026-06-30")
+
+        self.assertEqual(
+            normalized,
+            [
+                {"date": "2026-06-30", "value": 500},
+                {"date": "2026-07-01", "value": 501},
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -68,11 +68,11 @@ def _empty_state() -> dict:
     }
 
 
-def _normalize_history(history: list[dict]) -> list[dict]:
+def _normalize_history(history: list[dict], inception: str | None = None) -> list[dict]:
     """Deduplicate by trading date and return rows in chronological order."""
     by_date = {
         row.get("date"): row for row in history
-        if row.get("date")
+        if row.get("date") and (inception is None or row.get("date") >= inception)
     }
     return [by_date[d] for d in sorted(by_date)]
 
@@ -111,10 +111,21 @@ def _load_state() -> dict:
     # Backfill any missing keys for forward-compatibility.
     base = _empty_state()
     base.update(st)
-    base["history"] = _normalize_history(base.get("history") or [])
+    base["history"] = _normalize_history(base.get("history") or [], base.get("inception"))
     if base["history"]:
         base["last_date"] = base["history"][-1].get("date")
     return base
+
+
+def _persist_idempotent_cleanup(state: dict) -> None:
+    """Persist normalized state/latest data without creating another trade row."""
+    ds.write_json(STATE_FILE, state)
+    latest = ds.read_json(LATEST_FILE, default=None)
+    if not latest:
+        return
+    latest["inception"] = state.get("inception")
+    latest["history"] = state.get("history", [])[-120:]
+    ds.write_json(LATEST_FILE, latest)
 
 
 def _market_value(positions: dict, prices: dict) -> float:
@@ -200,6 +211,7 @@ def run() -> dict:
 
     state = _load_state()
     if state["last_date"] == today:
+        _persist_idempotent_cleanup(state)
         print(f"Paper trade already run for {today}. Skipping (idempotent).")
         return {"skipped": True, "reason": "already_done", "date": today}
 
@@ -411,7 +423,7 @@ def run() -> dict:
 
     state["last_date"] = today
     state["history"].append(snapshot)
-    state["history"] = _normalize_history(state["history"])[-400:]  # keep ~1.5 yrs of trading days
+    state["history"] = _normalize_history(state["history"], state.get("inception"))[-400:]  # keep ~1.5 yrs
 
     # Persist full state + compact dashboard view + history line.
     ds.write_json(STATE_FILE, state)
