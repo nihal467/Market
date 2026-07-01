@@ -87,14 +87,13 @@ def run() -> dict:
     history = list(by_date.values())
     paper_days = len(history)
     max_dd = _max_drawdown_pct(history)
-    # Exclude inception day from churn metrics — buying TOP_N stocks on
-    # day 1 is portfolio construction, not turnover.
+    # Initial TOP_N portfolio construction is not churn. Measure only activity
+    # after inception so day 1 does not fail the readiness warning by design.
     post_inception = history[1:]
-    post_inception_days = len(post_inception)
     trade_days = sum(1 for row in post_inception if row.get("n_trades", 0) > 0)
     avg_trades_per_day = (
-        sum(row.get("n_trades", 0) for row in post_inception) / post_inception_days
-        if post_inception_days else 0.0
+        sum(row.get("n_trades", 0) for row in post_inception) / len(post_inception)
+        if post_inception else 0.0
     )
 
     daily_dt = _parse_date(daily.get("trading_date"))
@@ -183,7 +182,7 @@ def run() -> dict:
             "churn_controlled",
             "Trading frequency is controlled",
             avg_trades_per_day <= MAX_AVG_TRADES_PER_DAY,
-            f"{avg_trades_per_day:.2f} average trades/day; {trade_days} trade days",
+            f"{avg_trades_per_day:.2f} average trades/day after inception; {trade_days} trade days",
             blocking=False,
         ),
     ]
