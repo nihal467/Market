@@ -50,6 +50,7 @@ class IncubationReportTests(unittest.TestCase):
     def seed_common_files(self, history: list[dict]) -> None:
         write_json(self.root, "paper/latest.json", {
             "ist": "2026-07-01T16:30:00+05:30",
+            "inception": "2026-07-01",
             "value": 500000,
             "total_pnl_pct": 0.0,
             "alpha_pct": 0.0,
@@ -124,6 +125,19 @@ class IncubationReportTests(unittest.TestCase):
         self.assertTrue(criterion["passed"])
         self.assertIn("3.00 average trades/day after inception", criterion["detail"])
         self.assertIn("1 trade days", criterion["detail"])
+
+    def test_pre_inception_rows_do_not_count_as_churn(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-06-30", "value": 499000, "n_trades": 7},
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+            {"date": "2026-07-02", "value": 501000, "n_trades": 0},
+        ])
+
+        criterion = self.churn_criterion()
+
+        self.assertTrue(criterion["passed"])
+        self.assertIn("0.00 average trades/day after inception", criterion["detail"])
+        self.assertIn("0 trade days", criterion["detail"])
 
 
 if __name__ == "__main__":

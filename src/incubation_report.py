@@ -93,7 +93,11 @@ def run() -> dict:
     max_dd = _max_drawdown_pct(history)
     # Initial TOP_N portfolio construction is not churn. Measure only activity
     # after inception so day 1 does not fail the readiness warning by design.
-    post_inception = history[1:]
+    inception = paper.get("inception") or (history[0].get("date") if history else None)
+    post_inception = [
+        row for row in history
+        if row.get("date") and (inception is None or row["date"] > inception)
+    ]
     trade_days = sum(1 for row in post_inception if row.get("n_trades", 0) > 0)
     avg_trades_per_day = (
         sum(row.get("n_trades", 0) for row in post_inception) / len(post_inception)
