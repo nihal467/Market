@@ -72,6 +72,14 @@ def _num(value, default: float = 0.0) -> float:
     return default if value is None else float(value)
 
 
+def _history_by_date(history: list[dict]) -> list[dict]:
+    by_date = {
+        row.get("date"): row for row in history
+        if row.get("date")
+    }
+    return [by_date[d] for d in sorted(by_date)]
+
+
 def run() -> dict:
     ist = now_ist()
     paper = ds.read_json("paper/latest.json", default={}) or {}
@@ -80,11 +88,7 @@ def run() -> dict:
     watch = ds.read_json("watchlist/latest.json", default={}) or {}
     backtest = ds.read_json("backtest/latest.json", default={}) or {}
 
-    by_date = {
-        row.get("date"): row for row in (paper.get("history") or [])
-        if row.get("date")
-    }
-    history = list(by_date.values())
+    history = _history_by_date(paper.get("history") or [])
     paper_days = len(history)
     max_dd = _max_drawdown_pct(history)
     # Initial TOP_N portfolio construction is not churn. Measure only activity
