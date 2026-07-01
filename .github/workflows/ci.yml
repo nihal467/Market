@@ -42,7 +42,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Parse GitHub workflow YAML
-        run: ruby -e 'require "yaml"; Dir[".github/workflows/*.yml"].each { |f| YAML.load_file(f); puts "ok #{f}" }'
+        run: |
+          ruby <<'RUBY'
+          require "yaml"
+          Dir[".github/workflows/*.yml"].each do |file|
+            YAML.load_file(file)
+            puts "ok #{file}"
+          end
+          RUBY
 
   cloudflare-worker:
     name: Cloudflare Worker checks
