@@ -36,14 +36,6 @@ const TASKS = [
     dedupe: true,
   },
   {
-    id: "daily-analysis-overnight",
-    workflow: "daily_analysis.yml",
-    mode: "at",
-    days: [2, 3, 4, 5, 6],
-    at: "01:00",
-    dedupe: true,
-  },
-  {
     id: "weekly-watchlist",
     workflow: "weekly_watchlist.yml",
     mode: "at",

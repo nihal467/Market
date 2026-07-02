@@ -123,7 +123,23 @@ def _persist_idempotent_cleanup(state: dict) -> None:
     latest = ds.read_json(LATEST_FILE, default=None)
     if not latest:
         return
+    last_snapshot = state.get("history", [])[-1] if state.get("history") else {}
     latest["inception"] = state.get("inception")
+    latest["start_capital"] = state.get("start_capital")
+    latest["cash"] = round(state.get("cash", 0.0), 2)
+    latest["n_positions"] = len(state.get("positions", {}))
+    for key in (
+        "value",
+        "day_pnl",
+        "day_pnl_pct",
+        "total_pnl",
+        "total_pnl_pct",
+        "benchmark_pct",
+        "benchmark_value",
+        "alpha_pct",
+    ):
+        if key in last_snapshot:
+            latest[key] = last_snapshot[key]
     latest["history"] = state.get("history", [])[-120:]
     ds.write_json(LATEST_FILE, latest)
 
@@ -210,6 +226,18 @@ def run() -> dict:
     names = {a["symbol"]: a.get("name", a["symbol"]) for a in analysis}
 
     state = _load_state()
+    if state["last_date"] and today < state["last_date"]:
+        _persist_idempotent_cleanup(state)
+        print(
+            f"Daily analysis is stale ({today}) vs paper state "
+            f"({state['last_date']}). Skipping to keep the book chronological."
+        )
+        return {
+            "skipped": True,
+            "reason": "stale_trading_date",
+            "date": today,
+            "last_date": state["last_date"],
+        }
     if state["last_date"] == today:
         _persist_idempotent_cleanup(state)
         print(f"Paper trade already run for {today}. Skipping (idempotent).")
@@ -424,6 +452,8 @@ def run() -> dict:
     state["last_date"] = today
     state["history"].append(snapshot)
     state["history"] = _normalize_history(state["history"], state.get("inception"))[-400:]  # keep ~1.5 yrs
+    if state["history"]:
+        state["last_date"] = state["history"][-1].get("date")
 
     # Persist full state + compact dashboard view + history line.
     ds.write_json(STATE_FILE, state)
