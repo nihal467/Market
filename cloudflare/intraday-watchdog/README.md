@@ -49,7 +49,6 @@ these IST schedules is due:
 | Intraday watchdog | `intraday_watchdog.yml` | Mon-Fri 09:05-15:35 IST |
 | Dashboard deploy | `daily.yml` | Mon-Fri 16:00 IST |
 | Daily analysis close | `daily_analysis.yml` | Mon-Fri 16:30 IST |
-| Daily analysis overnight | `daily_analysis.yml` | Tue-Sat 01:00 IST |
 | Weekly watchlist | `weekly_watchlist.yml` | Sun 17:30 IST |
 
 ## Verify
