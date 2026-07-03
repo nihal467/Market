@@ -26,10 +26,10 @@ twice-daily Daily Analysis workflow won't double-trade.
 from __future__ import annotations
 
 import sys
-from datetime import date
+from datetime import date, datetime
 
 import datastore as ds
-from market_calendar import now_ist
+from market_calendar import MARKET_CLOSE, now_ist
 from strategy_config import (
     ACTIVE_PROFILE,
     COST_PER_SIDE,
@@ -144,6 +144,30 @@ def _persist_idempotent_cleanup(state: dict) -> None:
     ds.write_json(LATEST_FILE, latest)
 
 
+def _parse_iso_dt(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _latest_snapshot_is_final(trading_date: str) -> bool:
+    latest = ds.read_json(LATEST_FILE, default={}) or {}
+    generated = _parse_iso_dt(latest.get("ist") or latest.get("generated_at"))
+    if not generated:
+        return True
+    try:
+        trade_day = date.fromisoformat(trading_date)
+    except ValueError:
+        return True
+    if generated.date() > trade_day:
+        return True
+    generated_time = generated.time().replace(tzinfo=None)
+    return generated.date() == trade_day and generated_time > MARKET_CLOSE
+
+
 def _market_value(positions: dict, prices: dict) -> float:
     total = 0.0
     for sym, pos in positions.items():
@@ -238,10 +262,33 @@ def run() -> dict:
             "date": today,
             "last_date": state["last_date"],
         }
+    ist_time = ist.time().replace(tzinfo=None)
+    same_day_before_close = today == ist.date().isoformat() and ist_time <= MARKET_CLOSE
+    replacing_preliminary = False
     if state["last_date"] == today:
+        if not _latest_snapshot_is_final(today):
+            if same_day_before_close:
+                _persist_idempotent_cleanup(state)
+                print(
+                    f"Market has not closed for {today}. Skipping paper EOD "
+                    "so the daily book is not locked with an intraday price."
+                )
+                return {"skipped": True, "reason": "market_not_closed", "date": today}
+            replacing_preliminary = True
+            state["history"] = [row for row in state["history"] if row.get("date") != today]
+            state["last_date"] = state["history"][-1].get("date") if state["history"] else None
+        else:
+            _persist_idempotent_cleanup(state)
+            print(f"Paper trade already run for {today}. Skipping (idempotent).")
+            return {"skipped": True, "reason": "already_done", "date": today}
+
+    if same_day_before_close:
         _persist_idempotent_cleanup(state)
-        print(f"Paper trade already run for {today}. Skipping (idempotent).")
-        return {"skipped": True, "reason": "already_done", "date": today}
+        print(
+            f"Market has not closed for {today}. Skipping paper EOD "
+            "so the daily book is not locked with an intraday price."
+        )
+        return {"skipped": True, "reason": "market_not_closed", "date": today}
 
     if state["inception"] is None:
         state["inception"] = today
@@ -430,6 +477,8 @@ def run() -> dict:
 
     snapshot = {
         "date": today,
+        "generated_ist": ist.isoformat(),
+        "final": True,
         "value": round(end_value, 2),
         "cash": round(state["cash"], 2),
         "day_pnl": day_pnl,
@@ -458,6 +507,8 @@ def run() -> dict:
     # Persist full state + compact dashboard view + history line.
     ds.write_json(STATE_FILE, state)
     ds.append_jsonl(HISTORY_FILE, snapshot)
+    if replacing_preliminary:
+        print(f"Replaced preliminary paper snapshot for {today} with post-close data.")
 
     positions_view = []
     for sym, pos in sorted(state["positions"].items(),
