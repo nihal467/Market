@@ -68,6 +68,15 @@ def _best_lab_variant(backtest: dict) -> dict | None:
     return max(variants, key=lambda v: v.get("alpha_pct") if v.get("alpha_pct") is not None else -999)
 
 
+def _active_lab_variant(backtest: dict) -> dict | None:
+    variants = ((backtest or {}).get("strategy_lab") or {}).get("variants") or []
+    profile_to_variant = {
+        "momentum_weekly_churn_control": "weekly_churn_control",
+    }
+    active_id = profile_to_variant.get(ACTIVE_PROFILE, ACTIVE_PROFILE)
+    return next((v for v in variants if v.get("id") == active_id), None)
+
+
 def _num(value, default: float = 0.0) -> float:
     return default if value is None else float(value)
 
@@ -116,18 +125,11 @@ def run() -> dict:
         live_age_minutes = (ist - live_dt.astimezone(ist.tzinfo)).total_seconds() / 60
 
     best_variant = _best_lab_variant(backtest)
-    active_is_supported = False
-    if best_variant:
-        active_is_supported = (
-            best_variant.get("alpha_pct", -999) > 0 and
-            best_variant.get("total_return_pct", -999) > 0
-        )
-    variants = ((backtest or {}).get("strategy_lab") or {}).get("variants") or []
-    active_family = [
-        v for v in variants
-        if v.get("id") in {"momentum_only_weekly", "weekly_churn_control"}
-    ]
-    active_family_ok = any((v.get("alpha_pct") or -999) > 0 for v in active_family)
+    active_variant = _active_lab_variant(backtest)
+    active_is_supported = bool(active_variant) and (
+        active_variant.get("alpha_pct", -999) > 0 and
+        active_variant.get("total_return_pct", -999) > 0
+    )
 
     criteria = [
         _criterion(
@@ -178,12 +180,12 @@ def run() -> dict:
         ),
         _criterion(
             "backtest_supports_profile",
-            "Backtest lab supports the active profile family",
-            active_is_supported and active_family_ok,
+            "Backtest lab supports the active profile",
+            active_is_supported,
             (
-                f"best variant {best_variant.get('id')} alpha {best_variant.get('alpha_pct'):.2f}%"
-                if best_variant and best_variant.get("alpha_pct") is not None
-                else "no strategy lab result available"
+                f"active variant {active_variant.get('id')} alpha {active_variant.get('alpha_pct'):.2f}%"
+                if active_variant and active_variant.get("alpha_pct") is not None
+                else f"active profile {ACTIVE_PROFILE} not found in strategy lab"
             ),
         ),
         _criterion(
@@ -219,6 +221,7 @@ def run() -> dict:
             "max_drawdown_pct": max_dd,
             "trade_days": trade_days,
             "active_profile": ACTIVE_PROFILE,
+            "active_lab_variant": active_variant,
             "best_lab_variant": best_variant,
         },
         "criteria": criteria,

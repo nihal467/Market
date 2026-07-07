@@ -85,6 +85,10 @@ class IncubationReportTests(unittest.TestCase):
         report = incubation_report.run()
         return next(c for c in report["criteria"] if c["key"] == "churn_controlled")
 
+    def criterion(self, key: str) -> dict:
+        report = incubation_report.run()
+        return next(c for c in report["criteria"] if c["key"] == key)
+
     def test_inception_buys_do_not_count_as_churn(self) -> None:
         self.seed_common_files([
             {
@@ -138,6 +142,33 @@ class IncubationReportTests(unittest.TestCase):
         self.assertTrue(criterion["passed"])
         self.assertIn("0.00 average trades/day after inception", criterion["detail"])
         self.assertIn("0 trade days", criterion["detail"])
+
+    def test_backtest_gate_uses_active_variant_not_best_variant(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+            {"date": "2026-07-02", "value": 501000, "n_trades": 0},
+        ])
+        write_json(self.root, "backtest/latest.json", {
+            "strategy_lab": {
+                "variants": [
+                    {
+                        "id": "no_regime_filter",
+                        "total_return_pct": 12.99,
+                        "alpha_pct": 12.89,
+                    },
+                    {
+                        "id": "weekly_churn_control",
+                        "total_return_pct": -0.67,
+                        "alpha_pct": -0.77,
+                    },
+                ]
+            }
+        })
+
+        criterion = self.criterion("backtest_supports_profile")
+
+        self.assertFalse(criterion["passed"])
+        self.assertIn("active variant weekly_churn_control alpha -0.77%", criterion["detail"])
 
 
 if __name__ == "__main__":
