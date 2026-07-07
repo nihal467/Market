@@ -162,6 +162,13 @@ def run() -> dict:
         "analysis": results,
         "disclaimer": "Rule-based EOD analysis. Not investment advice.",
     }
+    prev_date = prev.get("trading_date")
+    if prev_date and payload["trading_date"] < prev_date:
+        print(
+            f"Stale daily analysis {payload['trading_date']} older than "
+            f"latest {prev_date}; keeping existing daily/latest.json."
+        )
+        return {"skipped": True, "reason": "stale_trading_date", "trading_date": payload["trading_date"]}
     ds.write_json(ds.daily_path(ist), payload)
     ds.write_json("daily/latest.json", payload)
     print(f"  analyzed {len(results)} | signals {counts} | {len(changes)} changes")

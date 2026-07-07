@@ -686,7 +686,8 @@ async function initPaper(){
     const profile = s.active_profile || '—';
     const profileLabel = profile === 'momentum_weekly_churn_control'
       ? 'Momentum weekly'
-      : profile.replace(/_/g,' ');
+      : (profile === 'no_regime_filter' ? 'Aggressive no-regime'
+        : profile.replace(/_/g,' '));
     const passed = crit.filter(c=>c.blocking && c.passed).length;
     const blocking = crit.filter(c=>c.blocking).length;
     const cls = ready.decision === 'eligible_for_review' ? 'up'

@@ -143,7 +143,7 @@ class IncubationReportTests(unittest.TestCase):
         self.assertIn("0.00 average trades/day after inception", criterion["detail"])
         self.assertIn("0 trade days", criterion["detail"])
 
-    def test_backtest_gate_uses_live_profile_variant_not_best_variant(self) -> None:
+    def test_backtest_gate_uses_active_profile_variant(self) -> None:
         self.seed_common_files([
             {"date": "2026-07-01", "value": 500000, "n_trades": 10},
             {"date": "2026-07-02", "value": 501000, "n_trades": 0},
@@ -173,7 +173,7 @@ class IncubationReportTests(unittest.TestCase):
         criterion = self.criterion("backtest_supports_profile")
 
         self.assertTrue(criterion["passed"])
-        self.assertIn("active variant momentum_only_weekly alpha 8.70%", criterion["detail"])
+        self.assertIn("active variant no_regime_filter alpha 12.89%", criterion["detail"])
 
 
 if __name__ == "__main__":

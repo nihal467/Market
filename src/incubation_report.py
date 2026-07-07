@@ -72,6 +72,7 @@ def _active_lab_variant(backtest: dict) -> dict | None:
     variants = ((backtest or {}).get("strategy_lab") or {}).get("variants") or []
     profile_to_variant = {
         "momentum_weekly_churn_control": "momentum_only_weekly",
+        "no_regime_filter": "no_regime_filter",
     }
     active_id = profile_to_variant.get(ACTIVE_PROFILE, ACTIVE_PROFILE)
     return next((v for v in variants if v.get("id") == active_id), None)
