@@ -43,6 +43,7 @@ from strategy_config import (
     STOP_LOSS_PCT,
     TOP_N,
     TRAILING_STOP_PCT,
+    USE_MARKET_REGIME_GUARD,
     strategy_metadata,
 )
 
@@ -128,6 +129,9 @@ def _persist_idempotent_cleanup(state: dict) -> None:
     latest["start_capital"] = state.get("start_capital")
     latest["cash"] = round(state.get("cash", 0.0), 2)
     latest["n_positions"] = len(state.get("positions", {}))
+    latest["risk_settings"] = strategy_metadata()
+    latest["strategy_config"] = strategy_metadata()
+    latest["active_profile"] = ACTIVE_PROFILE
     for key in (
         "value",
         "day_pnl",
@@ -387,7 +391,7 @@ def run() -> dict:
     if equity_peak and (total_value / equity_peak - 1) <= -MAX_DRAWDOWN_PCT:
         risk_block_new_buys = True
         risk_events.append({"type": "drawdown_guard", "drawdown_pct": round((total_value / equity_peak - 1) * 100, 2)})
-    if regime and not regime.get("risk_on", True):
+    if USE_MARKET_REGIME_GUARD and regime and not regime.get("risk_on", True):
         risk_block_new_buys = True
         risk_events.append({"type": "market_regime_guard", "reason": regime.get("reason")})
 
@@ -565,8 +569,9 @@ def run() -> dict:
         "strategy_config": strategy_metadata(),
         "strategy": (
             f"Incubation profile {ACTIVE_PROFILE}: rank liquid Top-50 names by "
-            f"positive 3-month momentum, buy top {TOP_N}, rebalance {REBALANCE_INTERVAL}, "
-            f"and hold existing names until rank > {HOLD_UNTIL_RANK}. Risk controls: "
+            f"the active score, buy top {TOP_N}, rebalance {REBALANCE_INTERVAL}, "
+            f"and hold existing names until rank > {HOLD_UNTIL_RANK}. "
+            f"Market-regime guard {'on' if USE_MARKET_REGIME_GUARD else 'off'}. Risk controls: "
             f"{STOP_LOSS_PCT*100:.0f}% stop-loss, {TRAILING_STOP_PCT*100:.0f}% trailing stop, "
             f"{MAX_POSITION_PCT*100:.0f}% max "
             f"per stock, {MAX_SECTOR_PCT*100:.0f}% max per sector. "

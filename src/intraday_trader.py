@@ -46,7 +46,7 @@ from paper_trader import (
     _sector_map,
 )
 from strategy_config import strategy_metadata
-from strategy_config import ACTIVE_PROFILE, REBALANCE_INTERVAL
+from strategy_config import ACTIVE_PROFILE, REBALANCE_INTERVAL, USE_MARKET_REGIME_GUARD
 
 LIVE_FILE = "paper/live.json"
 
@@ -163,7 +163,7 @@ def run() -> dict:
         risk_block_new_buys = True
     if equity_peak and (total_value / equity_peak - 1) <= -MAX_DRAWDOWN_PCT:
         risk_block_new_buys = True
-    if regime and not regime.get("risk_on", True):
+    if USE_MARKET_REGIME_GUARD and regime and not regime.get("risk_on", True):
         risk_block_new_buys = True
 
     if (intraday_deploy_enabled and total_value > 0 and

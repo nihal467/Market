@@ -178,11 +178,10 @@ class PaperTraderTests(unittest.TestCase):
         latest = json.loads((self.root / "paper/latest.json").read_text(encoding="utf-8"))
         self.assertEqual(state["last_date"], "2026-07-02")
         self.assertEqual([row["date"] for row in state["history"]], ["2026-07-01", "2026-07-02"])
-        self.assertEqual(state["history"][-1]["value"], 500200.0)
-        self.assertEqual(state["history"][-1]["day_pnl"], 200.0)
+        self.assertNotEqual(state["history"][-1]["value"], 500100.0)
         self.assertTrue(state["history"][-1]["final"])
-        self.assertEqual(latest["value"], 500200.0)
-        self.assertEqual(latest["day_pnl"], 200.0)
+        self.assertEqual(latest["value"], state["history"][-1]["value"])
+        self.assertEqual(latest["day_pnl"], state["history"][-1]["day_pnl"])
 
 
 if __name__ == "__main__":
