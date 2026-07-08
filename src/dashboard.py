@@ -571,11 +571,13 @@ async function initMarket(){
       <td><span class=rank>#${r.rank}</span></td>
       <td><div>${r.name}</div><div class=broker>${r.symbol} · ${r.sector||''}</div></td>
       <td>${r.rsi14==null?'—':r.rsi14}</td>
+      <td>${pctCell(r.ret_1d)}</td>
+      <td>${pctCell(r.ret_1w)}</td>
       <td>${pctCell(r.ret_1m)}</td>
       <td>${pctCell(r.ret_3m)}</td>
       <td>${r.composite}</td></tr>`).join('');
     return `<div class=sub>Top ${watch.top_n} of ${watch.evaluated} evaluated · ranked by technicals + news</div>
-      <table><thead><tr><th>#</th><th>Stock</th><th>RSI</th><th>1M</th><th>3M</th><th>Score</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Stock</th><th>RSI</th><th>1D</th><th>1W</th><th>1M</th><th>3M</th><th>Score</th></tr></thead>
       <tbody>${rows}</tbody></table>`;
   }
 

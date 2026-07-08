@@ -558,6 +558,8 @@ def run() -> dict:
                 "rank": r.get("rank"),
                 "symbol": r.get("symbol"),
                 "name": r.get("name"),
+                "ret_1d": r.get("ret_1d"),
+                "ret_1w": r.get("ret_1w"),
                 "ret_3m": r.get("ret_3m"),
                 "score": r.get("score"),
                 "signal": r.get("signal"),

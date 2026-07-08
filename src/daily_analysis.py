@@ -40,6 +40,16 @@ def _indicators_from_close(close: pd.Series) -> dict | None:
 
     high52 = round(float(close.max()), 2)
     low52 = round(float(close.min()), 2)
+    ret_1d = None
+    if len(close) > 1:
+        past = float(close.iloc[-2])
+        if past:
+            ret_1d = round((last / past - 1) * 100, 2)
+    ret_1w = None
+    if len(close) > 5:
+        past = float(close.iloc[-6])
+        if past:
+            ret_1w = round((last / past - 1) * 100, 2)
     ret_3m = None
     if len(close) > 63:
         past = float(close.iloc[-63])
@@ -55,6 +65,8 @@ def _indicators_from_close(close: pd.Series) -> dict | None:
         "week52_low": low52,
         "pct_from_high": round((last - high52) / high52 * 100, 2),
         "pct_from_low": round((last - low52) / low52 * 100, 2),
+        "ret_1d": ret_1d,
+        "ret_1w": ret_1w,
         "ret_3m": ret_3m,
     }
 
@@ -117,6 +129,8 @@ def run() -> dict:
             "rsi14": ind["rsi14"] if ind else None,
             "price": ind["price"] if ind else None,
             "price_date": ind.get("price_date") if ind else None,
+            "ret_1d": ind.get("ret_1d") if ind else None,
+            "ret_1w": ind.get("ret_1w") if ind else None,
             "ret_3m": ind.get("ret_3m") if ind else None,
             "pct_from_high": ind["pct_from_high"] if ind else None,
             "reasons": rec["reasons"],
