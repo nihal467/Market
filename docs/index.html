@@ -166,7 +166,7 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-07-08T07:41:44.610167+00:00",
+  "generated_at": "2026-07-08T07:47:06.439219+00:00",
   "hide_amounts": true,
   "totals": {
     "pnl_pct": 8.34
@@ -182,13 +182,13 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.78,
-      "pnl_pct": -0.22,
+      "allocation_pct": 2.79,
+      "pnl_pct": -0.09,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 40.91
+      "rsi": 41.29
     },
     {
       "name": "Zerodha Nifty Midcap 150 ETF",
@@ -196,12 +196,12 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.48,
-      "pnl_pct": 5.4,
+      "pnl_pct": 5.22,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 54.0
+      "rsi": 51.92
     },
     {
       "name": "Zerodha Nifty 100 ETF",
@@ -209,12 +209,12 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 2.5,
-      "pnl_pct": -0.37,
+      "pnl_pct": -0.28,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 53.09
+      "rsi": 53.66
     },
     {
       "name": "Zerodha Long Term Gilt (LTGILTCASE)",
@@ -235,12 +235,12 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 3.96,
-      "pnl_pct": -1.93,
+      "pnl_pct": -1.97,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 54.14
+      "rsi": 53.79
     },
     {
       "name": "Nippon Nifty Midcap 150 ETF (smallcase)",
@@ -248,12 +248,12 @@ const d = {
       "type": "etf",
       "tradable": false,
       "allocation_pct": 0.83,
-      "pnl_pct": 4.52,
+      "pnl_pct": 4.53,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 53.93
+      "rsi": 54.01
     },
     {
       "name": "Nippon Nifty Next 50 ETF (JUNIORBEES)",
@@ -266,23 +266,23 @@ const d = {
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 45.18
+      "rsi": 45.55
     },
     {
       "name": "HDFC Gold ETF",
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 7.17,
-      "pnl_pct": 17.64,
+      "allocation_pct": 7.18,
+      "pnl_pct": 17.72,
       "signal": "HOLD",
       "reasons": [
         "Price below SMA50 (128.12)",
         "Golden cross (SMA50>SMA200)",
-        "RSI 37.41 neutral",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "RSI 37.55 neutral",
+        "Negative news (score -0.125, 8 headlines)"
       ],
-      "rsi": 37.41
+      "rsi": 37.55
     },
     {
       "name": "Nifty Next 50 ETF",
@@ -297,7 +297,7 @@ const d = {
         "Golden cross (SMA50>SMA200)",
         "RSI 47.56 neutral",
         "Near 52-week high",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
       "rsi": 47.56
     },
@@ -323,16 +323,16 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 18.77,
-      "pnl_pct": 2.42,
+      "pnl_pct": 2.43,
       "signal": "BUY",
       "reasons": [
         "Price above SMA50 (232.43)",
         "Golden cross (SMA50>SMA200)",
-        "RSI 53.93 neutral",
+        "RSI 54.01 neutral",
         "Near 52-week high",
         "Positive news (score 0.375, 8 headlines)"
       ],
-      "rsi": 53.93
+      "rsi": 54.01
     },
     {
       "name": "LG Electronics India",
@@ -340,14 +340,14 @@ const d = {
       "type": "etf",
       "tradable": true,
       "allocation_pct": 0.76,
-      "pnl_pct": 37.66,
+      "pnl_pct": 37.72,
       "signal": "HOLD",
       "reasons": [
-        "Price above SMA50 (1548.63)",
-        "RSI 47.61 neutral",
+        "Price above SMA50 (1548.68)",
+        "RSI 48.12 neutral",
         "Positive news (score 0.25, 8 headlines)"
       ],
-      "rsi": 47.61
+      "rsi": 48.12
     },
     {
       "name": "Motilal Oswal Midcap Fund - Direct Plan - Growth",
@@ -366,9 +366,9 @@ const d = {
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "nbrPf2JB1RtsQpzMacr6ew==",
-    "iv": "cWlAUTMwVuWsw3Um",
-    "ct": "08aSSxmPXaJ+ZBMl/ndTKajc7WjaRgPSpR/Mabfn6SPpxgFELbd4e+02neqRYkysQKGcwz0bsia2PMatzDVsWbsuem8+EYs7uCwKRQe4pNkR5N6YliMzAwKPiAYRCZCPXxETVnpjJ32NR7a5jqAqsRAYlcj0fH4Y6mnejquuhXrIfXVNFGEtH/cNv3rk01D0s1tod6TL11G7kgyezRVZ+W69CAHS5igSr7Ar1pOSi+ZqGWZziuzrBApU/Mi9YlJbxDuh2q5zsBLEa1/+79PJAcCha7xoU8kWY7feyJDof9rAVWXxOAmpAM776g0e9luoNDTHNW24McQRUhBvvW3fgs4nEobytMLE9WD5MiXPxrWjrbjd0r221447uCzMhwaEXOhTMmwMDNHjuuMmT/q+o06kRg1l0RGbMcuwQ3vnUI/Zy/g68AIWquelYOko1ueFiJhszP2obTqWBat7fZpUK9IoEb9qr+2eHjn6xeJeLpeBDVhUkxGpni90dHUrEKTVK+IpulP3Nq1dzyPG/JT10vQyd2IpdGDuRnF6M1AWR7Btl2Nhb1ga3kjsnG/oSMrIjeNVx5au2mr9m9eeJA9/2YQ0kiX/yZgJmab1GO36JEX2J3ZIq9vSL7CvB8w7RlV7IvS1XbQojCBSUxncz2ta/b5iDvA7dgzHh1LeoNUBKxIPdvQQ3LqTkFFYsr+yssI6hIn71lINzxPc4iLvAlaGvncuHseXvWSlWUfczQGfkQDWzIem5N2Gln7M4DGkKABD24wNM7ooNK6/1p9dbikmBQElJpTvxt8YlLmQY6x2sSGsCj7aFbzrcpYU8le7YVb9/snCAI1SJJQAfitBEi48B/7vxfuJExh3F8bgHzQG/xYkoC9rkjD6pSVVdl0ToWRlq3N8JJp4gZ8DUT2ALQyCjBXWBum9AL48lfQDS06f+NkFNpoj82w9Mm7bWLebwCJ7040h0orE7SmjPBCRN3sqGbD89PF0GbBL4iBOpDlwEdVQvpixa41nCRlNXBti0oTUhCAIn/d+K7cK1aznahrsRvY5WHTSsU55oHlJHrCWi0XxN2wgmISVrEaanrGLSLkAqNUWM3hfbNQskJH9pftx+1aYrNIVdPs5I3RcuW2lchPGJzqTCKCrjed2LLI/cYX/Fye/a95xnmRJWh87ogPTx6MWJw8t6DeMTXHdyX9OIlkQHCbOcJiAlisc+zKP9VF4as0YFgqoIM7804C3xf+8UdZvkw==",
+    "salt": "fiqV+XduFVoKzPQ1NpXZsw==",
+    "iv": "l7RCUBfD0S5sJuYb",
+    "ct": "vA1ddev/Y2ale/qjpd3F96CiiMmQd8bJdrrfV++ibL1vxs40TzKA9i5HSXHTTwcIQsh04Z0z32gjLDpeeVZvo3qL9c31dTzRyI9/0byEzd/eGIA93Qese50SmqFYgr3Knj9KwxqlIWp9ll+JUGuvCrKQFHE6Q1Ws8glk/hCnazKpjTbJLC0cUvmaJFlr08NWGF7NxwVCsGwhxetbGKo770wrhuEeZHA5ZrkUU3MMR3933brhF3oKYhVCzUJwCAb737uDCCPeyBo43WgyfC5kbwR8HJ0SDTcZHkNPoOiyIq3wDSHaZ5Rd5cLiy+qhp036CPhFuMOgVMwiigel7PSPZubFXrzbvs9A+10r2wP34cxWEQUCXq1I621aHYi92epIYeERaB1byf/h9hSsWn0B6t1AaembHUxb81tmDZtJRZYEPLOy9eYulS4zb1fbyr5IIRnRqNiZsq2qD2zHd2evwgiU0xnC79K/pR20npYZSH6CVDFe9whLJY8qVhMmiyiMj5dKKFX9AmxB9sn9t91LQ+teIlgaIMkbHibr/tRMlECSrg5BDnR+QjyxdNdaet7xqrwPM6Dwhgvi0n45gv0k5wF4+LzXBmZ6hxJKMV3j3pogbNVJyrIsTgrQhW5/pI4KTH+dlVyN61ve60XG/W8gTWiX7VevTmnydc8n8JADld6yueXXiCOeKJQ7w7hrjwKbOmffyi+k+y/gavnIkCchpp5VbtnQGmFpmHpjZQ2rJ10bDGomhO6+NkHSRoh/llmPbZodPCMpg9BNSF+/cjMSmQhgQjf/ZLbOtqJdQ4ksBSRV5wNoWgn29hkuhBESHyXHquKnHd84ToDQPBKZmiNjLY2KqFWCGh6bCuTjmLWz0cz/u29J+HFT6tyaqAim+Z+z7e/d/WVWqOMaTlJTHqQcIE/FfbwVEYiJBm3nkfGzasLRcozlexsaktjS1Ikjpugz4WXzSlDBXDbQcOcp0DLvwDBdHU6s+72Y0UNUZlhGSku+nvoVxkzGDddwSyctK6dEbt7jpqyPiDSCQQHRKkkOslS9M1CwOesqhC8PXt9XtiukSSmBOjZuEJi6iUuR2hF10t6Ukp/YQqHXcn8HS93hTUVYOoDFSnJj70yRF1AnDXUNTAEIT5mNnEu79ZKAePFrzT515PZoBThvOVgKKAXEkuiR1THk5SzNPQztzcXj4Fel7MUPqg60/rRFRUWoLEcK3QLMFoSxhzamlUM=",
     "iter": 200000
   },
   "has_secret": true
@@ -558,11 +558,13 @@ async function initMarket(){
       <td><span class=rank>#${r.rank}</span></td>
       <td><div>${r.name}</div><div class=broker>${r.symbol} · ${r.sector||''}</div></td>
       <td>${r.rsi14==null?'—':r.rsi14}</td>
+      <td>${pctCell(r.ret_1d)}</td>
+      <td>${pctCell(r.ret_1w)}</td>
       <td>${pctCell(r.ret_1m)}</td>
       <td>${pctCell(r.ret_3m)}</td>
       <td>${r.composite}</td></tr>`).join('');
     return `<div class=sub>Top ${watch.top_n} of ${watch.evaluated} evaluated · ranked by technicals + news</div>
-      <table><thead><tr><th>#</th><th>Stock</th><th>RSI</th><th>1M</th><th>3M</th><th>Score</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Stock</th><th>RSI</th><th>1D</th><th>1W</th><th>1M</th><th>3M</th><th>Score</th></tr></thead>
       <tbody>${rows}</tbody></table>`;
   }
 
