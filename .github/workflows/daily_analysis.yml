@@ -13,7 +13,9 @@ permissions:
   contents: write
 
 concurrency:
-  group: market-data
+  # Keep end-of-day analysis serialized, but do not queue it behind the
+  # long-running intraday monitor. Data-branch push conflicts are retried below.
+  group: daily-analysis
   cancel-in-progress: false
 
 jobs:

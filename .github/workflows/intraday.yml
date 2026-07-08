@@ -11,10 +11,10 @@ on:
 permissions:
   contents: write
 
-# Serialize all market-data writers. cancel-in-progress:false => redundant
-# kickoffs queue (do NOT duplicate) and resume the loop if it ever stops.
+# Only serialize intraday loops. This job stays alive for most of the market
+# session, so using the shared data-writer group would block short refresh jobs.
 concurrency:
-  group: market-data
+  group: intraday-loop
   cancel-in-progress: false
 
 jobs:
