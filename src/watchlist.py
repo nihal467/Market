@@ -82,6 +82,8 @@ def _tech_score(frame: pd.DataFrame) -> dict:
     rsi = _rsi(close, 14)
     high52 = round(float(close.max()), 2)
     low52 = round(float(close.min()), 2)
+    ret_1d = _pct_return(close, 1)
+    ret_1w = _pct_return(close, 5)
     ret_1m = _pct_return(close, 21)
     ret_3m = _pct_return(close, 63)
     avg_volume_20 = float(volume.tail(20).mean()) if len(volume) else 0.0
@@ -130,6 +132,8 @@ def _tech_score(frame: pd.DataFrame) -> dict:
         "sma200": sma200,
         "week52_high": high52,
         "week52_low": low52,
+        "ret_1d": ret_1d,
+        "ret_1w": ret_1w,
         "ret_1m": ret_1m,
         "ret_3m": ret_3m,
         "pct_from_high": pct_from_high,
