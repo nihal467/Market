@@ -761,16 +761,18 @@ async function initPaper(){
   const pnlUpdated = livePnl ? live.ist : p.ist;
   const pnlDcl = (pnlSource.day_pnl||0)>0?'up':((pnlSource.day_pnl||0)<0?'down':'');
   const pnlTcl = (pnlSource.total_pnl||0)>0?'up':((pnlSource.total_pnl||0)<0?'down':'');
+  const pnlPrevValue = pnlSource.value!=null && pnlSource.day_pnl!=null ? pnlSource.value - pnlSource.day_pnl : null;
+  const pnlStartValue = pnlSource.start_capital || p.start_capital || 500000;
   const pnlOnly = `<h2 class=sec>P&L only <span class=secsub>${livePnl?'live market snapshot':'latest paper close'}</span></h2>
     <div class=cards>
       <div class=card><div class=k>Current value</div><div class=v>${inr(pnlSource.value)}</div>
         <div class=chg>${pnlUpdated ? 'updated ' + tradeTime({ist:pnlUpdated}) : ''}</div></div>
-      <div class=card><div class=k>Today P&L</div>
+      <div class=card><div class=k>Today P&L vs prev close</div>
         <div class="v ${pnlDcl}">${sign(pnlSource.day_pnl)}${inr(pnlSource.day_pnl)}</div>
-        <div class="chg ${pnlDcl}">${sign(pnlSource.day_pnl_pct)}${(pnlSource.day_pnl_pct||0).toFixed(2)}%</div></div>
-      <div class=card><div class=k>Total P&L</div>
+        <div class="chg ${pnlDcl}">${sign(pnlSource.day_pnl_pct)}${(pnlSource.day_pnl_pct||0).toFixed(2)}%${pnlPrevValue!=null?' from '+inr(pnlPrevValue):''}</div></div>
+      <div class=card><div class=k>Total P&L vs start</div>
         <div class="v ${pnlTcl}">${sign(pnlSource.total_pnl)}${inr(pnlSource.total_pnl)}</div>
-        <div class="chg ${pnlTcl}">${sign(pnlSource.total_pnl_pct)}${(pnlSource.total_pnl_pct||0).toFixed(2)}%</div></div>
+        <div class="chg ${pnlTcl}">${sign(pnlSource.total_pnl_pct)}${(pnlSource.total_pnl_pct||0).toFixed(2)}% from ${inr(pnlStartValue)}</div></div>
       <div class=card><div class=k>Cash</div><div class=v>${inr(pnlSource.cash)}</div>
         <div class=chg>${pnlSource.n_positions||0} holdings</div></div>
     </div>`;

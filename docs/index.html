@@ -166,14 +166,14 @@ function inr(v){ return (v===null||v===undefined) ? '—'
   : '₹'+Number(v).toLocaleString('en-IN',{maximumFractionDigits:0}); }
 const d = {
   "title": "My Investment Dashboard",
-  "generated_at": "2026-07-08T07:53:54.538421+00:00",
+  "generated_at": "2026-07-08T08:17:25.792337+00:00",
   "hide_amounts": true,
   "totals": {
-    "pnl_pct": 2.61
+    "pnl_pct": 6.88
   },
   "signal_counts": {
-    "BUY": 3,
-    "HOLD": 2,
+    "BUY": 2,
+    "HOLD": 3,
     "SELL": 0
   },
   "positions": [
@@ -182,180 +182,180 @@ const d = {
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 0.0,
-      "pnl_pct": null,
+      "allocation_pct": 2.77,
+      "pnl_pct": -2.04,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 40.91
+      "rsi": 30.19
     },
     {
       "name": "Zerodha Nifty Midcap 150 ETF",
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 0.0,
-      "pnl_pct": null,
+      "allocation_pct": 2.49,
+      "pnl_pct": 4.12,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 51.92
+      "rsi": 66.67
     },
     {
       "name": "Zerodha Nifty 100 ETF",
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.64,
-      "pnl_pct": -0.37,
+      "allocation_pct": 2.51,
+      "pnl_pct": -1.5,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 53.09
+      "rsi": 73.86
     },
     {
       "name": "Zerodha Long Term Gilt (LTGILTCASE)",
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 1.31,
-      "pnl_pct": 2.59,
+      "allocation_pct": 1.26,
+      "pnl_pct": 2.26,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 78.87
+      "rsi": 85.29
     },
     {
       "name": "Nippon Nifty 50 ETF (NIFTYBEES)",
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 4.18,
-      "pnl_pct": -1.96,
+      "allocation_pct": 3.97,
+      "pnl_pct": -3.06,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 53.85
+      "rsi": 75.72
     },
     {
       "name": "Nippon Nifty Midcap 150 ETF (smallcase)",
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 0.88,
-      "pnl_pct": 4.51,
+      "allocation_pct": 0.83,
+      "pnl_pct": 3.56,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 53.85
+      "rsi": 64.11
     },
     {
       "name": "Nippon Nifty Next 50 ETF (JUNIORBEES)",
       "broker": "Groww",
       "type": "etf",
       "tradable": false,
-      "allocation_pct": 2.59,
-      "pnl_pct": 5.45,
+      "allocation_pct": 2.46,
+      "pnl_pct": 4.59,
       "signal": "SIP",
       "reasons": [
         "Long-term SIP \u2014 keep investing; not actively traded"
       ],
-      "rsi": 45.48
+      "rsi": 69.18
     },
     {
       "name": "HDFC Gold ETF",
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 7.56,
-      "pnl_pct": 17.51,
+      "allocation_pct": 7.14,
+      "pnl_pct": 15.6,
       "signal": "HOLD",
       "reasons": [
-        "Price below SMA50 (128.12)",
-        "Golden cross (SMA50>SMA200)",
-        "RSI 37.18 neutral",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "RSI 34.58 neutral",
+        "Price below SMA50 (129.09) \u2014 downtrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.375)"
       ],
-      "rsi": 37.18
+      "rsi": 34.58
     },
     {
       "name": "Nifty Next 50 ETF",
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 26.7,
-      "pnl_pct": 3.68,
+      "allocation_pct": 25.45,
+      "pnl_pct": 2.93,
       "signal": "BUY",
       "reasons": [
-        "Price above SMA50 (74.62)",
-        "Golden cross (SMA50>SMA200)",
-        "RSI 47.46 neutral",
-        "Near 52-week high",
-        "Positive news (score 0.375, 8 headlines)"
+        "RSI 63.88 neutral",
+        "Price above SMA50 (74.34) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Positive news sentiment (0.5)"
       ],
-      "rsi": 47.46
+      "rsi": 63.88
     },
     {
       "name": "Motilal Oswal Nasdaq 100 ETF",
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 18.33,
-      "pnl_pct": 42.32,
+      "allocation_pct": 17.18,
+      "pnl_pct": 38.95,
       "signal": "BUY",
       "reasons": [
-        "Price above SMA50 (326.44)",
-        "Golden cross (SMA50>SMA200)",
-        "RSI 50.32 neutral",
-        "Positive news (score 0.333, 6 headlines)"
+        "RSI 45.87 neutral",
+        "Price above SMA50 (320.62) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Positive news sentiment (0.25)"
       ],
-      "rsi": 50.32
+      "rsi": 45.87
     },
     {
       "name": "Nifty Midcap 150 ETF",
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 19.81,
-      "pnl_pct": 2.41,
-      "signal": "BUY",
+      "allocation_pct": 18.85,
+      "pnl_pct": 1.48,
+      "signal": "HOLD",
       "reasons": [
-        "Price above SMA50 (232.43)",
-        "Golden cross (SMA50>SMA200)",
-        "RSI 53.85 neutral",
-        "Near 52-week high",
-        "Positive news (score 0.375, 8 headlines)"
+        "RSI 64.11 neutral",
+        "Price above SMA50 (231.12) \u2014 uptrend",
+        "SMA50 > SMA200 (golden cross) \u2014 bullish",
+        "Near 52-week high \u2014 limited upside / book profit",
+        "Neutral news sentiment (0.125)"
       ],
-      "rsi": 53.85
+      "rsi": 64.11
     },
     {
       "name": "LG Electronics India",
       "broker": "5paisa",
       "type": "etf",
       "tradable": true,
-      "allocation_pct": 0.8,
-      "pnl_pct": 37.72,
+      "allocation_pct": 0.77,
+      "pnl_pct": 37.45,
       "signal": "HOLD",
       "reasons": [
-        "Price above SMA50 (1548.68)",
-        "RSI 48.12 neutral",
-        "Positive news (score 0.25, 8 headlines)"
+        "RSI 62.13 neutral",
+        "Price above SMA50 (1553.51) \u2014 uptrend",
+        "Neutral news sentiment (0.125)"
       ],
-      "rsi": 48.12
+      "rsi": 62.13
     },
     {
       "name": "Motilal Oswal Midcap Fund - Direct Plan - Growth",
       "broker": "5paisa",
       "type": "mutual_fund",
       "tradable": false,
-      "allocation_pct": 15.18,
-      "pnl_pct": -2.21,
+      "allocation_pct": 14.32,
+      "pnl_pct": -3.96,
       "signal": "SIP",
       "reasons": [
         "Mutual fund SIP \u2014 continue investing; not a trade signal"
@@ -366,9 +366,9 @@ const d = {
   "disclaimer": "Rule-based signals from indicators + news. Not investment advice. Verify before acting.",
   "data_base_url": "https://raw.githubusercontent.com/nihal467/Market/data",
   "secret": {
-    "salt": "Q2vmb+vZD7goRnG+Ge+gpQ==",
-    "iv": "BT5PkYA2Jeh14/4A",
-    "ct": "OpXf5HDH9qcXOlu3+pE2q65Exk6+Q4Unq+S8IKR1PGGFoL92TM4qxx5lHTjeZ2hbGrjSPl+KlLiQPzEaCBn8ZWhF4UmTNGANkSqt8aqbE7PqdbhTCFki14DLerlimlDMk1sFm1QRPw0XTnxMGiJnokR7roz+GQcoXfxyyerzR3k5hvsw3lhhoaCY85OWI/YekNAwqCQ0MfBDzgw3BgZbmjGOdnONLzJT3MNJh15PNVr3lehkp75M+BXsFgEWzS7tM9AhdldbbfHXiGbUzMWdcWDUlXR2Z1S0D3TCC7NpQxaBGyJ/VbSbTutjqOnKDQCjE+WGJkVfyHW6/5GyMNUyXJBVzSD7rclTHP4ZfXveUV8mX77ZKsvPmgImqXon1Y9woj00ZZowF6U4Bgx0sxzzHiPGF+yOi//6DyoI8qU2nFdSetQczmVUUPMnVeyx6jen9Z+C2gwS2CbuZFJ7aQvxQwem7hHB5Aa52aqSlBF9/6iD6mx2DPFFhCbTx8c7j3TOHTt0vm6g3UsiHMGs+EWgwBABfwCDB5iPyvzpt03QedwsIETKuLO9+GTbbII+YBBX1Isol0rALmA4awLK44ckdYUd8w3fED2cWqLGi3qYB2d6DAo0Oar+w0nxkuryN76iLrFe06ijKmHZ9auyhuXfRyg4DvRiGGDGmiS4aXeEFXHLbWev1xlS52f2F1FruL6kGWcy3kBlwvNxepG6PXS2fq80qAgMAYeDOzl4WIXlurzC3GdoCviLcjtaHgtE43JFb074qeEuVB4mmnRnZmkZ97XkrFM6xV0H8lIIci2dmVFr1G4pZC+5wp5kxxvkMtNv4B685HQTW12bXq7EvDGvjGZlNB1rEISNrGXIBhhX0ajD9+d9PE6eMsU7fs6CivWbrOjRHlodtytPYUTKkV4a2HHs6ZsRT+vjfU1oVAK6beKCUzZ2k20S5E+XKxA4FEUULrVLh+4d8gw76vxWxw4472Y+kZ9T2v0RB7OKNjkl5oXfdFN3Dg7XtNi4S2ye6KmkO0DN29tsiBygaPDR9eTdvQjtTTaJBkPlhUPT8CnKUdqtWx845Aoavb5eqfYRpGFz2x3puxg1D96aGf4eNswGV+KNe4064mCoF3CX+beZoMdI1gaOlq0c4D6Ay8GES+gaDZrnOzkRWbboYGfMJ4HhY+ADOlktPEfpn/qQFhGl3Tx7tCdiDByCWLPSMwzfgiQPkKi36e3eJ2g=",
+    "salt": "RG9nuVmXYf1Jq2CS8Nru3A==",
+    "iv": "4/YJ3s2KRUeEK1WN",
+    "ct": "ZvDiJAdtie5Nl4ZXARAqsIBfStBMFSxtrRqI2XtrvhpnAT3/DVbPHd0IbwmoXDGsJnp6YHRzOMYLV8VUEkLlUrOYL4TM3uUB3lYY8Kz0uz325S1tqTVvcvwe9eQ8h6DEB7/WILwHRIP4IR834YAlu8M++f106Ui06WajWw+GKkVPptduZwALt6FC90S5nMJGzY+Mt1D6STjwcHOoq/dsYd/rd1eAJXIDIniIBpdIZPdbCsdeXaEYBtwpBFV7zCIG8fESQs4jCoe9FJMboRTdCFqB5YH9Ws1DIzaw+C65YAL/MYOgBXrrFXL2kB4flRc994OhcigWoWF6uQ25LXaLQAuQe/qkZbuhpSE8zIeF8RNsIsDjnZfT+SLmSQk9faexABTZM62lRu43zv6XsPOZtu2ZdEGyAkVIP33cuA1KH9pK1eQR8jiTHeFVDSdIWrQvM0sPoX6KIkKVuUq7IP6Jb1hLP+RVBi6Zs8woU0/BnHHlEWPp5ZDXBUH6+5qngc6yRmooPrxy0yIgYxXsW+HMYxVwdHOQ1CLMoQ2v98aaOOzmTuLaU9wGhfVd9SinAVEjsv4S0VARV6BOiKjd7l5XuCi7ls/i+O2/thE6M3mptCO529PUyzw60iQSKqVcmLAx8LH4+3dANS3yLAAzCvDbDYJYyMkym7kTXS0v+XVapLVZhcplShArvELs5/wRkAtkbDON/16AY2SppKvUShAg6FEiHUDU1ISQ2OJ8VrXxk4wOiTKm2XL+qPEEVGjVoJTZBoGa1bXd+1wdX+q5+YnS9JTRgQaP2Vt1+zsQ4s2EMmSu5KGua46Oh+FP5SBxklchy9OgQk7HL0dTbBQbb9nkKUJBfvipOx9zUs9qz/G4GVVLSQTRL1Bb9Wvexg82uRttvCw76WdNQ7BhhuSmhpOg1KeQbpCODJmkUW0PCwlecsq4c9RgxEDAot47f6tQIK0WGujq0FaBKUmxZp2m0q8uxAvKCnk3gadvhe5GV4GFBAhmd039h4HkxowK9s+xo1EFs7MBLanI6Zv5sOGG6Pvn1T95M9tZ7ddwlSEElT2izu7eYwKwrKgzOQ/iQdG5El99mIRcSNZ6Ye64uv+AJkeQuFv2z+vSSbWHlAlZ1HJCj5PbtDiKXE7vUTutqETA9Fpy/o3y7cieC8xJm09E1IHxe4qBIGFx0Gb0J9n8iMg6FmS5lmq+JdFskVC/UBaQVx4NdQsBO8uip0W3hOg/HPUyaCbrpHc=",
     "iter": 200000
   },
   "has_secret": true
@@ -748,16 +748,18 @@ async function initPaper(){
   const pnlUpdated = livePnl ? live.ist : p.ist;
   const pnlDcl = (pnlSource.day_pnl||0)>0?'up':((pnlSource.day_pnl||0)<0?'down':'');
   const pnlTcl = (pnlSource.total_pnl||0)>0?'up':((pnlSource.total_pnl||0)<0?'down':'');
+  const pnlPrevValue = pnlSource.value!=null && pnlSource.day_pnl!=null ? pnlSource.value - pnlSource.day_pnl : null;
+  const pnlStartValue = pnlSource.start_capital || p.start_capital || 500000;
   const pnlOnly = `<h2 class=sec>P&L only <span class=secsub>${livePnl?'live market snapshot':'latest paper close'}</span></h2>
     <div class=cards>
       <div class=card><div class=k>Current value</div><div class=v>${inr(pnlSource.value)}</div>
         <div class=chg>${pnlUpdated ? 'updated ' + tradeTime({ist:pnlUpdated}) : ''}</div></div>
-      <div class=card><div class=k>Today P&L</div>
+      <div class=card><div class=k>Today P&L vs prev close</div>
         <div class="v ${pnlDcl}">${sign(pnlSource.day_pnl)}${inr(pnlSource.day_pnl)}</div>
-        <div class="chg ${pnlDcl}">${sign(pnlSource.day_pnl_pct)}${(pnlSource.day_pnl_pct||0).toFixed(2)}%</div></div>
-      <div class=card><div class=k>Total P&L</div>
+        <div class="chg ${pnlDcl}">${sign(pnlSource.day_pnl_pct)}${(pnlSource.day_pnl_pct||0).toFixed(2)}%${pnlPrevValue!=null?' from '+inr(pnlPrevValue):''}</div></div>
+      <div class=card><div class=k>Total P&L vs start</div>
         <div class="v ${pnlTcl}">${sign(pnlSource.total_pnl)}${inr(pnlSource.total_pnl)}</div>
-        <div class="chg ${pnlTcl}">${sign(pnlSource.total_pnl_pct)}${(pnlSource.total_pnl_pct||0).toFixed(2)}%</div></div>
+        <div class="chg ${pnlTcl}">${sign(pnlSource.total_pnl_pct)}${(pnlSource.total_pnl_pct||0).toFixed(2)}% from ${inr(pnlStartValue)}</div></div>
       <div class=card><div class=k>Cash</div><div class=v>${inr(pnlSource.cash)}</div>
         <div class=chg>${pnlSource.n_positions||0} holdings</div></div>
     </div>`;
