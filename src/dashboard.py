@@ -625,6 +625,9 @@ async function initPaper(){
     const when = live.ist ? new Date(live.ist).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
     const nb = (live.intraday_trades||[]).filter(t=>t.action==='BUY').length;
     const ns = (live.stops||[]).length;
+    const sells = (live.intraday_trades||[]).filter(t=>t.action==='SELL').length;
+    const shock = live.intraday_shock_mode;
+    const sm = live.intraday_shock_metrics || {};
     const src = live.source_label || 'Yahoo Finance';
     const delay = live.delay || '~15-min delayed';
     const rt = live.realtime
@@ -640,10 +643,11 @@ async function initPaper(){
           <div class=\"chg ${dcl}\">${sign(live.day_pnl_pct)}${(live.day_pnl_pct||0).toFixed(2)}%</div></div>
         <div class=card><div class=k>Holdings</div><div class=v>${live.n_positions||0}</div>
           <div class=chg>cash ${inr(live.cash)}</div></div>
-        <div class=card><div class=k>Intraday actions</div><div class=v>${nb} buys · ${ns} stops</div>
-          <div class=chg>${freshLive ? (live.realtime?'real-time':'delayed feed') : 'stale snapshot'}</div></div>
+        <div class=card><div class=k>Intraday actions</div><div class=v>${nb} buys · ${sells} sells</div>
+          <div class=chg>${shock?'shock guard active':(freshLive ? (live.realtime?'real-time':'delayed feed') : 'stale snapshot')}</div></div>
       </div>
-      ${ns?`<div class=foot>🛑 Stopped out live: ${(live.stops||[]).map(s=>`<b>${s.name||s.symbol}</b> at ${s.loss_pct}%`).join(' · ')}</div>`:''}
+      ${shock?`<div class=foot>Shock guard active: no new intraday buys. Book ${live.day_pnl_pct||0}% today; index proxy ${sm.index_drop_pct||0}%; watchlist down ${Math.round((sm.watchlist_down_fraction||0)*100)}%.</div>`:''}
+      ${ns?`<div class=foot>Protective sells: ${(live.stops||[]).map(s=>`<b>${s.name||s.symbol}</b> ${s.type||'sell'} at ${s.loss_pct}%`).join(' · ')}</div>`:''}
       <div class=foot>${live.note||''}</div>
     </div>`;
   }
