@@ -121,6 +121,12 @@ def _snapshot(symbols: list[str]) -> dict[str, dict]:
         print(f"  fetching {len(chunk)} symbols from {SOURCE_LABEL}...")
         out.update(_snapshot_chunk(chunk))
         time.sleep(1)
+    missing = [sym for sym in symbols if sym not in out]
+    if missing:
+        print(f"  retrying {len(missing)} missing symbols individually...")
+        for sym in missing:
+            out.update(_snapshot_chunk([sym]))
+            time.sleep(1)
     return out
 
 
@@ -137,6 +143,7 @@ def run() -> dict:
     print(f"Intraday snapshot for {len(symbols)} symbols at {ist.isoformat()} ...")
 
     snaps = _snapshot(symbols)
+    missing_symbols = [sym for sym in symbols if sym not in snaps]
     rows = []
     movers = []
     for sym in symbols:
@@ -175,6 +182,7 @@ def run() -> dict:
         "delay": DELAY_NOTE,
         "movers": movers,
         "snapshots": rows,
+        "missing_symbols": missing_symbols,
     }
     # Compact line for the day's intraday log + full latest snapshot.
     ds.append_jsonl(ds.intraday_path(ist), {
@@ -188,8 +196,11 @@ def run() -> dict:
             for m in movers
         ],
         "n": len(rows),
+        "missing_symbols": missing_symbols,
     })
     ds.write_json("intraday/latest.json", payload)
+    if missing_symbols:
+        print(f"  ! missing {len(missing_symbols)} symbols: {', '.join(missing_symbols[:20])}")
     print(f"  captured {len(rows)} snapshots, {len(movers)} movers flagged.")
     return payload
 
