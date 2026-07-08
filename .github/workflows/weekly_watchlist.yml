@@ -9,9 +9,10 @@ on:
 permissions:
   contents: write
 
-# Serialize all data-branch writers so pushes don't race.
+# Serialize watchlist refreshes without waiting behind the long intraday loop.
+# Push conflicts are still handled by the pull --rebase retry below.
 concurrency:
-  group: market-data
+  group: weekly-watchlist
   cancel-in-progress: false
 
 jobs:
