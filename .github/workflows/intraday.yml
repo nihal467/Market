@@ -101,6 +101,8 @@ jobs:
 
             iteration=$((iteration + 1))
             echo "=== Tick ${iteration} @ $(ist_hm) IST ==="
+            # Pick up refreshed watchlist/daily data before fetching prices.
+            git -C data-branch pull --rebase origin data || echo "WARN pre-tick data pull failed"
             # Best-effort: a single bad tick must not kill the whole day's loop.
             python src/intraday.py || echo "WARN intraday.py failed this tick"
             python src/intraday_trader.py || echo "WARN intraday_trader.py failed this tick"
