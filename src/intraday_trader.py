@@ -32,6 +32,12 @@ from market_calendar import is_market_open, now_ist
 # Reuse the single source of truth for capital, caps, costs and file paths.
 from paper_trader import (
     COST_PER_SIDE,
+    INTRADAY_SHOCK_BOOK_LOSS_PCT,
+    INTRADAY_SHOCK_INDEX_DROP_PCT,
+    INTRADAY_SHOCK_WATCHLIST_DOWN_FRACTION,
+    INTRADAY_SHOCK_WATCHLIST_MEDIAN_DROP_PCT,
+    INTRADAY_WEAK_HOLDING_DAY_DROP_PCT,
+    INTRADAY_WEAK_HOLDING_LOSS_PCT,
     MAX_DAILY_LOSS_PCT,
     MAX_DRAWDOWN_PCT,
     MAX_POSITION_PCT,
@@ -49,6 +55,7 @@ from strategy_config import strategy_metadata
 from strategy_config import ACTIVE_PROFILE, REBALANCE_INTERVAL, USE_MARKET_REGIME_GUARD
 
 LIVE_FILE = "paper/live.json"
+INDEX_PROXY_SYMBOLS = {"NIFTYBEES.NS", "JUNIORBEES.NS", "MID150BEES.NS"}
 
 # Only deploy idle cash intraday once it exceeds this fraction of the book, so
 # we don't churn tiny amounts every 15 minutes.
@@ -76,6 +83,58 @@ def _price_source() -> dict:
     }
 
 
+def _intraday_snapshot_rows() -> list[dict]:
+    snap = ds.read_json("intraday/latest.json", default={}) or {}
+    return snap.get("snapshots", [])
+
+
+def _shock_metrics(rows: list[dict]) -> dict:
+    changes = [float(r["chg_pct"]) for r in rows if r.get("chg_pct") is not None]
+    if not changes:
+        return {
+            "index_drop_pct": 0.0,
+            "watchlist_down_fraction": 0.0,
+            "watchlist_median_chg_pct": 0.0,
+        }
+    index_changes = [
+        float(r["chg_pct"]) for r in rows
+        if r.get("symbol") in INDEX_PROXY_SYMBOLS and r.get("chg_pct") is not None
+    ]
+    watch_changes = [
+        float(r["chg_pct"]) for r in rows
+        if r.get("symbol") not in INDEX_PROXY_SYMBOLS and r.get("chg_pct") is not None
+    ]
+    ordered = sorted(watch_changes or changes)
+    mid = len(ordered) // 2
+    median = ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
+    return {
+        "index_drop_pct": min(index_changes) if index_changes else 0.0,
+        "watchlist_down_fraction": round(
+            sum(1 for c in watch_changes if c < 0) / len(watch_changes), 3
+        ) if watch_changes else 0.0,
+        "watchlist_median_chg_pct": round(median, 3),
+    }
+
+
+def _sell_position(state: dict, sym: str, px: float, reason: str, names: dict,
+                   ist, trades: list[dict], stops: list[dict], cost_total: float) -> float:
+    pos = state["positions"][sym]
+    proceeds = pos["qty"] * px
+    cost = proceeds * COST_PER_SIDE
+    cost_total += cost
+    state["cash"] += proceeds - cost
+    avg = pos.get("avg_price", 0.0)
+    pnl_pct = round((px / avg - 1) * 100, 2) if avg else 0.0
+    t = {"action": "SELL", "symbol": sym, "name": names.get(sym, sym),
+         "qty": pos["qty"], "price": round(px, 2), "reason": reason,
+         "ist": ist.isoformat()}
+    trades.append(t)
+    stops.append({"symbol": sym, "name": names.get(sym, sym),
+                  "loss_pct": pnl_pct, "type": reason})
+    state["positions"].pop(sym)
+    return cost_total
+
+
 def run() -> dict:
     ist = now_ist()
     today = ist.strftime("%Y-%m-%d")
@@ -90,7 +149,13 @@ def run() -> dict:
         print("No positions yet — waiting for the first end-of-day allocation.")
         # Still publish a flat live snapshot so the dashboard shows it's tracking.
 
-    live_prices = _live_prices()
+    snapshot_rows = _intraday_snapshot_rows()
+    snapshot_by_symbol = {r.get("symbol"): r for r in snapshot_rows if r.get("symbol")}
+    live_prices = {
+        sym: float(row["price"])
+        for sym, row in snapshot_by_symbol.items()
+        if row.get("price")
+    }
     if not live_prices:
         print("No intraday prices available yet — run intraday.py first.")
         return {"skipped": True, "reason": "no_intraday_prices"}
@@ -114,10 +179,12 @@ def run() -> dict:
 
     sectors = _sector_map()
     trades = state.get("intraday_trades_today", [])
+    risk_events = []
     # Reset the intraday trade log at the start of a new day.
     if state.get("intraday_date") != today:
         state["intraday_date"] = today
         trades = []
+        state["intraday_risk_halt_date"] = None
     cost_total = 0.0
     intraday_deploy_enabled = REBALANCE_INTERVAL != "weekly"
 
@@ -142,29 +209,63 @@ def run() -> dict:
         elif px <= pos["peak_price"] * (1 - TRAILING_STOP_PCT):
             stop_reason = "trailing_stop"
         if stop_reason:
-            proceeds = pos["qty"] * px
-            cost = proceeds * COST_PER_SIDE
-            cost_total += cost
-            state["cash"] += proceeds - cost
-            loss_pct = round((px / avg - 1) * 100, 2)
-            t = {"action": "SELL", "symbol": sym, "name": names.get(sym, sym),
-                 "qty": pos["qty"], "price": round(px, 2), "reason": stop_reason,
-                 "ist": ist.isoformat()}
-            trades.append(t)
-            stops.append({"symbol": sym, "name": names.get(sym, sym),
-                          "loss_pct": loss_pct, "type": stop_reason})
-            state["positions"].pop(sym)
+            cost_total = _sell_position(state, sym, px, stop_reason, names, ist, trades, stops, cost_total)
 
-    # 2) Deploy idle cash intraday into under-allocated top targets.
+    # 2) Fast intraday shock guard. This is separate from the larger daily
+    # loss guard: it reacts to same-session broad weakness and exits weak names
+    # before a full 8% stop-loss is hit.
+    total_value = mark_value()
+    live_day_pnl_pct = (total_value / prev_value - 1) if prev_value else 0.0
+    shock = _shock_metrics(snapshot_rows)
+    watchlist_shock = (
+        shock["watchlist_down_fraction"] >= INTRADAY_SHOCK_WATCHLIST_DOWN_FRACTION and
+        shock["watchlist_median_chg_pct"] <= -INTRADAY_SHOCK_WATCHLIST_MEDIAN_DROP_PCT * 100
+    )
+    shock_mode = (
+        live_day_pnl_pct <= -INTRADAY_SHOCK_BOOK_LOSS_PCT or
+        shock["index_drop_pct"] <= -INTRADAY_SHOCK_INDEX_DROP_PCT * 100 or
+        watchlist_shock
+    )
+    if state.get("intraday_risk_halt_date") == today:
+        shock_mode = True
+    if shock_mode:
+        state["intraday_risk_halt_date"] = today
+        risk_events.append({
+            "type": "intraday_shock_guard",
+            "book_day_pnl_pct": round(live_day_pnl_pct * 100, 3),
+            **shock,
+        })
+        for sym in list(state["positions"].keys()):
+            pos = state["positions"][sym]
+            px = px_of(sym)
+            if px is None:
+                continue
+            avg = pos.get("avg_price", 0.0)
+            pnl_pct = (px / avg - 1) if avg else 0.0
+            day_chg_pct = (snapshot_by_symbol.get(sym) or {}).get("chg_pct")
+            day_chg = float(day_chg_pct) / 100 if day_chg_pct is not None else 0.0
+            if pnl_pct <= -INTRADAY_WEAK_HOLDING_LOSS_PCT:
+                cost_total = _sell_position(state, sym, px, "intraday_shock_loss_exit",
+                                            names, ist, trades, stops, cost_total)
+            elif day_chg <= -INTRADAY_WEAK_HOLDING_DAY_DROP_PCT:
+                cost_total = _sell_position(state, sym, px, "intraday_shock_day_exit",
+                                            names, ist, trades, stops, cost_total)
+
+    # 3) Deploy idle cash intraday into under-allocated top targets.
     total_value = mark_value()
     idle = state["cash"]
-    risk_block_new_buys = False
+    risk_block_new_buys = bool(shock_mode)
     if prev_value and (total_value / prev_value - 1) <= -MAX_DAILY_LOSS_PCT:
         risk_block_new_buys = True
+        risk_events.append({"type": "daily_loss_guard",
+                            "loss_pct": round((total_value / prev_value - 1) * 100, 2)})
     if equity_peak and (total_value / equity_peak - 1) <= -MAX_DRAWDOWN_PCT:
         risk_block_new_buys = True
+        risk_events.append({"type": "drawdown_guard",
+                            "drawdown_pct": round((total_value / equity_peak - 1) * 100, 2)})
     if USE_MARKET_REGIME_GUARD and regime and not regime.get("risk_on", True):
         risk_block_new_buys = True
+        risk_events.append({"type": "market_regime_guard", "reason": regime.get("reason")})
 
     if (intraday_deploy_enabled and total_value > 0 and
             idle > MIN_DEPLOY_FRACTION * total_value and not risk_block_new_buys):
@@ -219,7 +320,7 @@ def run() -> dict:
                            "qty": qty, "price": round(px, 2), "reason": "intraday_deploy",
                            "ist": ist.isoformat()})
 
-    # 3) Mark to market live and publish.
+    # 4) Mark to market live and publish.
     state["intraday_trades_today"] = trades
     end_value = mark_value()
     day_pnl = round(end_value - prev_value, 2)
@@ -259,6 +360,9 @@ def run() -> dict:
         "n_positions": len(state["positions"]),
         "intraday_trades": trades,
         "stops": stops,
+        "risk_events": risk_events,
+        "intraday_shock_mode": bool(shock_mode),
+        "intraday_shock_metrics": shock,
         "risk_block_new_buys": risk_block_new_buys,
         "intraday_deploy_enabled": intraday_deploy_enabled,
         "active_profile": ACTIVE_PROFILE,
