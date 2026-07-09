@@ -162,6 +162,11 @@ class IncubationReportTests(unittest.TestCase):
                         "alpha_pct": 8.7,
                     },
                     {
+                        "id": "current_daily",
+                        "total_return_pct": 10.4,
+                        "alpha_pct": 10.1,
+                    },
+                    {
                         "id": "weekly_churn_control",
                         "total_return_pct": -0.67,
                         "alpha_pct": -0.77,
@@ -173,7 +178,7 @@ class IncubationReportTests(unittest.TestCase):
         criterion = self.criterion("backtest_supports_profile")
 
         self.assertTrue(criterion["passed"])
-        self.assertIn("active variant no_regime_filter alpha 12.89%", criterion["detail"])
+        self.assertIn("active variant current_daily alpha 10.10%", criterion["detail"])
 
 
 if __name__ == "__main__":
