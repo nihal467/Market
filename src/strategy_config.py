@@ -5,14 +5,14 @@ version so performance can be interpreted after future changes.
 """
 from __future__ import annotations
 
-STRATEGY_VERSION = "2026-07-08.aggressive-dummy-intraday-shock-v1"
-ACTIVE_PROFILE = "no_regime_filter"
+STRATEGY_VERSION = "2026-07-09.aggressive-dummy-regime-guard-v1"
+ACTIVE_PROFILE = "aggressive_regime_guarded"
 
 START_CAPITAL = 500000.0
 TOP_N = 10
 HOLD_UNTIL_RANK = 10
 REBALANCE_INTERVAL = "daily"
-USE_MARKET_REGIME_GUARD = False
+USE_MARKET_REGIME_GUARD = True
 COST_PER_SIDE = 0.0010
 
 STOP_LOSS_PCT = 0.08
