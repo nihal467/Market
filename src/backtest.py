@@ -163,6 +163,14 @@ def _sharpe(daily_returns: list[float]) -> float:
     return round(float(arr.mean() / sd * np.sqrt(252)), 2)
 
 
+def _variant_regime_mode(variant: dict) -> str | None:
+    """Effective regime mode for a lab variant (None when the filter is off)."""
+    if not variant.get("use_regime"):
+        return None
+    mode = variant.get("regime_mode")
+    return mode if mode in ("strict", "price_above_sma50") else "strict"
+
+
 def _regime_on(bclose: pd.Series, date, mode: str = "strict") -> bool:
     if bclose.empty:
         return True
@@ -300,10 +308,8 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
             total_value = cash + sum(
                 positions[s]["qty"] * (prices_today.get(s) or positions[s]["avg"])
                 for s in positions)
-            risk_on = (
-                _regime_on(bclose, date, variant.get("regime_mode") or "strict")
-                if variant.get("use_regime") else True
-            )
+            regime_mode = _variant_regime_mode(variant)
+            risk_on = _regime_on(bclose, date, regime_mode) if regime_mode else True
             if top and risk_on:
                 base_budget = total_value / max(len(top), 1)
                 pos_cap = MAX_POSITION_PCT * total_value
@@ -361,7 +367,7 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
         "score_mode": variant["score"],
         "rebalance_every_days": variant["rebalance_every"],
         "use_regime": bool(variant.get("use_regime")),
-        "regime_mode": variant.get("regime_mode") or ("strict" if variant.get("use_regime") else None),
+        "regime_mode": _variant_regime_mode(variant),
         "hold_until_rank": variant.get("hold_until_rank"),
     })
     return out
