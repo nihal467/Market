@@ -62,6 +62,9 @@ LAB_VARIANTS = [
      "score": "full", "rebalance_every": 5, "use_regime": True, "hold_until_rank": 20},
     {"id": "no_regime_filter", "label": "Full score, daily rebalance, no regime filter",
      "score": "full", "rebalance_every": 1, "use_regime": False, "hold_until_rank": TOP_N},
+    {"id": "relaxed_regime_daily", "label": "Full score, daily rebalance, relaxed regime (price>=SMA50)",
+     "score": "full", "rebalance_every": 1, "use_regime": True, "regime_mode": "price_above_sma50",
+     "hold_until_rank": TOP_N},
     {"id": "momentum_only_weekly", "label": "3M momentum only, weekly rebalance",
      "score": "momentum", "rebalance_every": 5, "use_regime": True, "hold_until_rank": 20},
     {"id": "trend_only_weekly", "label": "SMA trend only, weekly rebalance",
@@ -160,7 +163,7 @@ def _sharpe(daily_returns: list[float]) -> float:
     return round(float(arr.mean() / sd * np.sqrt(252)), 2)
 
 
-def _regime_on(bclose: pd.Series, date) -> bool:
+def _regime_on(bclose: pd.Series, date, mode: str = "strict") -> bool:
     if bclose.empty:
         return True
     regime_row = bclose[bclose.index <= pd.Timestamp(date)].tail(200)
@@ -169,6 +172,8 @@ def _regime_on(bclose: pd.Series, date) -> bool:
     sma50 = float(regime_row.rolling(50).mean().iloc[-1])
     sma200 = float(regime_row.rolling(200).mean().iloc[-1])
     price = float(regime_row.iloc[-1])
+    if mode == "price_above_sma50":
+        return price >= sma50
     return price >= sma50 and sma50 >= sma200
 
 
@@ -295,7 +300,10 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
             total_value = cash + sum(
                 positions[s]["qty"] * (prices_today.get(s) or positions[s]["avg"])
                 for s in positions)
-            risk_on = _regime_on(bclose, date) if variant.get("use_regime") else True
+            risk_on = (
+                _regime_on(bclose, date, variant.get("regime_mode") or "strict")
+                if variant.get("use_regime") else True
+            )
             if top and risk_on:
                 base_budget = total_value / max(len(top), 1)
                 pos_cap = MAX_POSITION_PCT * total_value
@@ -353,6 +361,7 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
         "score_mode": variant["score"],
         "rebalance_every_days": variant["rebalance_every"],
         "use_regime": bool(variant.get("use_regime")),
+        "regime_mode": variant.get("regime_mode") or ("strict" if variant.get("use_regime") else None),
         "hold_until_rank": variant.get("hold_until_rank"),
     })
     return out
