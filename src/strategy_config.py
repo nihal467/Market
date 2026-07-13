@@ -5,13 +5,13 @@ version so performance can be interpreted after future changes.
 """
 from __future__ import annotations
 
-STRATEGY_VERSION = "2026-07-09.aggressive-dummy-regime-guard-v1"
-ACTIVE_PROFILE = "aggressive_regime_guarded"
+STRATEGY_VERSION = "2026-07-13.momentum-weekly-churn-control-v1"
+ACTIVE_PROFILE = "momentum_weekly_churn_control"
 
 START_CAPITAL = 500000.0
 TOP_N = 10
-HOLD_UNTIL_RANK = 10
-REBALANCE_INTERVAL = "daily"
+HOLD_UNTIL_RANK = 20
+REBALANCE_INTERVAL = "weekly"
 USE_MARKET_REGIME_GUARD = True
 COST_PER_SIDE = 0.0010
 
