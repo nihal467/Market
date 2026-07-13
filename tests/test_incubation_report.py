@@ -178,7 +178,7 @@ class IncubationReportTests(unittest.TestCase):
         criterion = self.criterion("backtest_supports_profile")
 
         self.assertTrue(criterion["passed"])
-        self.assertIn("active variant current_daily alpha 10.10%", criterion["detail"])
+        self.assertIn("active variant momentum_only_weekly alpha 8.70%", criterion["detail"])
 
 
 if __name__ == "__main__":
