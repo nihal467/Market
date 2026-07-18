@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market — AI Paper-Trading Lab</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --border:#30363d; --text:#e6edf3;
+    --muted:#8b949e; --green:#3fb950; --red:#f85149; --amber:#d29922;
+    --blue:#58a6ff; --accent:#a371f7;
+  }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);
+    font:14px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px}
+  .wrap{max-width:1100px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 2px} .sub{color:var(--muted);font-size:12px;margin-bottom:20px}
+  h2{font-size:15px;margin:26px 0 10px;color:var(--blue)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px}
+  .card .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .card .v{font-size:19px;font-weight:600;margin-top:2px}
+  .card .s{font-size:12px;color:var(--muted)}
+  .pos{color:var(--green)} .neg{color:var(--red)} .warn{color:var(--amber)}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-size:13px}
+  th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  th:first-child,td:first-child{text-align:left}
+  tr:last-child td{border-bottom:none}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+  .b-green{background:rgba(63,185,80,.15);color:var(--green)}
+  .b-red{background:rgba(248,81,73,.15);color:var(--red)}
+  .b-amber{background:rgba(210,153,34,.15);color:var(--amber)}
+  .b-blue{background:rgba(88,166,255,.15);color:var(--blue)}
+  #chart{width:100%;height:220px;background:var(--panel);border:1px solid var(--border);border-radius:8px}
+  .legend{font-size:11px;color:var(--muted);margin-top:4px}
+  .legend span{margin-right:14px}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:4px;margin-right:4px}
+  .foot{margin-top:30px;padding-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:11px}
+  .err{color:var(--amber);font-size:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:800px){.grid2{grid-template-columns:1fr}}
+  .crit{list-style:none;padding:0;margin:0}
+  .crit li{padding:4px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .crit li:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧪 AI Paper-Trading Lab <span class="badge b-blue">100% virtual — no real money</span></h1>
+  <div class="sub" id="updated">Loading…</div>
+
+  <div class="cards" id="cards"></div>
+
+  <h2>Equity curve — book vs NIFTY</h2>
+  <svg id="chart" preserveAspectRatio="none"></svg>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--accent)"></span>Paper book</span>
+    <span><span class="dot" style="background:var(--muted)"></span>NIFTY (scaled)</span>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <h2>Positions</h2>
+      <div id="positions"><span class="err">Loading…</span></div>
+      <h2>Pending orders (fill at next open)</h2>
+      <div id="pending"><span class="err">—</span></div>
+    </div>
+    <div>
+      <h2>Readiness gate</h2>
+      <div id="gate"><span class="err">Loading…</span></div>
+      <h2>Today's market</h2>
+      <div id="market"><span class="err">Loading…</span></div>
+    </div>
+  </div>
+
+  <h2>Recent activity</h2>
+  <div id="activity"><span class="err">Loading…</span></div>
+
+  <h2>Watchlist top 10</h2>
+  <div id="watch"><span class="err">Loading…</span></div>
+
+  <div class="foot">
+    Paper trading simulation on public, delayed data. Decisions at close fill at the
+    <b>next session's open</b> with slippage + transaction costs. Not investment advice.
+    Data refreshes from the repo's <code>data</code> branch on each page load —
+    <a style="color:var(--blue)" href="https://github.com/nihal467/Market">source</a>.
+  </div>
+</div>
+
+<script>
+const RAW = "https://raw.githubusercontent.com/nihal467/Market/data/";
+const bust = "?t=" + Date.now();
+const inr = n => (n==null||isNaN(n)) ? "—" :
+  "₹" + Number(n).toLocaleString("en-IN",{maximumFractionDigits:0});
+const pct = n => (n==null||isNaN(n)) ? "—" :
+  (n>=0?"+":"") + Number(n).toFixed(2) + "%";
+const cls = n => n>0.0001 ? "pos" : n<-0.0001 ? "neg" : "";
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+async function jget(path){
+  try{ const r = await fetch(RAW+path+bust); if(!r.ok) return null; return await r.json(); }
+  catch(e){ return null; }
+}
+
+function card(k,v,s,vcls){ return `<div class="card"><div class="k">${k}</div>
+  <div class="v ${vcls||""}">${v}</div>${s?`<div class="s">${s}</div>`:""}</div>`; }
+
+function drawChart(hist){
+  const svg = document.getElementById("chart");
+  if(!hist || hist.length<2){ svg.outerHTML = '<div class="err">Not enough history yet for a chart — check back after a few trading days.</div>'; return; }
+  const W=1100,H=220,P=10; svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const vals = hist.map(h=>h.value), bench = hist.map(h=>h.benchmark_value||null);
+  const all = vals.concat(bench.filter(x=>x!=null));
+  const mn = Math.min(...all), mx = Math.max(...all), span = (mx-mn)||1;
+  const x = i => P + i*(W-2*P)/(hist.length-1);
+  const y = v => H-P - (v-mn)*(H-2*P)/span;
+  const line = (arr,color,w)=>{ let d=""; arr.forEach((v,i)=>{ if(v==null) return;
+    d += (d?" L":"M") + x(i).toFixed(1) + " " + y(v).toFixed(1); });
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}"/>`; };
+  const start = hist[0].value;
+  svg.innerHTML = `<line x1="${P}" y1="${y(start)}" x2="${W-P}" y2="${y(start)}"
+      stroke="#30363d" stroke-dasharray="4 4"/>` +
+    line(bench,"#8b949e",1.2) + line(vals,"#a371f7",1.8);
+}
+
+function table(rows, headers){
+  return `<table><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>${rows.join("")}</table>`;
+}
+
+(async () => {
+  const [paper, state, ready, daily, watch, live] = await Promise.all([
+    jget("paper/latest.json"), jget("paper/state.json"), jget("paper/readiness.json"),
+    jget("daily/latest.json"), jget("watchlist/latest.json"), jget("paper/live.json"),
+  ]);
+
+  document.getElementById("updated").textContent = paper
+    ? `Updated ${esc(paper.ist||paper.generated_at)} · strategy ${esc(paper.strategy||"")} · execution: ${esc(paper.execution_model||"next_open")}`
+    : "Could not load paper data (data branch unreachable?)";
+
+  // ---- cards
+  if(paper){
+    const costs = (state && state.total_costs!=null) ? state.total_costs
+      : (paper.history||[]).reduce((a,h)=>a+(h.costs||0),0);
+    const dd = state && state.peak_value ? (state.peak_value - paper.value)/state.peak_value*100 : null;
+    const cb = dd!=null && dd>=15;
+    document.getElementById("cards").innerHTML =
+      card("Book value", inr(paper.value), `start ${inr(paper.start_capital)}`) +
+      card("Today P&L", pct(paper.day_pnl_pct), inr(paper.day_pnl), cls(paper.day_pnl)) +
+      card("Total P&L", pct(paper.total_pnl_pct), inr(paper.total_pnl), cls(paper.total_pnl)) +
+      card("Alpha vs NIFTY", pct(paper.alpha_pct), `${esc(paper.benchmark_name||"NIFTY")} ${pct(paper.benchmark_pct)}`, cls(paper.alpha_pct)) +
+      card("Cash", inr(paper.cash), `${paper.n_positions??0} positions`) +
+      card("Cost drag", inr(costs), "slippage + txn costs") +
+      (dd!=null ? card("Drawdown", pct(-dd), cb?"⛔ circuit breaker ON":"from peak", cb?"warn":cls(-dd)) : "");
+    drawChart(paper.history);
+  }
+
+  // ---- positions
+  if(paper && (paper.positions||[]).length){
+    document.getElementById("positions").innerHTML = table(
+      paper.positions.map(p=>`<tr><td>${esc(p.symbol).replace(".NS","")}</td>
+        <td>${p.qty}</td><td>${inr(p.avg_price)}</td><td>${inr(p.price)}</td>
+        <td>${inr(p.value)}</td><td class="${cls(p.pnl)}">${pct(p.pnl_pct)}</td></tr>`),
+      ["Symbol","Qty","Avg","LTP","Value","P&L"]);
+  } else {
+    document.getElementById("positions").innerHTML =
+      '<span class="err">No open positions — book is in cash'
+      + (daily && daily.market_regime && /risk-off/i.test(daily.market_regime.reason||"") ? " (market regime is risk-off)." : ".")
+      + '</span>';
+  }
+
+  // ---- pending orders
+  const pend = state && state.pending_orders && state.pending_orders.length ? state.pending_orders : null;
+  document.getElementById("pending").innerHTML = pend ? table(
+      pend.map(o=>`<tr><td>${esc(o.action||o.side||"")}</td><td>${esc((o.symbol||"").replace(".NS",""))}</td>
+        <td>${o.qty??"—"}</td><td>${esc(o.reason||"")}</td></tr>`),
+      ["Action","Symbol","Qty","Reason"])
+    : '<span class="err">None queued.</span>';
+
+  // ---- readiness gate
+  if(ready){
+    const dec = esc(ready.decision||"unknown");
+    const b = dec==="incubating" ? "b-amber" : dec.includes("eligible") ? "b-green" : "b-blue";
+    const s = ready.summary||{};
+    const crits = (ready.criteria||[]).map(c=>
+      `<li>${c.passed?"✅":"❌"} ${esc(c.label||c.key)}</li>`).join("");
+    document.getElementById("gate").innerHTML =
+      `<div class="card"><span class="badge ${b}">${dec}</span>
+       <div class="s" style="margin-top:6px">day ${s.paper_days??"?"}/${s.min_trading_days??20} ·
+       blocking ${s.passed_blocking??"?"}/${s.blocking_criteria??"?"}</div>
+       <ul class="crit" style="margin-top:8px">${crits}</ul>
+       <div class="s" style="margin-top:6px">This gate can only mark the system for human review — it never enables real trading.</div></div>`;
+  } else document.getElementById("gate").innerHTML = '<span class="err">No readiness report yet.</span>';
+
+  // ---- market snapshot
+  if(daily){
+    const sc = daily.signal_counts||{};
+    const reg = daily.market_regime||{};
+    const riskoff = /risk-off/i.test(reg.reason||"");
+    document.getElementById("market").innerHTML =
+      `<div class="card">
+        <div>Signals: <b class="pos">${sc.BUY??0} BUY</b> · <b>${sc.HOLD??0} HOLD</b> · <b class="neg">${sc.SELL??0} SELL</b></div>
+        <div style="margin-top:6px">Regime: <span class="badge ${riskoff?"b-red":"b-green"}">${riskoff?"risk-off":"risk-on"}</span>
+        <span class="s"> ${esc(reg.reason||"")}</span></div>
+        <div class="s" style="margin-top:6px">Trading date ${esc(daily.trading_date||"")} · analyzed ${daily.analyzed??"?"} names${daily.partial?' · <b class="warn">partial data — trading paused</b>':""}</div>
+        ${live && live.market_open ? `<div class="s" style="margin-top:6px">Live: ${pct(live.day_pnl_pct)} today (as of ${esc(live.ist||"")})</div>`:""}
+      </div>`;
+  } else document.getElementById("market").innerHTML = '<span class="err">No daily analysis yet.</span>';
+
+  // ---- recent activity (last 8 history rows, newest first)
+  if(paper && (paper.history||[]).length){
+    const rows = paper.history.slice(-8).reverse().map(h=>
+      `<tr><td>${esc(h.date)}</td><td class="${cls(h.day_pnl)}">${pct(h.day_pnl_pct)}</td>
+       <td>${inr(h.value)}</td><td class="${cls(h.alpha_pct)}">${pct(h.alpha_pct)}</td>
+       <td>${h.n_trades??0}</td><td>${h.n_stops??0}</td><td>${inr(h.costs)}</td></tr>`);
+    document.getElementById("activity").innerHTML =
+      table(rows, ["Date","Day P&L","Value","Alpha","Fills","Stops","Costs"]);
+  } else document.getElementById("activity").innerHTML = '<span class="err">No trading history yet.</span>';
+
+  // ---- watchlist top 10
+  if(watch && (watch.watchlist||[]).length){
+    const rows = watch.watchlist.slice(0,10).map(w=>
+      `<tr><td>#${w.rank} ${esc(w.symbol.replace(".NS",""))}</td><td>${esc(w.sector||"")}</td>
+       <td class="${cls(w.ret_3m)}">${pct(w.ret_3m)}</td><td>${w.rsi14??"—"}</td>
+       <td>${(w.composite??0).toFixed(2)}</td></tr>`);
+    document.getElementById("watch").innerHTML =
+      table(rows, ["Symbol","Sector","3M return","RSI","Score"]) +
+      `<div class="s" style="margin-top:4px;color:var(--muted)">Generated ${esc(watch.generated_ist||watch.generated_at||"")} from ${watch.universe_size??"?"} names.</div>`;
+  } else document.getElementById("watch").innerHTML = '<span class="err">No watchlist yet.</span>';
+})();
+</script>
+</body>
+</html>
