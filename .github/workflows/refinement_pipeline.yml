@@ -36,6 +36,9 @@ concurrency:
 
 jobs:
   refine:
+    # Only the repo owner can run this (manually or via schedule). External
+    # actors cannot dispatch it; this also blocks other collaborators.
+    if: github.event_name == 'schedule' || github.actor == github.repository_owner
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,17 +66,27 @@ jobs:
       - name: Ensure labels exist
         run: python scripts/ensure_labels.py
 
-      - name: Find refinement issue
+      - name: Find refinement issue (author-allowlisted)
         id: issue
         run: |
-          n="${{ inputs.issue_number }}"
-          if [ -z "$n" ]; then
-            n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+          set -e
+          OWNER="${{ github.repository_owner }}"
+          N="${{ inputs.issue_number }}"
+          if [ -z "$N" ]; then
+            N=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
                   --label daily-refinement --json number \
                   --jq 'max_by(.number).number // empty')
           fi
-          echo "number=$n" >> "$GITHUB_OUTPUT"
-          if [ -z "$n" ]; then echo "No open daily-refinement issue."; fi
+          if [ -z "$N" ]; then echo "No open daily-refinement issue."; echo "number=" >> "$GITHUB_OUTPUT"; exit 0; fi
+          AUTHOR=$(gh issue view "$N" --repo "$GITHUB_REPOSITORY" --json author --jq '.author.login')
+          echo "Issue #$N author: $AUTHOR"
+          case "$AUTHOR" in
+            "$OWNER"|"github-actions[bot]"|"app/github-actions"|"claude[bot]")
+              echo "number=$N" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "Author '$AUTHOR' not allowlisted — skipping."
+              echo "number=" >> "$GITHUB_OUTPUT" ;;
+          esac
 
       # ---------------------------------------------------------------- propose
       - name: Propose fix (Claude Code)
@@ -118,6 +131,7 @@ jobs:
               2. Close the issue.
               3. Return structured output: action="no_change", summary=<one line>.
           claude_args: |
+            --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
             --allowedTools Edit,Read,Write,Bash
             --max-turns 30
             --json-schema '{"type":"object","properties":{"action":{"type":"string","enum":["opened_pr","no_change"]},"pr_number":{"type":"number"},"branch":{"type":"string"},"summary":{"type":"string"}},"required":["action"]}'
@@ -130,51 +144,177 @@ jobs:
           echo "action=$(echo "$OUT" | jq -r '.action // "no_change"')" >> "$GITHUB_OUTPUT"
           echo "pr=$(echo "$OUT" | jq -r '.pr_number // empty')" >> "$GITHUB_OUTPUT"
 
+      # Defense-in-depth: only ever act on a PR WE created (auto-refine/* branch),
+      # never an external PR that happens to exist.
+      - name: Verify PR ownership
+        id: own
+        if: steps.p.outputs.action == 'opened_pr' && steps.p.outputs.pr != ''
+        run: |
+          REF=$(gh pr view ${{ steps.p.outputs.pr }} --repo "$GITHUB_REPOSITORY" --json headRefName --jq '.headRefName')
+          echo "PR head branch: $REF"
+          case "$REF" in
+            auto-refine/*) echo "ok=1" >> "$GITHUB_OUTPUT" ;;
+            *) echo "PR branch '$REF' is not ours — refusing to touch."; echo "ok=0" >> "$GITHUB_OUTPUT" ;;
+          esac
+
       # --------------------------------------------------------------- security
       - name: Security scan (gate)
-        if: steps.p.outputs.action == 'opened_pr' && steps.p.outputs.pr != ''
+        if: steps.own.outputs.ok == '1'
         run: python scripts/security_scan.py --pr ${{ steps.p.outputs.pr }}
 
-      # ----------------------------------------------------------------- review
-      - name: Independent review (Claude Code)
-        id: review
-        if: steps.p.outputs.action == 'opened_pr' && steps.p.outputs.pr != ''
+      # ============================ REVIEW ⇄ FIX loop (up to 3 cycles) =========
+      # review1 -> (fix -> rescan -> review2) -> (fix -> rescan -> review3)
+      #         -> (fix -> rescan -> review4) -> merge on any approval.
+      # Each stage runs only if the previous review requested changes.
+
+      - name: Review 1 (Opus)
+        id: review1
+        if: steps.own.outputs.ok == '1'
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             Independently review pull request #${{ steps.p.outputs.pr }} in
-            ${{ github.repository }}. Do NOT assume it is correct; re-derive the
-            decision. It came from a daily PAPER-trading refinement issue.
+            ${{ github.repository }}. Do NOT assume it is correct; re-derive it.
+            It came from a daily PAPER-trading refinement issue.
 
             Approve ONLY if ALL hold:
-            - The change is genuinely justified by the issue's evidence.
-            - It is small, paper-only, and does not enable real-money trading or
-              weaken the incubation / readiness gate.
-            - It touches no protected files (.github/, holdings.yaml, secrets) and
+            - Genuinely justified by the issue's evidence.
+            - Small, paper-only; does not enable real-money trading or weaken the
+              incubation / readiness gate.
+            - Touches no protected files (.github/, holdings.yaml, secrets) and
               leaks no sensitive data (rupee amounts, holdings figures, keys, PII).
             - Tests pass: run `python -m unittest discover -s tests -p "test_*.py"`.
               Verify by reading files and running commands — do not trust claims.
 
-            Submit a GitHub review on the PR: APPROVE if all criteria hold, else
-            REQUEST_CHANGES with specific reasons. Then return structured output:
-            decision="approve" or "request_changes", and summary=<one line>.
+            Submit a GitHub review: APPROVE if all hold, else REQUEST_CHANGES with
+            specific, actionable reasons. Return: decision, summary.
           claude_args: |
+            --model ${{ vars.REVIEWER_MODEL || 'opus' }}
             --allowedTools Read,Bash
             --max-turns 20
             --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
 
-      # ------------------------------------------------------------------ merge
-      - name: Merge if approved
+      # -------- cycle 1
+      - name: Fix 1 (Sonnet)
         if: >
-          steps.p.outputs.action == 'opened_pr' && steps.p.outputs.pr != '' &&
-          env.AUTO_MERGE == '1' &&
-          steps.review.outputs.structured_output != '' &&
-          fromJSON(steps.review.outputs.structured_output).decision == 'approve'
+          steps.p.outputs.pr != '' && steps.review1.outputs.structured_output != '' &&
+          fromJSON(steps.review1.outputs.structured_output).decision == 'request_changes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: &fix_prompt |
+            The reviewer requested changes on PR #${{ steps.p.outputs.pr }} in
+            ${{ github.repository }}. Read the latest review comments and address
+            them with the SAME rules (small, evidence-backed, paper-only, no
+            real-money, no protected-file edits, no sensitive data). Run
+            `python -m unittest discover -s tests -p "test_*.py"`. Commit and push
+            to the SAME PR branch (do not open a new PR). If the concerns can't be
+            resolved with a small safe change, make no change and say why in a PR
+            comment.
+          claude_args: &fix_args |
+            --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
+            --allowedTools Edit,Read,Write,Bash
+            --max-turns 30
+      - name: Scan 1
+        if: >
+          steps.p.outputs.pr != '' && steps.review1.outputs.structured_output != '' &&
+          fromJSON(steps.review1.outputs.structured_output).decision == 'request_changes'
+        run: python scripts/security_scan.py --pr ${{ steps.p.outputs.pr }}
+      - name: Review 2 (Opus)
+        id: review2
+        if: >
+          steps.p.outputs.pr != '' && steps.review1.outputs.structured_output != '' &&
+          fromJSON(steps.review1.outputs.structured_output).decision == 'request_changes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: &rereview_prompt |
+            Re-review PR #${{ steps.p.outputs.pr }} in ${{ github.repository }}
+            after the author addressed your feedback. Same approval criteria;
+            verify tests with `python -m unittest discover -s tests -p "test_*.py"`.
+            Submit a GitHub review (APPROVE / REQUEST_CHANGES). Return: decision,
+            summary.
+          claude_args: &review_args |
+            --model ${{ vars.REVIEWER_MODEL || 'opus' }}
+            --allowedTools Read,Bash
+            --max-turns 20
+            --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
+
+      # -------- cycle 2
+      - name: Fix 2 (Sonnet)
+        if: >
+          steps.p.outputs.pr != '' && steps.review2.outputs.structured_output != '' &&
+          fromJSON(steps.review2.outputs.structured_output).decision == 'request_changes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: *fix_prompt
+          claude_args: *fix_args
+      - name: Scan 2
+        if: >
+          steps.p.outputs.pr != '' && steps.review2.outputs.structured_output != '' &&
+          fromJSON(steps.review2.outputs.structured_output).decision == 'request_changes'
+        run: python scripts/security_scan.py --pr ${{ steps.p.outputs.pr }}
+      - name: Review 3 (Opus)
+        id: review3
+        if: >
+          steps.p.outputs.pr != '' && steps.review2.outputs.structured_output != '' &&
+          fromJSON(steps.review2.outputs.structured_output).decision == 'request_changes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: *rereview_prompt
+          claude_args: *review_args
+
+      # -------- cycle 3
+      - name: Fix 3 (Sonnet)
+        if: >
+          steps.p.outputs.pr != '' && steps.review3.outputs.structured_output != '' &&
+          fromJSON(steps.review3.outputs.structured_output).decision == 'request_changes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: *fix_prompt
+          claude_args: *fix_args
+      - name: Scan 3
+        if: >
+          steps.p.outputs.pr != '' && steps.review3.outputs.structured_output != '' &&
+          fromJSON(steps.review3.outputs.structured_output).decision == 'request_changes'
+        run: python scripts/security_scan.py --pr ${{ steps.p.outputs.pr }}
+      - name: Review 4 (Opus)
+        id: review4
+        if: >
+          steps.p.outputs.pr != '' && steps.review3.outputs.structured_output != '' &&
+          fromJSON(steps.review3.outputs.structured_output).decision == 'request_changes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: *rereview_prompt
+          claude_args: *review_args
+
+      # ------------------------------------------------------------------ merge
+      - name: Merge if approved (any cycle)
+        if: >
+          steps.own.outputs.ok == '1' && env.AUTO_MERGE == '1' &&
+          (
+            (steps.review1.outputs.structured_output != '' && fromJSON(steps.review1.outputs.structured_output).decision == 'approve') ||
+            (steps.review2.outputs.structured_output != '' && fromJSON(steps.review2.outputs.structured_output).decision == 'approve') ||
+            (steps.review3.outputs.structured_output != '' && fromJSON(steps.review3.outputs.structured_output).decision == 'approve') ||
+            (steps.review4.outputs.structured_output != '' && fromJSON(steps.review4.outputs.structured_output).decision == 'approve')
+          )
         run: |
           gh pr merge ${{ steps.p.outputs.pr }} --repo "$GITHUB_REPOSITORY" \
             --squash --delete-branch
           echo "Merged PR #${{ steps.p.outputs.pr }}."
+
+      - name: Note if still not approved after 3 cycles
+        if: >
+          steps.p.outputs.pr != '' && steps.review4.outputs.structured_output != '' &&
+          fromJSON(steps.review4.outputs.structured_output).decision == 'request_changes'
+        run: |
+          gh pr comment ${{ steps.p.outputs.pr }} --repo "$GITHUB_REPOSITORY" \
+            --body "🤖 Still not approved after 3 review/fix cycles — leaving open for a human."
 
       - name: Summary
         if: always()
@@ -182,5 +322,8 @@ jobs:
           echo "### Refinement pipeline" >> "$GITHUB_STEP_SUMMARY"
           echo "- Issue: ${{ steps.issue.outputs.number || 'none' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Proposer: ${{ steps.p.outputs.action || 'skipped' }} (PR ${{ steps.p.outputs.pr || '-' }})" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Review: ${{ steps.review.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Review 1: ${{ steps.review1.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Review 2: ${{ steps.review2.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Review 3: ${{ steps.review3.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Review 4: ${{ steps.review4.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Auto-merge: ${AUTO_MERGE}" >> "$GITHUB_STEP_SUMMARY"
