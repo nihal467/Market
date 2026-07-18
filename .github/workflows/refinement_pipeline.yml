@@ -1,53 +1,56 @@
-name: Refinement PR Pipeline (propose → scan → review → merge)
+name: Refinement PR Pipeline (Claude Code, Max OAuth)
 
-# Runs 18:00 IST (12:30 UTC). For each open "daily-refinement" issue:
-#   1. propose : a Claude agent opens a PR (or closes the issue if no change)
-#   2. security: scan each PR diff for leaked secrets / sensitive data
-#   3. review  : an independent Claude reviewer approves or requests changes
-#   4. merge   : approved + security-passed PRs are squash-merged to main
-# GitHub cron is best-effort; use "Run workflow" any time.
+# Daily at 18:00 IST (12:30 UTC), for the open "daily-refinement" issue:
+#   1. propose  - Claude Code opens a PR (or closes the issue if no change)
+#   2. security - Python scanner gates the PR (secrets / sensitive data)
+#   3. review   - Claude Code independently reviews the PR
+#   4. merge    - squash-merge if security passed AND review approved
+#
+# Auth: your Max plan via CLAUDE_CODE_OAUTH_TOKEN (no API billing).
+# Requires the Claude GitHub App installed on the repo: https://github.com/apps/claude
+# GitHub cron is best-effort; use "Run workflow" to trigger on demand.
 
 on:
   schedule:
     - cron: "30 12 * * *"   # 12:30 UTC == 18:00 IST
   workflow_dispatch:
     inputs:
+      issue_number:
+        description: "Refinement issue number to process (blank = latest open one)"
+        required: false
       auto_merge:
         description: "Merge approved PRs automatically"
         type: boolean
         default: true
 
 permissions:
-  contents: write         # push branches, merge
-  issues: write           # comment / close issues
-  pull-requests: write    # open PRs, submit reviews, merge
-  statuses: write         # publish the security/sensitive-data commit status
+  contents: write
+  issues: write
+  pull-requests: write
+  statuses: write
 
 concurrency:
-  group: daily-refinement
+  group: refinement-pipeline
   cancel-in-progress: false
 
 jobs:
   refine:
     runs-on: ubuntu-latest
     env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_REPOSITORY: ${{ github.repository }}
-      PROPOSER_MODEL: ${{ vars.PROPOSER_MODEL || vars.CLAUDE_MODEL || 'claude-sonnet-4-5' }}
-      REVIEWER_MODEL: ${{ vars.REVIEWER_MODEL || vars.CLAUDE_MODEL || 'claude-sonnet-4-5' }}
-      ISSUE_LABEL: daily-refinement
-      MAX_ISSUES: "3"
-      MERGE_METHOD: squash
       FAIL_ON: HIGH
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Resolve auto-merge flag
-        # Default ON (scheduled runs merge). Only OFF when a manual run
-        # explicitly sets auto_merge=false. (Avoids null==false coercion bug.)
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && \
              [ "${{ inputs.auto_merge }}" = "false" ]; then
@@ -56,31 +59,127 @@ jobs:
             echo "AUTO_MERGE=1" >> "$GITHUB_ENV"
           fi
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install anthropic
-
       - name: Ensure labels exist
         run: python scripts/ensure_labels.py
 
-      - name: Propose (open PRs)
-        working-directory: ${{ github.workspace }}
-        run: python scripts/propose_fix.py --state pipeline_state.json
+      - name: Find refinement issue
+        id: issue
+        run: |
+          n="${{ inputs.issue_number }}"
+          if [ -z "$n" ]; then
+            n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+                  --label daily-refinement --json number \
+                  --jq 'max_by(.number).number // empty')
+          fi
+          echo "number=$n" >> "$GITHUB_OUTPUT"
+          if [ -z "$n" ]; then echo "No open daily-refinement issue."; fi
 
+      # ---------------------------------------------------------------- propose
+      - name: Propose fix (Claude Code)
+        id: propose
+        if: steps.issue.outputs.number != ''
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are doing the DAILY post-market refinement for issue
+            #${{ steps.issue.outputs.number }} in ${{ github.repository }}.
+            This is a personal PAPER-trading (dummy money) system.
+
+            RULES (a violation is a failure):
+            - Evidence-backed only. Cite specific data from the issue (paper P&L,
+              incubation gate, backtest lab, signal counts, regime). If the data
+              does NOT clearly justify a change, make NO change. "No change" is
+              the correct answer on most days.
+            - Any change must be SMALL, testable, and PAPER-ONLY. Do not add
+              strategy parameters at random. Keep it to a few files / a few
+              hundred lines at most.
+            - Preserve the one-month incubation rule and readiness gate. Never
+              enable/recommend real-money trading.
+            - NEVER modify .github/, holdings.yaml, or any secret. NEVER put
+              rupee amounts, holdings figures (units/invested/quantity), keys,
+              or personal data into code.
+            - Validate before finishing:
+              python -m unittest discover -s tests -p "test_*.py"
+
+            IF a small, justified change exists:
+              1. Create a branch off main named
+                 auto-refine/issue-${{ steps.issue.outputs.number }}-<YYYY-MM-DD>
+              2. Make the minimal edit(s), run the tests, commit, push.
+              3. Open a pull request whose body explains the change and its
+                 evidence and ENDS with a line: Closes #${{ steps.issue.outputs.number }}
+              4. Add the label "auto-refinement" to that PR.
+              5. Return structured output: action="opened_pr", pr_number=<number>,
+                 branch=<branch>, summary=<one line>.
+            ELSE (no justified change):
+              1. Comment on issue #${{ steps.issue.outputs.number }} explaining,
+                 with evidence, why no code change is warranted.
+              2. Close the issue.
+              3. Return structured output: action="no_change", summary=<one line>.
+          claude_args: |
+            --allowedTools Edit,Read,Write,Bash
+            --max-turns 30
+            --json-schema '{"type":"object","properties":{"action":{"type":"string","enum":["opened_pr","no_change"]},"pr_number":{"type":"number"},"branch":{"type":"string"},"summary":{"type":"string"}},"required":["action"]}'
+
+      - name: Parse propose result
+        id: p
+        if: steps.issue.outputs.number != ''
+        run: |
+          OUT='${{ steps.propose.outputs.structured_output }}'
+          echo "action=$(echo "$OUT" | jq -r '.action // "no_change"')" >> "$GITHUB_OUTPUT"
+          echo "pr=$(echo "$OUT" | jq -r '.pr_number // empty')" >> "$GITHUB_OUTPUT"
+
+      # --------------------------------------------------------------- security
       - name: Security scan (gate)
-        run: python scripts/security_scan.py --state pipeline_state.json
+        if: steps.p.outputs.action == 'opened_pr' && steps.p.outputs.pr != ''
+        run: python scripts/security_scan.py --pr ${{ steps.p.outputs.pr }}
 
-      - name: Review + merge
-        run: python scripts/review_pr.py --state pipeline_state.json
+      # ----------------------------------------------------------------- review
+      - name: Independent review (Claude Code)
+        id: review
+        if: steps.p.outputs.action == 'opened_pr' && steps.p.outputs.pr != ''
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Independently review pull request #${{ steps.p.outputs.pr }} in
+            ${{ github.repository }}. Do NOT assume it is correct; re-derive the
+            decision. It came from a daily PAPER-trading refinement issue.
 
-      - name: Pipeline summary
+            Approve ONLY if ALL hold:
+            - The change is genuinely justified by the issue's evidence.
+            - It is small, paper-only, and does not enable real-money trading or
+              weaken the incubation / readiness gate.
+            - It touches no protected files (.github/, holdings.yaml, secrets) and
+              leaks no sensitive data (rupee amounts, holdings figures, keys, PII).
+            - Tests pass: run `python -m unittest discover -s tests -p "test_*.py"`.
+              Verify by reading files and running commands — do not trust claims.
+
+            Submit a GitHub review on the PR: APPROVE if all criteria hold, else
+            REQUEST_CHANGES with specific reasons. Then return structured output:
+            decision="approve" or "request_changes", and summary=<one line>.
+          claude_args: |
+            --allowedTools Read,Bash
+            --max-turns 20
+            --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
+
+      # ------------------------------------------------------------------ merge
+      - name: Merge if approved
+        if: >
+          steps.p.outputs.action == 'opened_pr' && steps.p.outputs.pr != '' &&
+          env.AUTO_MERGE == '1' &&
+          steps.review.outputs.structured_output != '' &&
+          fromJSON(steps.review.outputs.structured_output).decision == 'approve'
+        run: |
+          gh pr merge ${{ steps.p.outputs.pr }} --repo "$GITHUB_REPOSITORY" \
+            --squash --delete-branch
+          echo "Merged PR #${{ steps.p.outputs.pr }}."
+
+      - name: Summary
         if: always()
         run: |
-          echo '### Daily refinement pipeline' >> "$GITHUB_STEP_SUMMARY"
-          python scripts/summarize_pipeline.py >> "$GITHUB_STEP_SUMMARY" || true
+          echo "### Refinement pipeline" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Issue: ${{ steps.issue.outputs.number || 'none' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Proposer: ${{ steps.p.outputs.action || 'skipped' }} (PR ${{ steps.p.outputs.pr || '-' }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Review: ${{ steps.review.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Auto-merge: ${AUTO_MERGE}" >> "$GITHUB_STEP_SUMMARY"
