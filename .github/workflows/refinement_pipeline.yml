@@ -217,7 +217,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: &fix_prompt |
+          prompt: |
             The reviewer requested changes on PR #${{ steps.p.outputs.pr }} in
             ${{ github.repository }}. Read the latest review comments and address
             them with the SAME rules (small, evidence-backed, paper-only, no
@@ -226,7 +226,7 @@ jobs:
             to the SAME PR branch (do not open a new PR). If the concerns can't be
             resolved with a small safe change, make no change and say why in a PR
             comment.
-          claude_args: &fix_args |
+          claude_args: |
             --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
             --allowedTools Edit,Read,Write,Bash
             --max-turns 30
@@ -243,13 +243,13 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: &rereview_prompt |
+          prompt: |
             Re-review PR #${{ steps.p.outputs.pr }} in ${{ github.repository }}
             after the author addressed your feedback. Same approval criteria;
             verify tests with `python -m unittest discover -s tests -p "test_*.py"`.
             Submit a GitHub review (APPROVE / REQUEST_CHANGES). Return: decision,
             summary.
-          claude_args: &review_args |
+          claude_args: |
             --model ${{ vars.REVIEWER_MODEL || 'opus' }}
             --allowedTools Read,Bash
             --max-turns 20
@@ -263,8 +263,19 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: *fix_prompt
-          claude_args: *fix_args
+          prompt: |
+            The reviewer requested changes on PR #${{ steps.p.outputs.pr }} in
+            ${{ github.repository }}. Read the latest review comments and address
+            them with the SAME rules (small, evidence-backed, paper-only, no
+            real-money, no protected-file edits, no sensitive data). Run
+            `python -m unittest discover -s tests -p "test_*.py"`. Commit and push
+            to the SAME PR branch (do not open a new PR). If the concerns can't be
+            resolved with a small safe change, make no change and say why in a PR
+            comment.
+          claude_args: |
+            --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
+            --allowedTools Edit,Read,Write,Bash
+            --max-turns 30
       - name: Scan 2
         if: >
           steps.p.outputs.pr != '' && steps.review2.outputs.structured_output != '' &&
@@ -278,8 +289,17 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: *rereview_prompt
-          claude_args: *review_args
+          prompt: |
+            Re-review PR #${{ steps.p.outputs.pr }} in ${{ github.repository }}
+            after the author addressed your feedback. Same approval criteria;
+            verify tests with `python -m unittest discover -s tests -p "test_*.py"`.
+            Submit a GitHub review (APPROVE / REQUEST_CHANGES). Return: decision,
+            summary.
+          claude_args: |
+            --model ${{ vars.REVIEWER_MODEL || 'opus' }}
+            --allowedTools Read,Bash
+            --max-turns 20
+            --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
 
       # -------- cycle 3
       - name: Fix 3 (Sonnet)
@@ -289,8 +309,19 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: *fix_prompt
-          claude_args: *fix_args
+          prompt: |
+            The reviewer requested changes on PR #${{ steps.p.outputs.pr }} in
+            ${{ github.repository }}. Read the latest review comments and address
+            them with the SAME rules (small, evidence-backed, paper-only, no
+            real-money, no protected-file edits, no sensitive data). Run
+            `python -m unittest discover -s tests -p "test_*.py"`. Commit and push
+            to the SAME PR branch (do not open a new PR). If the concerns can't be
+            resolved with a small safe change, make no change and say why in a PR
+            comment.
+          claude_args: |
+            --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
+            --allowedTools Edit,Read,Write,Bash
+            --max-turns 30
       - name: Scan 3
         if: >
           steps.p.outputs.pr != '' && steps.review3.outputs.structured_output != '' &&
@@ -304,8 +335,17 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: *rereview_prompt
-          claude_args: *review_args
+          prompt: |
+            Re-review PR #${{ steps.p.outputs.pr }} in ${{ github.repository }}
+            after the author addressed your feedback. Same approval criteria;
+            verify tests with `python -m unittest discover -s tests -p "test_*.py"`.
+            Submit a GitHub review (APPROVE / REQUEST_CHANGES). Return: decision,
+            summary.
+          claude_args: |
+            --model ${{ vars.REVIEWER_MODEL || 'opus' }}
+            --allowedTools Read,Bash
+            --max-turns 20
+            --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
 
       # ------------------------------------------------------------------ merge
       - name: Merge if approved (any cycle)
