@@ -141,8 +141,22 @@ jobs:
         if: steps.issue.outputs.number != ''
         run: |
           OUT='${{ steps.propose.outputs.structured_output }}'
+          echo "raw structured_output: $OUT"
           echo "action=$(echo "$OUT" | jq -r '.action // "no_change"')" >> "$GITHUB_OUTPUT"
           echo "pr=$(echo "$OUT" | jq -r '.pr_number // empty')" >> "$GITHUB_OUTPUT"
+          echo "summary=$(echo "$OUT" | jq -r '.summary // ""')" >> "$GITHUB_OUTPUT"
+
+      # Make the "no change" outcome visible and deterministic (don't rely on the
+      # model to comment/close). Closes the issue with the reasoning.
+      - name: Handle no-change (comment + close)
+        if: steps.issue.outputs.number != '' && steps.p.outputs.action != 'opened_pr'
+        run: |
+          MSG="${{ steps.p.outputs.summary }}"
+          [ -z "$MSG" ] && MSG="No evidence-backed change warranted today; system left unchanged."
+          gh issue comment ${{ steps.issue.outputs.number }} --repo "$GITHUB_REPOSITORY" \
+            --body "🤖 **Daily refinement — no code change today.** $MSG"
+          gh issue close ${{ steps.issue.outputs.number }} --repo "$GITHUB_REPOSITORY"
+          echo "Commented + closed issue #${{ steps.issue.outputs.number }} (no change)."
 
       # Defense-in-depth: only ever act on a PR WE created (auto-refine/* branch),
       # never an external PR that happens to exist.
