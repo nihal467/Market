@@ -64,9 +64,11 @@ def _intraday_rsi(series: pd.Series, period: int = 14):
 def _download(symbols: list[str], *, period: str, interval: str) -> Optional[pd.DataFrame]:
     for attempt in range(1, DOWNLOAD_RETRIES + 1):
         try:
+            # auto_adjust=True so intraday marks/stops use the SAME adjusted
+            # price basis as the EOD book and backtest (one price basis).
             data = yf.download(
                 symbols, period=period, interval=interval,
-                auto_adjust=False, progress=False, group_by="ticker", threads=True,
+                auto_adjust=True, progress=False, group_by="ticker", threads=True,
             )
             if data is not None and not data.empty:
                 return data

@@ -17,6 +17,12 @@ IST = timezone(timedelta(hours=5, minutes=30))
 MARKET_OPEN = time(9, 15)
 MARKET_CLOSE = time(15, 30)
 
+# Calendar years the static holiday table below actually covers. Any query
+# outside these years raises loudly (see is_trading_day) instead of silently
+# treating unknown holidays as trading days. Extend this set together with
+# nse_holidays when refreshing the table each year.
+HOLIDAY_YEARS_COVERED: set[int] = {2026}
+
 # NSE equity trading holidays for calendar year 2026 (YYYY-MM-DD).
 nse_holidays: set[str] = {
     "2026-01-15",  # Makar Sankranti / Pongal
@@ -46,6 +52,9 @@ def now_ist() -> datetime:
 
 def is_trading_day(dt: datetime | None = None) -> bool:
     dt = dt or now_ist()
+    if dt.year not in HOLIDAY_YEARS_COVERED:
+        # Fail loudly rather than silently trading through unknown holidays.
+        raise RuntimeError(f"NSE holiday calendar not updated for {dt.year}")
     if dt.weekday() >= 5:  # Sat/Sun
         return False
     if dt.strftime("%Y-%m-%d") in nse_holidays:

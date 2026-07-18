@@ -83,6 +83,51 @@ def _num(value, default: float = 0.0) -> float:
     return default if value is None else float(value)
 
 
+def _recompute_totals(paper: dict, history: list[dict]) -> dict:
+    """Independently recompute total P&L and alpha from the history value series.
+
+    Does not trust the stored totals: derives them from start_capital and the
+    last marked value, and uses the last recorded benchmark leg for alpha. Any
+    mismatch above 0.1 percentage points versus the stored numbers is flagged
+    (a mismatch means the book and its headline claims have diverged).
+    """
+    start = float(paper.get("start_capital") or 500000.0)
+    stored_total = _num(paper.get("total_pnl_pct"))
+    stored_alpha = _num(paper.get("alpha_pct"))
+    values = [row.get("value") for row in history if row.get("value")]
+    if not values or start <= 0:
+        return {"available": False, "total_pnl_pct": stored_total,
+                "alpha_pct": stored_alpha, "max_mismatch_pct": None,
+                "consistent": False}
+    total = round((values[-1] / start - 1) * 100, 3)
+    bench = None
+    for row in reversed(history):
+        if row.get("benchmark_pct") is not None:
+            bench = float(row["benchmark_pct"])
+            break
+    if bench is None:
+        bench = _num(paper.get("benchmark_pct"))
+    alpha = round(total - bench, 3)
+    mismatch = round(max(abs(total - stored_total), abs(alpha - stored_alpha)), 3)
+    return {"available": True, "total_pnl_pct": total, "alpha_pct": alpha,
+            "max_mismatch_pct": mismatch, "consistent": mismatch <= 0.1}
+
+
+def _oos_validation_alpha(backtest: dict, active_variant: dict | None) -> float | None:
+    """Out-of-sample (validation-window) alpha for the active profile's backtest.
+
+    Prefers the headline validation split (the headline now replays
+    ACTIVE_PROFILE), falling back to the active lab variant's split.
+    """
+    headline = (backtest or {}).get("validation") or {}
+    if headline.get("validation_alpha_pct") is not None:
+        return float(headline["validation_alpha_pct"])
+    variant_val = (active_variant or {}).get("validation") or {}
+    if variant_val.get("validation_alpha_pct") is not None:
+        return float(variant_val["validation_alpha_pct"])
+    return None
+
+
 def _history_by_date(history: list[dict]) -> list[dict]:
     by_date = {
         row.get("date"): row for row in history
@@ -132,6 +177,10 @@ def run() -> dict:
         active_variant.get("alpha_pct", -999) > 0 and
         active_variant.get("total_return_pct", -999) > 0
     )
+    recomputed = _recompute_totals(paper, history)
+    oos_alpha = _oos_validation_alpha(backtest, active_variant)
+    paper_exec = paper.get("execution_model")
+    backtest_exec = backtest.get("execution_model")
 
     criteria = [
         _criterion(
@@ -143,14 +192,27 @@ def run() -> dict:
         _criterion(
             "positive_dummy_pnl",
             "Dummy portfolio is not losing money",
-            _num(paper.get("total_pnl_pct")) >= 0,
-            f"total P&L {_num(paper.get('total_pnl_pct')):.2f}%",
+            recomputed["total_pnl_pct"] >= 0,
+            f"total P&L {recomputed['total_pnl_pct']:.2f}% (recomputed from history)",
         ),
         _criterion(
             "positive_dummy_alpha",
             "Dummy portfolio beats NIFTY 50",
-            _num(paper.get("alpha_pct")) >= 0,
-            f"alpha {_num(paper.get('alpha_pct')):.2f}%",
+            recomputed["alpha_pct"] >= 0,
+            f"alpha {recomputed['alpha_pct']:.2f}% (recomputed from history)",
+        ),
+        _criterion(
+            "totals_recomputed_consistent",
+            "Stored totals match independent recomputation",
+            recomputed["consistent"],
+            (
+                f"recomputed total {recomputed['total_pnl_pct']:.2f}% / alpha "
+                f"{recomputed['alpha_pct']:.2f}% vs stored "
+                f"{_num(paper.get('total_pnl_pct')):.2f}% / "
+                f"{_num(paper.get('alpha_pct')):.2f}% "
+                f"(max mismatch {recomputed['max_mismatch_pct']} pct-pts, limit 0.1)"
+                if recomputed["available"] else "no history values to recompute from"
+            ),
         ),
         _criterion(
             "drawdown_inside_limit",
@@ -191,6 +253,22 @@ def run() -> dict:
             ),
         ),
         _criterion(
+            "backtest_oos_positive",
+            "Active profile backtest is positive out-of-sample",
+            oos_alpha is not None and oos_alpha > 0,
+            (
+                f"validation-window alpha {oos_alpha:.2f}%"
+                if oos_alpha is not None
+                else "no train/validation split in backtest output"
+            ),
+        ),
+        _criterion(
+            "execution_model_next_open",
+            "Backtest and paper trader both fill at the next open",
+            paper_exec == "next_open" and backtest_exec == "next_open",
+            f"paper={paper_exec or 'unknown'}, backtest={backtest_exec or 'unknown'}",
+        ),
+        _criterion(
             "churn_controlled",
             "Trading frequency is controlled",
             avg_trades_per_day <= MAX_AVG_TRADES_PER_DAY,
@@ -220,6 +298,10 @@ def run() -> dict:
             "blocking_criteria": len(blocking),
             "total_pnl_pct": paper.get("total_pnl_pct"),
             "alpha_pct": paper.get("alpha_pct"),
+            "recomputed_totals": recomputed,
+            "oos_validation_alpha_pct": oos_alpha,
+            "execution_model_paper": paper_exec,
+            "execution_model_backtest": backtest_exec,
             "max_drawdown_pct": max_dd,
             "trade_days": trade_days,
             "active_profile": ACTIVE_PROFILE,

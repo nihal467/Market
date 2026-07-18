@@ -47,8 +47,8 @@ these IST schedules is due:
 | Task | GitHub workflow | Cloudflare schedule |
 | --- | --- | --- |
 | Intraday watchdog | `intraday_watchdog.yml` | Mon-Fri 09:05-15:35 IST |
-| Dashboard deploy | `daily.yml` | Mon-Fri 16:00 IST |
 | Daily analysis close | `daily_analysis.yml` | Mon-Fri 16:30 IST |
+| Refinement PR pipeline | `refinement_pipeline.yml` | Mon-Fri 18:00 IST |
 | Weekly watchlist | `weekly_watchlist.yml` | Sun 17:30 IST |
 
 ## Verify

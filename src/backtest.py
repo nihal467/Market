@@ -5,28 +5,36 @@ strategy have beaten simply holding the index, and how bumpy would the ride
 have been?*
 
 What it does:
-  - Downloads ~LOOKBACK of daily history for the whole NSE universe (one batched
-    yfinance call) plus the NIFTY 50 benchmark.
-  - Pre-computes rolling indicators (SMA50, SMA200, RSI14, 52w high/low) for the
-    entire series, so scoring at each historical date is cheap.
-  - Walks forward day by day. On each rebalance day it scores every symbol with
-    the SAME ``strategy.decide`` the live bot uses (technicals only — news is
-    not available historically), picks the TOP_N BUYs, equal-weights them with
-    the same trading cost, stop-loss, and position/sector caps, and marks the
-    book to market.
-  - Produces an equity curve and headline metrics: total return, CAGR, alpha vs
-    NIFTY, max drawdown, Sharpe, and positive-day rate.
+  - Downloads ~LOOKBACK of daily history for the whole NSE universe (batched
+    yfinance calls with retry/backoff) plus the NIFTY 50 benchmark.
+  - Pre-computes rolling indicators (SMA50, SMA200, RSI14, 52w high/low) for
+    the entire series, so scoring at each historical date is cheap.
+  - Walks forward day by day with NEXT-OPEN execution: signals computed from
+    day T's close are queued and FILLED at day T+1's adjusted open (no
+    look-ahead). If T+1 has no bar for a symbol, that order is dropped. Fills
+    pay SLIPPAGE_BPS against the trade plus COST_BPS_PER_SIDE on notional.
+    The book is still marked to market at daily closes.
+  - The HEADLINE run replays the ACTIVE_PROFILE from strategy_config (same
+    score, cadence, hold band, caps and regime guard as the live paper
+    trader), so the headline reflects the strategy actually running. The
+    strategy-lab variants replay the same history with alternative knobs and
+    use the identical next-open execution so results stay comparable.
+  - Produces an equity curve, headline metrics (total return, CAGR, alpha vs
+    NIFTY, max drawdown, Sharpe, positive-day rate, cost drag) and a simple
+    60/40 train/validation split with out-of-sample alpha per variant.
 
 Caveats (stated honestly):
   - News sentiment is excluded (RSS is current-only), so live results can differ.
   - Survivorship: the universe is today's list; delisted names aren't included.
-  - No intraday — fills are at daily close, like the live bot.
+  - Single-history replay: the 60/40 split is a sanity check, not a true
+    walk-forward optimization.
 
 Writes backtest/latest.json to the data store for the dashboard.
 """
 from __future__ import annotations
 
 import sys
+import time
 
 import numpy as np
 import pandas as pd
@@ -37,26 +45,44 @@ import strategy
 from market_calendar import now_ist
 from universe import load_universe
 
-# Mirror the live bot's knobs so the backtest reflects real behaviour.
-from paper_trader import (
-    COST_PER_SIDE,
+# Same knobs as the live bot so the backtest reflects real behaviour.
+from strategy_config import (
+    ACTIVE_PROFILE,
+    COST_BPS_PER_SIDE,
+    EXECUTION_MODEL,
+    HOLD_UNTIL_RANK,
     MAX_POSITION_PCT,
     MAX_SECTOR_PCT,
+    REBALANCE_INTERVAL,
+    SLIPPAGE_BPS,
     START_CAPITAL,
     STOP_LOSS_PCT,
     TOP_N,
     TRAILING_STOP_PCT,
+    USE_MARKET_REGIME_GUARD,
+    strategy_metadata,
 )
-from strategy_config import strategy_metadata
 
 BENCHMARK = "^NSEI"
 LOOKBACK = "2y"
-REBALANCE_EVERY = 1     # trading days between rebalances (1 = daily, like live)
+# Headline cadence mirrors the live profile (weekly => every 5 trading days).
+REBALANCE_EVERY = 5 if REBALANCE_INTERVAL == "weekly" else 1
 WARMUP = 200            # need ~200 bars before SMA200 is meaningful
 BATCH = 50
+DOWNLOAD_RETRIES = 3
+# Below this fraction of symbols with data the whole backtest aborts loudly —
+# metrics from a half-fetched universe would be silently wrong.
+MIN_COVERAGE = 0.8
+# First 60% of trading days = train window, last 40% = validation window.
+TRAIN_FRACTION = 0.6
+
+# Which lab score mode each live profile corresponds to (for the headline run).
+PROFILE_SCORE_MODES = {
+    "momentum_weekly_churn_control": "momentum",
+}
 
 LAB_VARIANTS = [
-    {"id": "current_daily", "label": "Current: full score, daily rebalance, regime filter",
+    {"id": "current_daily", "label": "Full score, daily rebalance, regime filter",
      "score": "full", "rebalance_every": 1, "use_regime": True, "hold_until_rank": TOP_N},
     {"id": "weekly_churn_control", "label": "Full score, weekly rebalance, hold until rank 20",
      "score": "full", "rebalance_every": 5, "use_regime": True, "hold_until_rank": 20},
@@ -71,26 +97,60 @@ LAB_VARIANTS = [
 ]
 
 
-def _download(symbols: list[str]) -> dict[str, pd.DataFrame]:
-    out: dict[str, pd.DataFrame] = {}
-    for i in range(0, len(symbols), BATCH):
-        chunk = symbols[i:i + BATCH]
-        print(f"  downloading {i + 1}-{i + len(chunk)} of {len(symbols)} ...")
+def _active_variant() -> dict:
+    """The live paper trader's configuration expressed as a lab variant."""
+    return {
+        "id": ACTIVE_PROFILE,
+        "label": f"Active profile: {ACTIVE_PROFILE}",
+        "score": PROFILE_SCORE_MODES.get(ACTIVE_PROFILE, "full"),
+        "rebalance_every": REBALANCE_EVERY,
+        "use_regime": USE_MARKET_REGIME_GUARD,
+        "hold_until_rank": HOLD_UNTIL_RANK,
+    }
+
+
+def _download_batch(chunk: list[str]) -> pd.DataFrame | None:
+    """One batched download with retry + exponential backoff (2s/4s/8s)."""
+    for attempt in range(1, DOWNLOAD_RETRIES + 1):
         try:
             data = yf.download(chunk, period=LOOKBACK, interval="1d",
                                auto_adjust=True, progress=False,
                                group_by="ticker", threads=True)
+            if data is not None and not data.empty:
+                return data
         except Exception as exc:  # noqa: BLE001
-            print(f"  ! download failed: {exc}")
+            print(f"  ! download attempt {attempt}/{DOWNLOAD_RETRIES} failed: {exc}")
+        time.sleep(2 ** attempt)
+    return None
+
+
+def _download(symbols: list[str]) -> tuple[dict[str, pd.DataFrame], int]:
+    """Return ({symbol: open/close frame with >= WARMUP bars}, n_with_any_data).
+
+    Opens are kept alongside closes because fills happen at the NEXT session's
+    adjusted open. auto_adjust=True gives adjusted opens on the same basis as
+    the adjusted closes used for signals and marking.
+    """
+    out: dict[str, pd.DataFrame] = {}
+    n_with_data = 0
+    for i in range(0, len(symbols), BATCH):
+        chunk = symbols[i:i + BATCH]
+        print(f"  downloading {i + 1}-{i + len(chunk)} of {len(symbols)} ...")
+        data = _download_batch(chunk)
+        if data is None:
             continue
         for sym in chunk:
             try:
-                close = (data["Close"] if len(chunk) == 1 else data[sym]["Close"]).dropna()
+                bars = data if len(chunk) == 1 else data[sym]
+                bars = bars[["Open", "Close"]].dropna(subset=["Close"])
             except (KeyError, TypeError):
                 continue
-            if len(close) >= WARMUP:
-                out[sym] = close
-    return out
+            if bars.empty:
+                continue
+            n_with_data += 1
+            if len(bars) >= WARMUP:
+                out[sym] = pd.DataFrame({"open": bars["Open"], "close": bars["Close"]})
+    return out, n_with_data
 
 
 def _rsi(close: pd.Series, period: int = 14) -> pd.Series:
@@ -104,11 +164,12 @@ def _rsi(close: pd.Series, period: int = 14) -> pd.Series:
     return rsi
 
 
-def _precompute(closes: dict[str, pd.Series]) -> dict[str, pd.DataFrame]:
-    """Per-symbol DataFrame of close + rolling indicators, indexed by date."""
+def _precompute(frames: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+    """Per-symbol DataFrame of open/close + rolling indicators, by date."""
     feats: dict[str, pd.DataFrame] = {}
-    for sym, close in closes.items():
-        df = pd.DataFrame({"close": close})
+    for sym, bars in frames.items():
+        close = bars["close"]
+        df = pd.DataFrame({"close": close, "open": bars["open"]})
         df["sma50"] = close.rolling(50).mean()
         df["sma200"] = close.rolling(200).mean()
         df["rsi14"] = _rsi(close)
@@ -196,6 +257,40 @@ def _variant_score(ind: dict, mode: str) -> float:
     return -999.0
 
 
+def _bench_level_at(bclose: pd.Series, date_str: str) -> float | None:
+    if bclose.empty:
+        return None
+    win = bclose[bclose.index <= pd.Timestamp(date_str)]
+    return float(win.iloc[-1]) if len(win) else None
+
+
+def _validation_split(equity: list[float], eq_dates: list[str],
+                      bclose: pd.Series) -> dict | None:
+    """Simple 60/40 train/validation split of the single replayed history."""
+    if len(equity) < 10:
+        return None
+    split = max(1, min(len(equity) - 1, int(len(equity) * TRAIN_FRACTION)))
+    train_ret = (equity[split - 1] / START_CAPITAL - 1) * 100
+    val_ret = (equity[-1] / equity[split - 1] - 1) * 100 if equity[split - 1] else 0.0
+    b0 = _bench_level_at(bclose, eq_dates[0])
+    bs = _bench_level_at(bclose, eq_dates[split - 1])
+    be = _bench_level_at(bclose, eq_dates[-1])
+    train_bench = round((bs / b0 - 1) * 100, 2) if b0 and bs else None
+    val_bench = round((be / bs - 1) * 100, 2) if bs and be else None
+    return {
+        "train_fraction": TRAIN_FRACTION,
+        "split_date": eq_dates[split - 1],
+        "train_days": split,
+        "validation_days": len(equity) - split,
+        "train_return_pct": round(train_ret, 2),
+        "train_benchmark_return_pct": train_bench,
+        "train_alpha_pct": round(train_ret - train_bench, 2) if train_bench is not None else None,
+        "validation_return_pct": round(val_ret, 2),
+        "validation_benchmark_return_pct": val_bench,
+        "validation_alpha_pct": round(val_ret - val_bench, 2) if val_bench is not None else None,
+    }
+
+
 def _metrics(equity: list[float], daily_returns: list[float], costs: float,
              turnover: float, stops: int, rebalances: int) -> dict:
     if not equity:
@@ -214,6 +309,7 @@ def _metrics(equity: list[float], daily_returns: list[float], costs: float,
         "sharpe": _sharpe(daily_returns),
         "win_rate_pct": win_rate,
         "costs": round(costs, 2),
+        "total_costs": round(costs, 2),
         "turnover_pct_of_start": round(turnover / max(START_CAPITAL, 1) * 100, 2),
         "n_stops": stops,
         "n_rebalances": rebalances,
@@ -222,28 +318,97 @@ def _metrics(equity: list[float], daily_returns: list[float], costs: float,
 
 def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Series,
                       sectors: dict[str, str], variant: dict) -> dict:
+    """Walk-forward replay with NEXT-OPEN execution.
+
+    Day T: (a) fill orders queued at T-1's close at T's adjusted open (sells
+    first; unpriceable orders are dropped), (b) decide from T's close — daily
+    stop checks plus, on cadence days, the rebalance — queueing orders for
+    T+1, (c) mark the book at T's close. Orders queued on the final day never
+    fill (there is no T+1), exactly like live.
+    """
     cash = START_CAPITAL
-    positions: dict[str, dict] = {}
+    positions: dict[str, dict] = {}     # sym -> {qty, avg, peak}
+    pending: list[dict] = []            # queued at prev close, fill at today's open
     equity: list[float] = []
+    eq_dates: list[str] = []
     daily_returns: list[float] = []
     prev_value = START_CAPITAL
     costs = 0.0
     turnover = 0.0
     stops = 0
     rebalances = 0
+    dropped = 0
+    slip = SLIPPAGE_BPS / 10000.0
+    cost_rate = COST_BPS_PER_SIDE / 10000.0
 
-    def price_at(sym, date):
+    def bar_at(sym, date, col):
         df = feats.get(sym)
         if df is None:
             return None
         try:
-            v = df.loc[date, "close"]
+            v = df.loc[date, col]
         except KeyError:
             return None
         return None if pd.isna(v) else float(v)
 
     for di, date in enumerate(dates):
-        prices_today = {s: price_at(s, date) for s in positions}
+        # --- (a) Fill yesterday's queue at TODAY's open (sells first). ---
+        if pending:
+            for order in sorted(pending, key=lambda o: 0 if o["action"] == "SELL" else 1):
+                sym = order["sym"]
+                open_px = bar_at(sym, date, "open")
+                if not open_px or open_px <= 0:
+                    dropped += 1
+                    continue
+                if order["action"] == "SELL":
+                    pos = positions.get(sym)
+                    if not pos:
+                        dropped += 1
+                        continue
+                    fill = open_px * (1 - slip)
+                    proceeds = pos["qty"] * fill
+                    cost = proceeds * cost_rate
+                    costs += cost
+                    turnover += proceeds
+                    cash += proceeds - cost
+                    positions.pop(sym)
+                    if order.get("reason") == "stop":
+                        stops += 1
+                else:
+                    fill = open_px * (1 + slip)
+                    denom = fill * (1 + cost_rate)
+                    qty = min(int(order["budget"] / denom), int(cash / denom))
+                    if qty <= 0:
+                        dropped += 1
+                        continue
+                    spend = qty * fill
+                    cost = spend * cost_rate
+                    costs += cost
+                    turnover += spend
+                    cash -= spend + cost
+                    if sym in positions:
+                        old = positions[sym]
+                        nq = old["qty"] + qty
+                        old["avg"] = (old["avg"] * old["qty"] + spend) / nq
+                        old["qty"] = nq
+                        old["peak"] = max(old.get("peak", fill), fill)
+                    else:
+                        positions[sym] = {"qty": qty, "avg": fill, "peak": fill}
+            pending = []
+
+        # --- (b) Decide from TODAY's close; queue orders for the next open. ---
+        new_orders: list[dict] = []
+        queued_sells: set[str] = set()
+        # Daily protective stops (mirrors the live bot's EOD stop check).
+        for sym in list(positions.keys()):
+            px = bar_at(sym, date, "close") or positions[sym]["avg"]
+            positions[sym]["peak"] = max(positions[sym].get("peak", px), px)
+            avg = positions[sym]["avg"]
+            if avg and (px <= avg * (1 - STOP_LOSS_PCT) or
+                        px <= positions[sym]["peak"] * (1 - TRAILING_STOP_PCT)):
+                new_orders.append({"action": "SELL", "sym": sym, "reason": "stop"})
+                queued_sells.add(sym)
+
         if di % int(variant["rebalance_every"]) == 0:
             rebalances += 1
             ranked = []
@@ -256,54 +421,43 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
                     ranked.append((score, ind.get("pct_from_high") or 0, sym, ind["price"]))
             ranked.sort(key=lambda x: (x[0], -x[1]), reverse=True)
             ranks = {sym: i + 1 for i, (_score, _pfh, sym, _px) in enumerate(ranked)}
-            top = ranked[:TOP_N]
-            target_syms = {sym for _score, _pfh, sym, _px in top}
+            top = [t for t in ranked[:TOP_N] if t[2] not in queued_sells]
+            target_syms = {t[2] for t in top}
             hold_until = int(variant.get("hold_until_rank") or TOP_N)
             for sym in list(positions.keys()):
+                if sym in queued_sells:
+                    continue
                 if ranks.get(sym, 10**9) <= hold_until:
                     target_syms.add(sym)
                     if all(t[2] != sym for t in top):
-                        px = price_at(sym, date) or positions[sym]["avg"]
+                        px = bar_at(sym, date, "close") or positions[sym]["avg"]
                         top.append((0.01, 0, sym, px))
 
+            # Queue exits for holdings that dropped out of the hold band.
             for sym in list(positions.keys()):
-                px = prices_today.get(sym) or positions[sym]["avg"]
-                positions[sym]["peak"] = max(positions[sym].get("peak", px), px)
-                avg = positions[sym]["avg"]
-                if avg and (px <= avg * (1 - STOP_LOSS_PCT) or
-                            px <= positions[sym]["peak"] * (1 - TRAILING_STOP_PCT)):
-                    proceeds = positions[sym]["qty"] * px
-                    cost = proceeds * COST_PER_SIDE
-                    costs += cost
-                    turnover += proceeds
-                    cash += proceeds - cost
-                    positions.pop(sym)
-                    target_syms.discard(sym)
-                    top = [t for t in top if t[2] != sym]
-                    stops += 1
-
-            for sym in list(positions.keys()):
-                if sym not in target_syms:
-                    px = prices_today.get(sym) or positions[sym]["avg"]
-                    proceeds = positions[sym]["qty"] * px
-                    cost = proceeds * COST_PER_SIDE
-                    costs += cost
-                    turnover += proceeds
-                    cash += proceeds - cost
-                    positions.pop(sym)
+                if sym not in target_syms and sym not in queued_sells:
+                    new_orders.append({"action": "SELL", "sym": sym, "reason": "exit"})
+                    queued_sells.add(sym)
 
             total_value = cash + sum(
-                positions[s]["qty"] * (prices_today.get(s) or positions[s]["avg"])
+                positions[s]["qty"] * (bar_at(s, date, "close") or positions[s]["avg"])
                 for s in positions)
             risk_on = _regime_on(bclose, date) if variant.get("use_regime") else True
             if top and risk_on:
                 base_budget = total_value / max(len(top), 1)
                 pos_cap = MAX_POSITION_PCT * total_value
                 sector_cap = MAX_SECTOR_PCT * total_value
+                # Queued sells free their value for tomorrow's buys; track an
+                # estimated cash line so the queue stays fundable in rank
+                # order (fills are hard-capped by actual cash anyway).
+                est_cash = cash
                 sector_alloc: dict[str, float] = {}
                 for s in positions:
+                    px = bar_at(s, date, "close") or positions[s]["avg"]
+                    if s in queued_sells:
+                        est_cash += positions[s]["qty"] * px
+                        continue
                     sec = sectors.get(s, "Unknown")
-                    px = prices_today.get(s) or positions[s]["avg"]
                     sector_alloc[sec] = sector_alloc.get(sec, 0.0) + positions[s]["qty"] * px
                 for _score, _pfh, sym, px in top[:TOP_N]:
                     if not px or px <= 0:
@@ -316,35 +470,24 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
                     if room <= 0:
                         continue
                     target_val = min(target_val, held_val + room)
-                    want = target_val - held_val
+                    want = min(target_val - held_val, est_cash)
                     if want <= px:
                         continue
-                    qty = int(want / (px * (1 + COST_PER_SIDE)))
-                    qty = min(qty, int(cash / (px * (1 + COST_PER_SIDE))))
-                    if qty <= 0:
-                        continue
-                    spend = qty * px
-                    cost = spend * COST_PER_SIDE
-                    costs += cost
-                    turnover += spend
-                    cash -= spend + cost
-                    sector_alloc[sec] = sector_alloc.get(sec, 0.0) + spend
-                    if sym in positions:
-                        old = positions[sym]
-                        nq = old["qty"] + qty
-                        old["avg"] = (old["avg"] * old["qty"] + spend) / nq
-                        old["qty"] = nq
-                        old["peak"] = max(old.get("peak", px), px)
-                    else:
-                        positions[sym] = {"qty": qty, "avg": px, "peak": px}
+                    est_cash -= want
+                    sector_alloc[sec] = sector_alloc.get(sec, 0.0) + want
+                    new_orders.append({"action": "BUY", "sym": sym, "budget": want,
+                                       "reason": "rebalance"})
+        pending = new_orders
 
+        # --- (c) Mark the book at TODAY's close. ---
         value = cash
         for sym, pos in positions.items():
-            value += pos["qty"] * (price_at(sym, date) or pos["avg"])
+            value += pos["qty"] * (bar_at(sym, date, "close") or pos["avg"])
         if prev_value > 0:
             daily_returns.append(value / prev_value - 1)
         prev_value = value
         equity.append(round(value, 2))
+        eq_dates.append(pd.Timestamp(date).strftime("%Y-%m-%d"))
 
     out = _metrics(equity, daily_returns, costs, turnover, stops, rebalances)
     out.update({
@@ -354,6 +497,11 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
         "rebalance_every_days": variant["rebalance_every"],
         "use_regime": bool(variant.get("use_regime")),
         "hold_until_rank": variant.get("hold_until_rank"),
+        "execution_model": EXECUTION_MODEL,
+        "n_orders_dropped": dropped,
+        "validation": _validation_split(equity, eq_dates, bclose),
+        "_equity": equity,
+        "_eq_dates": eq_dates,
     })
     return out
 
@@ -363,12 +511,18 @@ def run() -> dict:
     uni = load_universe()
     sectors = {u["symbol"]: u.get("sector") or "Unknown" for u in uni}
     symbols = [u["symbol"] for u in uni]
-    name_by = {u["symbol"]: u["name"] for u in uni}
     print(f"Backtest over {len(symbols)} symbols, lookback {LOOKBACK} ...")
 
-    closes = _download(symbols)
-    if not closes:
-        print("No price history downloaded — aborting backtest.")
+    frames, n_with_data = _download(symbols)
+    coverage = n_with_data / len(symbols) if symbols else 0.0
+    if coverage < MIN_COVERAGE:
+        raise RuntimeError(
+            f"Backtest aborted: only {n_with_data}/{len(symbols)} symbols "
+            f"({coverage * 100:.1f}%) returned price history — below the "
+            f"{MIN_COVERAGE * 100:.0f}% coverage floor. Refusing to compute "
+            "results from a partially fetched universe.")
+    if not frames:
+        print("No symbol has enough history after warmup — aborting backtest.")
         return {"skipped": True}
 
     # Benchmark series.
@@ -383,7 +537,7 @@ def run() -> dict:
         print(f"  ! benchmark download failed: {exc}")
         bclose = pd.Series(dtype=float)
 
-    feats = _precompute(closes)
+    feats = _precompute(frames)
 
     # Master trading calendar = union of all dates, sorted; start after warmup.
     all_dates = sorted(set().union(*[df.index for df in feats.values()]))
@@ -392,155 +546,11 @@ def run() -> dict:
         print("Not enough history after warmup — aborting.")
         return {"skipped": True}
 
-    cash = START_CAPITAL
-    positions: dict[str, dict] = {}   # sym -> {qty, avg}
-    equity: list[float] = []
-    eq_dates: list[str] = []
-    daily_returns: list[float] = []
-    n_rebalances = 0
-    n_stops = 0
-    total_costs = 0.0
-    turnover = 0.0
-    prev_value = START_CAPITAL
-
-    def price_at(sym, date):
-        df = feats.get(sym)
-        if df is None:
-            return None
-        try:
-            v = df.loc[date, "close"]
-        except KeyError:
-            return None
-        return None if pd.isna(v) else float(v)
-
-    for di, date in enumerate(dates):
-        # Mark to market using last known price (carry forward if a symbol has a
-        # gap on this exact date).
-        prices_today = {s: price_at(s, date) for s in positions}
-
-        rebalance = (di % REBALANCE_EVERY == 0)
-        if rebalance:
-            n_rebalances += 1
-            # Score every symbol as-of this date (technicals only).
-            scored = []
-            for sym, df in feats.items():
-                ind = _indicators_at(df, date)
-                if not ind:
-                    continue
-                rec = strategy.decide(ind, None)
-                if rec["signal"] == "BUY":
-                    scored.append((rec["score"], ind.get("pct_from_high") or 0, sym, ind["price"]))
-            scored.sort(key=lambda x: (x[0], -x[1]), reverse=True)
-            targets = scored[:TOP_N]
-            target_syms = {t[2] for t in targets}
-            regime_row = bclose[bclose.index <= pd.Timestamp(date)].tail(200)
-            risk_on = True
-            if len(regime_row) >= 200:
-                bsma50 = float(regime_row.rolling(50).mean().iloc[-1])
-                bsma200 = float(regime_row.rolling(200).mean().iloc[-1])
-                bpx = float(regime_row.iloc[-1])
-                risk_on = bpx >= bsma50 and bsma50 >= bsma200
-
-            # Stop-loss exits first.
-            for sym in list(positions.keys()):
-                px = prices_today.get(sym) or positions[sym]["avg"]
-                avg = positions[sym]["avg"]
-                positions[sym]["peak"] = max(positions[sym].get("peak", px), px)
-                if avg and (px <= avg * (1 - STOP_LOSS_PCT) or
-                            px <= positions[sym]["peak"] * (1 - TRAILING_STOP_PCT)):
-                    proceeds = positions[sym]["qty"] * px
-                    cost = proceeds * COST_PER_SIDE
-                    total_costs += cost
-                    turnover += proceeds
-                    cash += proceeds - cost
-                    positions.pop(sym)
-                    target_syms.discard(sym)
-                    targets = [t for t in targets if t[2] != sym]
-                    n_stops += 1
-
-            # Exit names no longer targeted.
-            for sym in list(positions.keys()):
-                if sym not in target_syms:
-                    px = prices_today.get(sym) or positions[sym]["avg"]
-                    proceeds = positions[sym]["qty"] * px
-                    cost = proceeds * COST_PER_SIDE
-                    total_costs += cost
-                    turnover += proceeds
-                    cash += proceeds - cost
-                    positions.pop(sym)
-
-            # Allocate to targets with caps.
-            total_value = cash + sum(
-                positions[s]["qty"] * (prices_today.get(s) or positions[s]["avg"])
-                for s in positions)
-            if targets and risk_on:
-                base_budget = total_value / len(targets)
-                pos_cap = MAX_POSITION_PCT * total_value
-                sector_cap = MAX_SECTOR_PCT * total_value
-                sector_alloc: dict[str, float] = {}
-                for s in positions:
-                    sec = sectors.get(s, "Unknown")
-                    px = prices_today.get(s) or positions[s]["avg"]
-                    sector_alloc[sec] = sector_alloc.get(sec, 0.0) + positions[s]["qty"] * px
-
-                for _score, _pfh, sym, px in targets:
-                    if not px or px <= 0:
-                        continue
-                    sec = sectors.get(sym, "Unknown")
-                    held_qty = positions.get(sym, {}).get("qty", 0)
-                    held_val = held_qty * px
-                    target_val = min(base_budget, pos_cap)
-                    room = sector_cap - sector_alloc.get(sec, 0.0)
-                    if room <= 0:
-                        continue
-                    target_val = min(target_val, held_val + room)
-                    want = target_val - held_val
-                    if want <= px:
-                        continue
-                    qty = int(want / (px * (1 + COST_PER_SIDE)))
-                    qty = min(qty, int(cash / (px * (1 + COST_PER_SIDE))))
-                    if qty <= 0:
-                        continue
-                    spend = qty * px
-                    cost = spend * COST_PER_SIDE
-                    total_costs += cost
-                    turnover += spend
-                    cash -= spend + cost
-                    sector_alloc[sec] = sector_alloc.get(sec, 0.0) + spend
-                    if sym in positions:
-                        old = positions[sym]
-                        nq = old["qty"] + qty
-                        old["avg"] = (old["avg"] * old["qty"] + spend) / nq
-                        old["qty"] = nq
-                        old["peak"] = max(old.get("peak", px), px)
-                    else:
-                        positions[sym] = {"qty": qty, "avg": px, "peak": px}
-
-        # End-of-day mark to market.
-        mv = 0.0
-        for s in positions:
-            px = price_at(s, date) or positions[s]["avg"]
-            mv += positions[s]["qty"] * px
-        value = cash + mv
-        if prev_value > 0:
-            daily_returns.append(value / prev_value - 1)
-        prev_value = value
-        equity.append(round(value, 2))
-        eq_dates.append(pd.Timestamp(date).strftime("%Y-%m-%d"))
-
-    # --- Metrics ---
-    start_v, end_v = START_CAPITAL, equity[-1]
-    total_ret = round((end_v / start_v - 1) * 100, 2)
-    years = max(len(equity) / 252.0, 1e-9)
-    cagr = round(((end_v / start_v) ** (1 / years) - 1) * 100, 2)
-    mdd = _max_drawdown(equity)
-    sharpe = _sharpe(daily_returns)
-    win_rate = round(100 * sum(1 for r in daily_returns if r > 0) / len(daily_returns), 1) \
-        if daily_returns else 0.0
-    half = max(1, len(equity) // 2)
-    first_half_ret = round((equity[half - 1] / START_CAPITAL - 1) * 100, 2)
-    second_half_ret = round((equity[-1] / equity[half - 1] - 1) * 100, 2) if equity[half - 1] else 0.0
-    turnover_pct = round(turnover / max(START_CAPITAL, 1) * 100, 2)
+    # HEADLINE: replay the ACTIVE_PROFILE — the exact configuration the live
+    # paper trader runs — with next-open execution.
+    active = _simulate_variant(feats, dates, bclose, sectors, _active_variant())
+    equity = active.pop("_equity")
+    eq_dates = active.pop("_eq_dates")
 
     # Benchmark buy & hold over the same window.
     bench_ret = None
@@ -557,10 +567,21 @@ def run() -> dict:
                     "date": bwin.index[i].strftime("%Y-%m-%d"),
                     "value": round(START_CAPITAL * float(bwin.iloc[i]) / b0, 2),
                 })
+    total_ret = active["total_return_pct"]
     alpha = round(total_ret - bench_ret, 2) if bench_ret is not None else None
-    lab_variants = [_simulate_variant(feats, dates, bclose, sectors, v) for v in LAB_VARIANTS]
-    lab_variants.sort(key=lambda r: (r.get("alpha_pct") is not None, r.get("total_return_pct", -999)),
-                      reverse=True)
+
+    # Secondary: the strategy lab, same history + same next-open execution.
+    lab_variants = []
+    for v in LAB_VARIANTS:
+        row = _simulate_variant(feats, dates, bclose, sectors, v)
+        row.pop("_equity", None)
+        row.pop("_eq_dates", None)
+        row["benchmark_return_pct"] = bench_ret
+        row["alpha_pct"] = round(row["total_return_pct"] - bench_ret, 2) \
+            if bench_ret is not None and not row.get("skipped") else None
+        lab_variants.append(row)
+    lab_variants.sort(key=lambda r: (r.get("alpha_pct") is not None,
+                                     r.get("total_return_pct", -999)), reverse=True)
 
     # Down-sample the strategy equity curve for a compact dashboard payload.
     step = max(1, len(equity) // 250)
@@ -569,66 +590,71 @@ def run() -> dict:
     if curve and curve[-1]["date"] != eq_dates[-1]:
         curve.append({"date": eq_dates[-1], "value": equity[-1]})
 
+    validation = active.get("validation") or {}
     payload = {
         "generated_at": ds.now_utc().isoformat(),
         "ist": ist.isoformat(),
         "lookback": LOOKBACK,
         "rebalance_every_days": REBALANCE_EVERY,
+        "active_profile": ACTIVE_PROFILE,
+        "execution_model": EXECUTION_MODEL,
+        "coverage_pct": round(coverage * 100, 2),
         "start_capital": START_CAPITAL,
         "start_date": eq_dates[0],
         "end_date": eq_dates[-1],
         "trading_days": len(equity),
-        "n_rebalances": n_rebalances,
-        "n_stops": n_stops,
-        "costs": round(total_costs, 2),
-        "turnover_pct_of_start": turnover_pct,
-        "final_value": end_v,
+        "n_rebalances": active["n_rebalances"],
+        "n_stops": active["n_stops"],
+        "n_orders_dropped": active["n_orders_dropped"],
+        "costs": active["costs"],
+        "total_costs": active["total_costs"],
+        "turnover_pct_of_start": active["turnover_pct_of_start"],
+        "final_value": active["final_value"],
         "total_return_pct": total_ret,
-        "cagr_pct": cagr,
+        "cagr_pct": active["cagr_pct"],
         "benchmark_name": "NIFTY 50",
         "benchmark_return_pct": bench_ret,
         "alpha_pct": alpha,
-        "max_drawdown_pct": mdd,
-        "sharpe": sharpe,
-        "win_rate_pct": win_rate,
+        "max_drawdown_pct": active["max_drawdown_pct"],
+        "sharpe": active["sharpe"],
+        "win_rate_pct": active["win_rate_pct"],
         "params": {
             **strategy_metadata(),
             "rebalance_every_days": REBALANCE_EVERY,
             "lookback": LOOKBACK,
         },
         "validation": {
-            "first_half_return_pct": first_half_ret,
-            "second_half_return_pct": second_half_ret,
+            **validation,
             "out_of_sample_warning": "single-history replay; not a true train/test optimization",
             "bias_warnings": [
                 "today's universe only (survivorship bias)",
                 "news sentiment excluded historically",
-                "daily close fills; intraday delayed data not modeled",
+                "signals at close fill at next session's adjusted open "
+                f"(+{SLIPPAGE_BPS} bps slippage, {COST_BPS_PER_SIDE} bps costs per side)",
             ],
         },
         "strategy_lab": {
-            "description": "Same downloaded history replayed with signal/churn variants. News is excluded.",
-            "variants": [
-                {
-                    **row,
-                    "benchmark_return_pct": bench_ret,
-                    "alpha_pct": round(row["total_return_pct"] - bench_ret, 2)
-                    if bench_ret is not None and not row.get("skipped") else None,
-                }
-                for row in lab_variants
-            ],
+            "description": ("Same downloaded history replayed with signal/churn "
+                            "variants under identical next-open execution. News is excluded."),
+            "variants": lab_variants,
             "takeaway": "Prefer variants that beat benchmark after costs with lower turnover and drawdown.",
         },
         "equity_curve": curve,
         "benchmark_curve": bench_curve,
         "note": ("Technicals-only historical replay (news excluded). Today's "
-                 "universe (survivorship bias). Fills at daily close. Past "
+                 "universe (survivorship bias). Signals from the close fill at "
+                 "the NEXT session's adjusted open with slippage + costs. Past "
                  "performance does not guarantee future results."),
     }
     ds.write_json("backtest/latest.json", payload)
-    print(f"  total {total_ret:+.2f}% | CAGR {cagr:+.2f}% | "
-          f"NIFTY {bench_ret:+.2f}% | alpha {alpha:+.2f}% | "
-          f"maxDD {mdd:.2f}% | Sharpe {sharpe} | win {win_rate}% | "
+    val_alpha = validation.get("validation_alpha_pct")
+    bench_txt = f"{bench_ret:+.2f}%" if bench_ret is not None else "n/a"
+    alpha_txt = f"{alpha:+.2f}%" if alpha is not None else "n/a"
+    print(f"  [{ACTIVE_PROFILE}] total {total_ret:+.2f}% | CAGR {active['cagr_pct']:+.2f}% | "
+          f"NIFTY {bench_txt} | alpha {alpha_txt} | "
+          f"maxDD {active['max_drawdown_pct']:.2f}% | Sharpe {active['sharpe']} | "
+          f"win {active['win_rate_pct']}% | "
+          f"OOS alpha {val_alpha if val_alpha is not None else 'n/a'}% | "
           f"{len(equity)} days")
     return payload
 

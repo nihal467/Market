@@ -12,11 +12,11 @@ const TASKS = [
     dedupe: false,
   },
   {
-    id: "daily-dashboard",
-    workflow: "daily.yml",
+    id: "refinement-pipeline",
+    workflow: "refinement_pipeline.yml",
     mode: "at",
     days: [1, 2, 3, 4, 5],
-    at: "16:00",
+    at: "18:00",
     dedupe: true,
   },
   {

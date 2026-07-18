@@ -9,6 +9,7 @@ date-partitioned daily file plus latest.json.
 from __future__ import annotations
 
 import sys
+import time
 
 import pandas as pd
 import yfinance as yf
@@ -21,6 +22,10 @@ from strategy import decide
 from strategy_config import strategy_metadata
 
 BATCH = 50
+DOWNLOAD_RETRIES = 3
+# Below this fraction of symbols with usable history, the day's output is
+# flagged partial so the paper trader knows not to queue trades on thin data.
+MIN_COVERAGE = 0.8
 
 
 def _indicators_from_close(close: pd.Series) -> dict | None:
@@ -71,15 +76,26 @@ def _indicators_from_close(close: pd.Series) -> dict | None:
     }
 
 
+def _download_batch(chunk: list[str]) -> pd.DataFrame | None:
+    """One batched download with retry + exponential backoff (2s/4s/8s)."""
+    for attempt in range(1, DOWNLOAD_RETRIES + 1):
+        try:
+            data = yf.download(chunk, period="1y", interval="1d", auto_adjust=True,
+                               progress=False, group_by="ticker", threads=True)
+            if data is not None and not data.empty:
+                return data
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! download attempt {attempt}/{DOWNLOAD_RETRIES} failed: {exc}")
+        time.sleep(2 ** attempt)
+    return None
+
+
 def _download(symbols: list[str]) -> dict[str, pd.Series]:
     closes: dict[str, pd.Series] = {}
     for i in range(0, len(symbols), BATCH):
         chunk = symbols[i:i + BATCH]
-        try:
-            data = yf.download(chunk, period="1y", interval="1d", auto_adjust=True,
-                               progress=False, group_by="ticker", threads=True)
-        except Exception as exc:  # noqa: BLE001
-            print(f"  ! download failed: {exc}")
+        data = _download_batch(chunk)
+        if data is None:
             continue
         for sym in chunk:
             try:
@@ -108,6 +124,11 @@ def run() -> dict:
     print(f"Daily analysis for {len(symbols)} watchlist symbols ...")
 
     closes = _download(symbols)
+    coverage = len(closes) / len(symbols) if symbols else 0.0
+    partial = coverage < MIN_COVERAGE
+    if partial:
+        print(f"  ! partial data: {len(closes)}/{len(symbols)} symbols "
+              f"({coverage * 100:.1f}%) — paper trader must not queue new orders.")
     regime = current_regime()
     prev = (ds.read_json("daily/latest.json", default={}) or {})
     prev_by = {r["symbol"]: r for r in prev.get("analysis", [])}
@@ -169,6 +190,8 @@ def run() -> dict:
                             [ist.strftime("%Y-%m-%d")]),
         "watchlist_size": len(symbols),
         "analyzed": len(results),
+        "coverage_pct": round(coverage * 100, 2),
+        "partial": partial,
         "signal_counts": counts,
         "market_regime": regime,
         "strategy": strategy_metadata(),

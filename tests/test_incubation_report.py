@@ -143,6 +143,75 @@ class IncubationReportTests(unittest.TestCase):
         self.assertIn("0.00 average trades/day after inception", criterion["detail"])
         self.assertIn("0 trade days", criterion["detail"])
 
+    def test_legacy_payloads_fail_execution_and_oos_gates(self) -> None:
+        # Payloads produced before the next-open upgrade carry neither an
+        # execution_model field nor a train/validation split — the hardened
+        # gate must fail closed on both.
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+
+        self.assertFalse(self.criterion("execution_model_next_open")["passed"])
+        self.assertFalse(self.criterion("backtest_oos_positive")["passed"])
+
+    def test_execution_and_oos_gates_pass_with_new_payloads(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+        write_json(self.root, "paper/latest.json", {
+            "ist": "2026-07-01T16:30:00+05:30",
+            "inception": "2026-07-01",
+            "value": 500000,
+            "total_pnl_pct": 0.0,
+            "alpha_pct": 0.0,
+            "execution_model": "next_open",
+            "history": [{"date": "2026-07-01", "value": 500000, "n_trades": 10}],
+        })
+        write_json(self.root, "backtest/latest.json", {
+            "execution_model": "next_open",
+            "validation": {"validation_alpha_pct": 2.5},
+            "strategy_lab": {
+                "variants": [
+                    {
+                        "id": "momentum_only_weekly",
+                        "total_return_pct": 10.0,
+                        "alpha_pct": 8.0,
+                    }
+                ]
+            },
+        })
+
+        self.assertTrue(self.criterion("execution_model_next_open")["passed"])
+        oos = self.criterion("backtest_oos_positive")
+        self.assertTrue(oos["passed"])
+        self.assertIn("2.50%", oos["detail"])
+
+    def test_recomputed_totals_flag_mismatch_against_stored(self) -> None:
+        history = [
+            {"date": "2026-07-01", "value": 500000, "benchmark_pct": 0.0},
+            {"date": "2026-07-02", "value": 501000, "benchmark_pct": 0.1},
+        ]
+        # Seeded stored totals claim 0.0% but the value series implies +0.2%
+        # total (+0.1% alpha) — a mismatch above 0.1 pct-pts must be flagged.
+        self.seed_common_files(history)
+        self.assertFalse(self.criterion("totals_recomputed_consistent")["passed"])
+
+        # With stored totals that agree with the series, the check passes and
+        # the P&L criteria run off the recomputed numbers.
+        write_json(self.root, "paper/latest.json", {
+            "ist": "2026-07-01T16:30:00+05:30",
+            "inception": "2026-07-01",
+            "value": 501000,
+            "start_capital": 500000,
+            "total_pnl_pct": 0.2,
+            "alpha_pct": 0.1,
+            "history": history,
+        })
+        self.assertTrue(self.criterion("totals_recomputed_consistent")["passed"])
+        pnl = self.criterion("positive_dummy_pnl")
+        self.assertTrue(pnl["passed"])
+        self.assertIn("recomputed from history", pnl["detail"])
+
     def test_backtest_gate_uses_active_profile_variant(self) -> None:
         self.seed_common_files([
             {"date": "2026-07-01", "value": 500000, "n_trades": 10},

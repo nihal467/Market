@@ -30,11 +30,6 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover -s tests -p "test_*.py"
 
-      - name: Dashboard generation smoke test
-        env:
-          DASHBOARD_PASSWORD: ci-dashboard-password
-        run: python src/dashboard.py
-
   workflows:
     name: Workflow YAML checks
     runs-on: ubuntu-latest

@@ -31,7 +31,9 @@ from market_calendar import is_market_open, now_ist
 
 # Reuse the single source of truth for capital, caps, costs and file paths.
 from paper_trader import (
+    COST_BPS_PER_SIDE,
     COST_PER_SIDE,
+    SLIPPAGE_BPS,
     INTRADAY_SHOCK_BOOK_LOSS_PCT,
     INTRADAY_SHOCK_INDEX_DROP_PCT,
     INTRADAY_SHOCK_WATCHLIST_DOWN_FRACTION,
@@ -119,15 +121,18 @@ def _shock_metrics(rows: list[dict]) -> dict:
 def _sell_position(state: dict, sym: str, px: float, reason: str, names: dict,
                    ist, trades: list[dict], stops: list[dict], cost_total: float) -> float:
     pos = state["positions"][sym]
-    proceeds = pos["qty"] * px
+    # Same execution realism as the EOD fills: sells give up SLIPPAGE_BPS vs
+    # the reference price and pay COST_BPS_PER_SIDE on notional.
+    fill_px = px * (1 - SLIPPAGE_BPS / 10000.0)
+    proceeds = pos["qty"] * fill_px
     cost = proceeds * COST_PER_SIDE
     cost_total += cost
     state["cash"] += proceeds - cost
     avg = pos.get("avg_price", 0.0)
-    pnl_pct = round((px / avg - 1) * 100, 2) if avg else 0.0
+    pnl_pct = round((fill_px / avg - 1) * 100, 2) if avg else 0.0
     t = {"action": "SELL", "symbol": sym, "name": names.get(sym, sym),
-         "qty": pos["qty"], "price": round(px, 2), "reason": reason,
-         "ist": ist.isoformat()}
+         "qty": pos["qty"], "price": round(fill_px, 2), "cost": round(cost, 2),
+         "reason": reason, "ist": ist.isoformat()}
     trades.append(t)
     stops.append({"symbol": sym, "name": names.get(sym, sym),
                   "loss_pct": pnl_pct, "type": reason})
@@ -298,11 +303,13 @@ def run() -> dict:
             want = target_val - held_val
             if want <= px:
                 continue
-            qty = int(want / (px * (1 + COST_PER_SIDE)))
-            qty = min(qty, int(state["cash"] / (px * (1 + COST_PER_SIDE))))
+            # Buys pay up by SLIPPAGE_BPS vs the reference price, plus costs.
+            fill_px = px * (1 + SLIPPAGE_BPS / 10000.0)
+            qty = int(want / (fill_px * (1 + COST_PER_SIDE)))
+            qty = min(qty, int(state["cash"] / (fill_px * (1 + COST_PER_SIDE))))
             if qty <= 0:
                 continue
-            spend = qty * px
+            spend = qty * fill_px
             cost = spend * COST_PER_SIDE
             cost_total += cost
             state["cash"] -= spend + cost
@@ -312,16 +319,17 @@ def run() -> dict:
                 nq = old["qty"] + qty
                 old["avg_price"] = round((old["avg_price"] * old["qty"] + spend) / nq, 2)
                 old["qty"] = nq
-                old["peak_price"] = round(max(old.get("peak_price", px), px), 2)
+                old["peak_price"] = round(max(old.get("peak_price", fill_px), fill_px), 2)
             else:
-                state["positions"][sym] = {"qty": qty, "avg_price": round(px, 2),
-                                           "peak_price": round(px, 2), "name": names.get(sym, sym)}
+                state["positions"][sym] = {"qty": qty, "avg_price": round(fill_px, 2),
+                                           "peak_price": round(fill_px, 2), "name": names.get(sym, sym)}
             trades.append({"action": "BUY", "symbol": sym, "name": names.get(sym, sym),
-                           "qty": qty, "price": round(px, 2), "reason": "intraday_deploy",
-                           "ist": ist.isoformat()})
+                           "qty": qty, "price": round(fill_px, 2), "cost": round(cost, 2),
+                           "reason": "intraday_deploy", "ist": ist.isoformat()})
 
     # 4) Mark to market live and publish.
     state["intraday_trades_today"] = trades
+    state["total_costs"] = round(float(state.get("total_costs") or 0.0) + cost_total, 2)
     end_value = mark_value()
     day_pnl = round(end_value - prev_value, 2)
     day_pnl_pct = round(day_pnl / prev_value * 100, 3) if prev_value else 0.0
@@ -357,6 +365,7 @@ def run() -> dict:
         "day_pnl_pct": day_pnl_pct,
         "total_pnl": total_pnl,
         "total_pnl_pct": total_pnl_pct,
+        "total_costs": state["total_costs"],
         "n_positions": len(state["positions"]),
         "intraday_trades": trades,
         "stops": stops,

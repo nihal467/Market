@@ -13,6 +13,7 @@ the run fast and gentle on the source.
 from __future__ import annotations
 
 import sys
+import time
 from typing import Optional
 
 import pandas as pd
@@ -27,6 +28,11 @@ from universe import load_universe
 TOP_N = 50
 NEWS_REFINE_N = 70  # fetch news only for this many top technical candidates
 BATCH = 50          # tickers per yf.download batch
+DOWNLOAD_RETRIES = 3
+# If fewer than this fraction of the universe downloads, abort WITHOUT
+# overwriting the previous watchlist — a half-fetched ranking is worse than a
+# week-old one.
+MIN_COVERAGE = 0.8
 
 
 def _sma(close: pd.Series, window: int):
@@ -48,19 +54,30 @@ def _rsi(close: pd.Series, period: int = 14):
     return round(100 - (100 / (1 + lg / ll)), 2)
 
 
+def _download_batch(chunk: list[str]) -> pd.DataFrame | None:
+    """One batched download with retry + exponential backoff (2s/4s/8s)."""
+    for attempt in range(1, DOWNLOAD_RETRIES + 1):
+        try:
+            data = yf.download(
+                chunk, period="1y", interval="1d",
+                auto_adjust=True, progress=False, group_by="ticker", threads=True,
+            )
+            if data is not None and not data.empty:
+                return data
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! batch download attempt {attempt}/{DOWNLOAD_RETRIES} failed: {exc}")
+        time.sleep(2 ** attempt)
+    return None
+
+
 def _download(symbols: list[str]) -> dict[str, pd.DataFrame]:
     """Return {symbol: OHLCV frame} using batched downloads."""
     frames: dict[str, pd.DataFrame] = {}
     for i in range(0, len(symbols), BATCH):
         chunk = symbols[i:i + BATCH]
         print(f"  downloading {i + 1}-{i + len(chunk)} of {len(symbols)} ...")
-        try:
-            data = yf.download(
-                chunk, period="1y", interval="1d",
-                auto_adjust=True, progress=False, group_by="ticker", threads=True,
-            )
-        except Exception as exc:  # noqa: BLE001
-            print(f"  ! batch download failed: {exc}")
+        data = _download_batch(chunk)
+        if data is None:
             continue
         for sym in chunk:
             try:
@@ -168,7 +185,19 @@ def build() -> dict:
     print(f"Building watchlist from {len(symbols)} universe symbols ...")
 
     frames = _download(symbols)
-    print(f"  got history for {len(frames)} symbols")
+    coverage = len(frames) / len(symbols) if symbols else 0.0
+    print(f"  got history for {len(frames)} symbols ({coverage * 100:.1f}% coverage)")
+    if coverage < MIN_COVERAGE:
+        print(
+            f"  ! ABORT: coverage {coverage * 100:.1f}% is below "
+            f"{MIN_COVERAGE * 100:.0f}%. Keeping the previous watchlist untouched "
+            "rather than ranking from a half-fetched universe."
+        )
+        return {
+            "skipped": True,
+            "reason": "partial_universe_data",
+            "coverage_pct": round(coverage * 100, 2),
+        }
 
     scored = []
     rejected = []
@@ -206,6 +235,7 @@ def build() -> dict:
         "generated_at": ds.now_utc().isoformat(),
         "generated_ist": now_ist().isoformat(),
         "universe_size": len(symbols),
+        "coverage_pct": round(coverage * 100, 2),
         "evaluated": len(scored),
         "liquidity_rejected": len(rejected),
         "top_n": TOP_N,
