@@ -1,0 +1,86 @@
+name: Refinement PR Pipeline (propose → scan → review → merge)
+
+# Runs 18:00 IST (12:30 UTC). For each open "daily-refinement" issue:
+#   1. propose : a Claude agent opens a PR (or closes the issue if no change)
+#   2. security: scan each PR diff for leaked secrets / sensitive data
+#   3. review  : an independent Claude reviewer approves or requests changes
+#   4. merge   : approved + security-passed PRs are squash-merged to main
+# GitHub cron is best-effort; use "Run workflow" any time.
+
+on:
+  schedule:
+    - cron: "30 12 * * *"   # 12:30 UTC == 18:00 IST
+  workflow_dispatch:
+    inputs:
+      auto_merge:
+        description: "Merge approved PRs automatically"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write         # push branches, merge
+  issues: write           # comment / close issues
+  pull-requests: write    # open PRs, submit reviews, merge
+  statuses: write         # publish the security/sensitive-data commit status
+
+concurrency:
+  group: daily-refinement
+  cancel-in-progress: false
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      PROPOSER_MODEL: ${{ vars.PROPOSER_MODEL || vars.CLAUDE_MODEL || 'claude-sonnet-4-5' }}
+      REVIEWER_MODEL: ${{ vars.REVIEWER_MODEL || vars.CLAUDE_MODEL || 'claude-sonnet-4-5' }}
+      ISSUE_LABEL: daily-refinement
+      MAX_ISSUES: "3"
+      MERGE_METHOD: squash
+      FAIL_ON: HIGH
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve auto-merge flag
+        # Default ON (scheduled runs merge). Only OFF when a manual run
+        # explicitly sets auto_merge=false. (Avoids null==false coercion bug.)
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && \
+             [ "${{ inputs.auto_merge }}" = "false" ]; then
+            echo "AUTO_MERGE=0" >> "$GITHUB_ENV"
+          else
+            echo "AUTO_MERGE=1" >> "$GITHUB_ENV"
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install anthropic
+
+      - name: Ensure labels exist
+        run: python scripts/ensure_labels.py
+
+      - name: Propose (open PRs)
+        working-directory: ${{ github.workspace }}
+        run: python scripts/propose_fix.py --state pipeline_state.json
+
+      - name: Security scan (gate)
+        run: python scripts/security_scan.py --state pipeline_state.json
+
+      - name: Review + merge
+        run: python scripts/review_pr.py --state pipeline_state.json
+
+      - name: Pipeline summary
+        if: always()
+        run: |
+          echo '### Daily refinement pipeline' >> "$GITHUB_STEP_SUMMARY"
+          python scripts/summarize_pipeline.py >> "$GITHUB_STEP_SUMMARY" || true

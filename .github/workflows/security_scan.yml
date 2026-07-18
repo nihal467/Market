@@ -1,0 +1,49 @@
+name: Security Scan (no secrets / sensitive data)
+
+# Runs on every pull request as a required-style gate. Two layers:
+#   1. gitleaks   - industry secret scanner over the diff
+#   2. custom     - repo-specific scan (rupee amounts, holdings figures,
+#                   1Password refs, protected-file edits, keys, PII)
+# A HIGH finding fails the job. Note: PRs opened by the daily-refinement bot
+# (via GITHUB_TOKEN) are ALSO scanned inside that pipeline; this workflow
+# additionally covers any human-opened PRs.
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+  sensitive-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write   # publish the required security/sensitive-data status
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Custom sensitive-data scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          FAIL_ON: HIGH
+        run: python scripts/security_scan.py --pr ${{ github.event.number }}
