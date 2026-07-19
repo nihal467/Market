@@ -79,7 +79,8 @@
   <h2>Recent activity</h2>
   <div id="activity"><span class="err">Loading…</span></div>
 
-  <h2>Watchlist top 10</h2>
+  <h2>Watchlist <span id="watchcount" style="color:var(--muted);font-weight:400"></span>
+    <a id="watchtoggle" href="#" style="color:var(--blue);font-size:12px;margin-left:8px;display:none">show all</a></h2>
   <div id="watch"><span class="err">Loading…</span></div>
 
   <div class="foot">
@@ -246,16 +247,28 @@ function table(rows, headers){
       table(rows, ["Date","Day P&L","Value","Alpha","Fills","Stops","Costs"]);
   } else document.getElementById("activity").innerHTML = '<span class="err">No trading history yet.</span>';
 
-  // ---- watchlist top 10
+  // ---- watchlist (top 10 by default, expandable to the full list)
   if(watch && (watch.watchlist||[]).length){
-    const rows = watch.watchlist.slice(0,10).map(w=>
-      `<tr><td>#${w.rank} ${esc(w.symbol.replace(".NS",""))}</td><td>${esc(w.sector||"")}</td>
-       <td class="${cls(w.ret_3m)}">${pct(w.ret_3m)}</td><td>${w.rsi14??"—"}</td>
-       <td>${(w.composite??0).toFixed(2)}</td></tr>`);
-    document.getElementById("watch").innerHTML =
-      table(rows, ["Symbol","Sector","3M return","RSI","Score"]) +
-      `<div class="s" style="margin-top:4px;color:var(--muted)">Generated ${esc(watch.generated_ist||watch.generated_at||"")} from ${watch.universe_size??"?"} names.</div>`;
-  } else document.getElementById("watch").innerHTML = '<span class="err">No watchlist yet.</span>';
+    const all = watch.watchlist;
+    const render = n => table(
+      all.slice(0,n).map(w=>
+        `<tr><td>#${w.rank} ${esc(w.symbol.replace(".NS",""))}</td><td>${esc(w.sector||"")}</td>
+         <td>${inr(w.price)}</td><td class="${cls(w.ret_3m)}">${pct(w.ret_3m)}</td>
+         <td class="${cls(w.ret_1m)}">${pct(w.ret_1m)}</td><td>${w.rsi14??"—"}</td>
+         <td>${(w.composite??0).toFixed(2)}</td></tr>`),
+      ["Symbol","Sector","Price","3M","1M","RSI","Score"]) +
+      `<div class="s" style="margin-top:4px;color:var(--muted)">Generated ${esc(watch.generated_ist||watch.generated_at||"")} — top ${all.length} of ${watch.universe_size??"?"} names (${watch.liquidity_rejected??0} rejected for liquidity). Refreshes Sundays 17:30 IST.</div>`;
+    const watchEl = document.getElementById("watch");
+    const tog = document.getElementById("watchtoggle");
+    document.getElementById("watchcount").textContent = `(top 10 of ${all.length})`;
+    watchEl.innerHTML = render(10);
+    let expanded = false;
+    tog.style.display = "inline";
+    tog.onclick = e => { e.preventDefault(); expanded = !expanded;
+      watchEl.innerHTML = render(expanded ? all.length : 10);
+      tog.textContent = expanded ? "show top 10" : "show all";
+      document.getElementById("watchcount").textContent = expanded ? `(all ${all.length})` : `(top 10 of ${all.length})`; };
+  } else document.getElementById("watch").innerHTML = '<span class="err">No watchlist yet — first one generates Sunday 17:30 IST.</span>';
 })();
 </script>
 </body>
