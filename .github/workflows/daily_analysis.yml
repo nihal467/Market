@@ -55,6 +55,16 @@ jobs:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
         run: python src/incubation_report.py
 
+      # Advisory: archive today's per-symbol headlines + lexicon sentiment to
+      # the data branch (news/YYYY/MM/DD.json) so future signal-quality
+      # studies — e.g. the backtest's news ablation — can replay a DATED news
+      # history. Runs after the trading steps and must never break them.
+      - name: News archive (advisory)
+        continue-on-error: true
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+        run: python src/news_archive.py
+
       # If the paper book's drawdown circuit-breaker is active, raise (or
       # update) a single ops-alert issue so a human actually notices. Advisory
       # only — a failure here never blocks the data publish below.
