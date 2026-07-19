@@ -82,9 +82,16 @@ AADHAAR_RULE = re.compile(r"\b\d{4}\s?\d{4}\s?\d{4}\b")
 PROTECTED_FILE_RULES = [
     ("edits_holdings", "HIGH", re.compile(r"(^|/)holdings\.ya?ml$")),
     ("edits_workflow", "HIGH", re.compile(r"^\.github/workflows/.+")),
+    ("edits_scanner", "HIGH",
+     re.compile(r"^scripts/(security_scan|agent_lib|ops_alert|ensure_labels)\.py$")),
     ("dotenv_file", "HIGH", re.compile(r"(^|/)\.env(\.|$)")),
     ("key_file", "HIGH", re.compile(r"\.(pem|key|p12|pfx)$|(^|/)id_rsa$")),
 ]
+
+# Rules downgraded to advisory (MED) when the PR author is the repo owner:
+# the owner can already push to main directly, so blocking their maintenance
+# PRs adds friction, not security. Bot/stranger PRs stay hard-blocked.
+OWNER_ADVISORY_RULES = {"edits_workflow", "edits_scanner"}
 
 
 def _mask(s: str) -> str:
@@ -188,6 +195,14 @@ def scan_pr(number: int) -> tuple[bool, str]:
     pull = lib.get_pull(number)
     sha = pull.get("head", {}).get("sha")
     findings = scan_diff(lib.pr_diff_via_api(number))
+    # Owner-authored PRs: protected-infra edits become advisory, not blocking.
+    author = (pull.get("user") or {}).get("login", "")
+    owner = lib.REPO.split("/")[0] if "/" in lib.REPO else ""
+    if author and author == owner:
+        for f in findings:
+            if f["rule"] in OWNER_ADVISORY_RULES and f["severity"] == "HIGH":
+                f["severity"] = "MED"
+                f["snippet"] += " — owner-authored PR, advisory only"
     ok = not is_blocking(findings)
     rep = report(findings)
     if sha:
