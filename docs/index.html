@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Market — AI Paper-Trading Lab</title>
+<title>My AI Trading Lab</title>
 <style>
   :root{
     --bg:#0d1117; --panel:#161b22; --border:#30363d; --text:#e6edf3;
@@ -14,13 +14,16 @@
     font:14px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding:24px}
   .wrap{max-width:1100px;margin:0 auto}
   h1{font-size:22px;margin:0 0 2px} .sub{color:var(--muted);font-size:12px;margin-bottom:20px}
-  h2{font-size:15px;margin:26px 0 10px;color:var(--blue)}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  h2{font-size:16px;margin:28px 0 10px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px}
   .card .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
-  .card .v{font-size:19px;font-weight:600;margin-top:2px}
+  .card .v{font-size:22px;font-weight:700;margin-top:2px}
   .card .s{font-size:12px;color:var(--muted)}
+  .big .v{font-size:26px}
   .pos{color:var(--green)} .neg{color:var(--red)} .warn{color:var(--amber)}
+  .story{background:var(--panel);border:1px solid var(--border);border-radius:8px;
+    padding:12px 14px;margin:12px 0;font-size:15px}
   table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
   th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-size:13px}
   th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
@@ -37,61 +40,63 @@
   .dot{display:inline-block;width:8px;height:8px;border-radius:4px;margin-right:4px}
   .foot{margin-top:30px;padding-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:11px}
   .err{color:var(--amber);font-size:12px}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media(max-width:800px){.grid2{grid-template-columns:1fr}}
   .crit{list-style:none;padding:0;margin:0}
   .crit li{padding:4px 0;border-bottom:1px solid var(--border);font-size:13px}
   .crit li:last-child{border-bottom:none}
+  details{margin-top:28px;border-top:1px solid var(--border);padding-top:10px}
+  summary{cursor:pointer;color:var(--muted);font-size:14px;font-weight:600}
+  details h2{font-size:14px;color:var(--blue)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🧪 AI Paper-Trading Lab <span class="badge b-blue">100% virtual — no real money</span></h1>
+  <h1>🧪 My AI Trading Lab <span class="badge b-blue">practice money — not real</span></h1>
   <div class="sub" id="updated">Loading…</div>
 
-  <div class="cards" id="cards"></div>
+  <!-- THE MONEY, in plain words -->
+  <div class="cards" id="money"></div>
+  <div class="story" id="story"></div>
 
-  <h2>Today</h2>
+  <h2>💸 What we traded today</h2>
   <div id="today"><span class="err">Loading…</span></div>
 
-  <h2>Equity curve — book vs NIFTY</h2>
+  <h2>🌅 Buying / selling tomorrow morning</h2>
+  <div id="pending"><span class="err">—</span></div>
+
+  <h2>📦 Stocks we own right now</h2>
+  <div id="positions"><span class="err">Loading…</span></div>
+
+  <h2>📈 Our money over time (purple) vs the market (grey)</h2>
   <svg id="chart" preserveAspectRatio="none"></svg>
   <div class="legend">
-    <span><span class="dot" style="background:var(--accent)"></span>Paper book</span>
-    <span><span class="dot" style="background:var(--muted)"></span>NIFTY (scaled)</span>
+    <span><span class="dot" style="background:var(--accent)"></span>Our money</span>
+    <span><span class="dot" style="background:var(--muted)"></span>NIFTY market index</span>
   </div>
 
-  <h2>Statistics</h2>
-  <div class="cards" id="stats"><span class="err">Loading…</span></div>
-  <div class="legend" id="statsnote"></div>
-
-  <div class="grid2">
-    <div>
-      <h2>Positions</h2>
-      <div id="positions"><span class="err">Loading…</span></div>
-      <h2>Pending orders (fill at next open)</h2>
-      <div id="pending"><span class="err">—</span></div>
-    </div>
-    <div>
-      <h2>Readiness gate</h2>
-      <div id="gate"><span class="err">Loading…</span></div>
-      <h2>Today's market</h2>
-      <div id="market"><span class="err">Loading…</span></div>
-    </div>
-  </div>
-
-  <h2>Recent activity</h2>
-  <div id="activity"><span class="err">Loading…</span></div>
-
-  <h2>Watchlist <span id="watchcount" style="color:var(--muted);font-weight:400"></span>
+  <h2>👀 Stocks we're watching <span id="watchcount" style="color:var(--muted);font-weight:400;font-size:13px"></span>
     <a id="watchtoggle" href="#" style="color:var(--blue);font-size:12px;margin-left:8px;display:none">show all</a></h2>
   <div id="watch"><span class="err">Loading…</span></div>
 
+  <h2>🗓️ Last few days</h2>
+  <div id="activity"><span class="err">Loading…</span></div>
+
+  <!-- Everything technical lives down here -->
+  <details>
+    <summary>🔬 Advanced numbers (statistics, readiness gate, market detail)</summary>
+    <h2>Statistics</h2>
+    <div class="cards" id="stats"><span class="err">Loading…</span></div>
+    <div class="legend" id="statsnote"></div>
+    <h2>Readiness gate</h2>
+    <div id="gate"><span class="err">Loading…</span></div>
+    <h2>Market detail</h2>
+    <div id="market"><span class="err">Loading…</span></div>
+  </details>
+
   <div class="foot">
-    Paper trading simulation on public, delayed data. Decisions at close fill at the
-    <b>next session's open</b> with slippage + transaction costs. Not investment advice.
-    Data refreshes from the repo's <code>data</code> branch on each page load —
-    <a style="color:var(--blue)" href="https://github.com/nihal467/Market">source</a>.
+    A fully automated practice-trading experiment with virtual money on public, delayed
+    data. Decisions made after market close are executed at the <b>next morning's open</b>,
+    paying realistic costs. Not investment advice.
+    <a style="color:var(--blue)" href="https://github.com/nihal467/Market">Source code</a>.
   </div>
 </div>
 
@@ -110,12 +115,12 @@ async function jget(path){
   catch(e){ return null; }
 }
 
-function card(k,v,s,vcls){ return `<div class="card"><div class="k">${k}</div>
+function card(k,v,s,vcls,extra){ return `<div class="card ${extra||""}"><div class="k">${k}</div>
   <div class="v ${vcls||""}">${v}</div>${s?`<div class="s">${s}</div>`:""}</div>`; }
 
 function drawChart(hist){
   const svg = document.getElementById("chart");
-  if(!hist || hist.length<2){ svg.outerHTML = '<div class="err">Not enough history yet for a chart — check back after a few trading days.</div>'; return; }
+  if(!hist || hist.length<2){ svg.outerHTML = '<div class="err">The chart appears after a few days of trading.</div>'; return; }
   const W=1100,H=220,P=10; svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
   const vals = hist.map(h=>h.value), bench = hist.map(h=>h.benchmark_value||null);
   const all = vals.concat(bench.filter(x=>x!=null));
@@ -150,7 +155,6 @@ function renderStats(paper, state){
     return;
   }
   note.textContent = "";
-  // Daily returns from consecutive close-marked values.
   const rets = [];
   for(let i=1;i<hist.length;i++){
     if(hist[i-1].value > 0) rets.push(hist[i].value/hist[i-1].value - 1);
@@ -159,7 +163,6 @@ function renderStats(paper, state){
   const sd = rets.length > 1
     ? Math.sqrt(rets.reduce((s,r)=>s+(r-mean)*(r-mean),0)/(rets.length-1)) : 0;
   const sharpe = sd > 0 ? mean/sd*Math.sqrt(252) : null;
-  // Rolling 30-day alpha (latest window; full period when shorter).
   const w = hist.length >= 30 ? hist.slice(-30) : hist;
   const wLabel = hist.length >= 30 ? "30d" : "full period";
   let alpha = null;
@@ -169,19 +172,15 @@ function renderStats(paper, state){
     const benchRet = (b0 > 0 && b1 != null) ? (b1/b0 - 1)*100 : 0;
     alpha = stratRet - benchRet;
   }
-  // Max drawdown on close-marked values.
   let peak = -Infinity, mdd = 0;
   hist.forEach(h => { peak = Math.max(peak, h.value);
     if(peak > 0) mdd = Math.min(mdd, h.value/peak - 1); });
-  // Hit rate among days that actually moved (nonzero day P&L).
   const active = hist.filter(h => h.day_pnl != null && Math.abs(h.day_pnl) > 1e-9);
   const hit = active.length ? 100*active.filter(h => h.day_pnl > 0).length/active.length : null;
-  // Monthly turnover: traded notional over the last 21 sessions vs avg book.
   const w21 = hist.slice(-21);
   const traded = w21.reduce((s,h)=>s+(h.traded_value||0),0);
   const avgBook = w21.reduce((s,h)=>s+h.value,0)/w21.length;
   const turnover = avgBook > 0 ? traded/avgBook*100 : null;
-  // Cost drag: cumulative slippage+txn costs vs start capital.
   const costs = (state && state.total_costs != null) ? state.total_costs
     : hist.reduce((s,h)=>s+(h.costs||0),0);
   const start = paper.start_capital || 500000;
@@ -205,79 +204,122 @@ function renderStats(paper, state){
   ]);
 
   document.getElementById("updated").textContent = paper
-    ? `Updated ${esc(paper.ist||paper.generated_at)} · strategy ${esc(paper.strategy||"")} · execution: ${esc(paper.execution_model||"next_open")}`
-    : "Could not load paper data (data branch unreachable?)";
+    ? `Last updated ${esc(paper.ist||paper.generated_at)}`
+    : "No data yet — the first trading day fills this in automatically.";
 
-  // ---- cards
+  // ---- THE MONEY, plain words
   if(paper){
-    const costs = (state && state.total_costs!=null) ? state.total_costs
-      : (paper.history||[]).reduce((a,h)=>a+(h.costs||0),0);
+    const invested = (paper.value!=null && paper.cash!=null) ? paper.value - paper.cash : null;
     const dd = state && state.peak_value ? (state.peak_value - paper.value)/state.peak_value*100 : null;
     const cb = dd!=null && dd>=15;
-    document.getElementById("cards").innerHTML =
-      card("Book value", inr(paper.value), `start ${inr(paper.start_capital)}`) +
-      card("Today P&L", pct(paper.day_pnl_pct), inr(paper.day_pnl), cls(paper.day_pnl)) +
-      card("Total P&L", pct(paper.total_pnl_pct), inr(paper.total_pnl), cls(paper.total_pnl)) +
-      card("Alpha vs NIFTY", pct(paper.alpha_pct), `${esc(paper.benchmark_name||"NIFTY")} ${pct(paper.benchmark_pct)}`, cls(paper.alpha_pct)) +
-      card("Cash", inr(paper.cash), `${paper.n_positions??0} positions`) +
-      card("Cost drag", inr(costs), "slippage + txn costs") +
-      (dd!=null ? card("Drawdown", pct(-dd), cb?"⛔ circuit breaker ON":"from peak", cb?"warn":cls(-dd)) : "");
-    drawChart(paper.history);
-    renderStats(paper, state);
+    document.getElementById("money").innerHTML =
+      card("Money now", inr(paper.value), `started with ${inr(paper.start_capital)}`, cls(paper.total_pnl), "big") +
+      card("Profit / loss so far", `${inr(paper.total_pnl)}`, pct(paper.total_pnl_pct), cls(paper.total_pnl), "big") +
+      card("Today", `${inr(paper.day_pnl)}`, pct(paper.day_pnl_pct), cls(paper.day_pnl)) +
+      card("Cash in hand", inr(paper.cash), "waiting, not invested") +
+      card("Invested in stocks", inr(invested), `${paper.n_positions??0} stock${(paper.n_positions??0)!==1?"s":""} held`) +
+      (cb ? card("Safety brake", "ON", "paused new buying after a big drop", "warn") : "");
+
+    // plain-English one-liner
+    const a = paper.alpha_pct;
+    const vs = (a==null||isNaN(a)) ? "" :
+      a >= 0 ? `We are doing <b class="pos">${pct(a)} better</b> than if we had just bought the NIFTY index.`
+             : `We are <b class="neg">${pct(Math.abs(a)).replace("+","")} behind</b> simply buying the NIFTY index.`;
+    const reg = daily && daily.market_regime || {};
+    const riskoff = /risk-off/i.test(reg.reason||"");
+    const mood = daily ? (riskoff
+      ? `The market looks risky right now, so the system is <b>keeping money safe in cash</b> and not buying.`
+      : `The market looks healthy, so the system is <b>allowed to buy</b> strong stocks.`) : "";
+    document.getElementById("story").innerHTML = `${vs} ${mood}`.trim() || "First trading day pending.";
   } else {
+    document.getElementById("money").innerHTML = card("Money now","—","waiting for the first trading day");
+    document.getElementById("story").innerHTML =
+      "This lab trades a practice account of <b>₹5,00,000 virtual money</b> fully automatically. Numbers appear after the first trading day.";
     document.getElementById("stats").innerHTML = '<span class="err">No data yet.</span>';
   }
 
-  // ---- today: plain-language summary + trade-by-trade table
+  // ---- what we traded today
   if(paper){
     const tr = paper.today_trades || [];
     const buys = tr.filter(t=>/buy/i.test(t.action||""));
     const sells = tr.filter(t=>/sell/i.test(t.action||""));
     const stops = tr.filter(t=>/stop|shock/i.test(t.reason||""));
     const words = tr.length===0
-      ? "No trades today"
-      : `${buys.length} buy${buys.length!==1?"s":""}, ${sells.length} sell${sells.length!==1?"s":""}` +
-        (stops.length?` (${stops.length} stop${stops.length!==1?"s":""})`:"");
-    const summary =
-      `<div class="card" style="margin-bottom:10px"><b>${words}</b> · day P&L
-       <b class="${cls(paper.day_pnl)}">${pct(paper.day_pnl_pct)} (${inr(paper.day_pnl)})</b> · overall
-       <b class="${cls(paper.total_pnl)}">${pct(paper.total_pnl_pct)} (${inr(paper.total_pnl)})</b> · alpha
-       <b class="${cls(paper.alpha_pct)}">${pct(paper.alpha_pct)}</b></div>`;
+      ? "Nothing traded today."
+      : `Bought ${buys.length}, sold ${sells.length}` +
+        (stops.length?` (${stops.length} sold automatically to stop losses)`:"") + ".";
     const tradeRows = tr.map(t=>
-      `<tr><td><span class="badge ${/buy/i.test(t.action)?"b-green":"b-red"}">${esc(t.action)}</span>
+      `<tr><td><span class="badge ${/buy/i.test(t.action)?"b-green":"b-red"}">${/buy/i.test(t.action)?"BOUGHT":"SOLD"}</span>
        ${esc((t.symbol||"").replace(".NS",""))}</td>
        <td>${t.qty??"—"}</td><td>${inr(t.price)}</td>
        <td>${t.cost!=null?inr(t.cost):"—"}</td><td>${esc(t.reason||"")}</td></tr>`);
-    document.getElementById("today").innerHTML = summary +
-      (tr.length ? table(tradeRows, ["Trade","Qty","Fill price","Cost","Reason"])
-                 : '<span class="err">Decisions made today (if any) appear under "Pending orders" and fill at tomorrow\'s open.</span>');
+    document.getElementById("today").innerHTML =
+      `<div class="story" style="margin-top:0">${words}</div>` +
+      (tr.length ? table(tradeRows, ["Trade","How many","Price each","Fees","Why"]) : "");
   } else {
     document.getElementById("today").innerHTML = '<span class="err">No data yet.</span>';
   }
 
-  // ---- positions
+  // ---- buying/selling tomorrow
+  const pend = state && state.pending_orders && state.pending_orders.length ? state.pending_orders : null;
+  document.getElementById("pending").innerHTML = pend ? table(
+      pend.map(o=>`<tr><td><span class="badge ${/buy/i.test(o.action||o.side||"")?"b-green":"b-red"}">${/buy/i.test(o.action||o.side||"")?"WILL BUY":"WILL SELL"}</span>
+        ${esc((o.symbol||"").replace(".NS",""))}</td>
+        <td>${o.qty??"—"}</td><td>${esc(o.reason||"")}</td></tr>`),
+      ["Order","How many","Why"])
+    : '<span class="err">Nothing planned — decisions are made after each market close.</span>';
+
+  // ---- stocks we own
   if(paper && (paper.positions||[]).length){
     document.getElementById("positions").innerHTML = table(
       paper.positions.map(p=>`<tr><td>${esc(p.symbol).replace(".NS","")}</td>
         <td>${p.qty}</td><td>${inr(p.avg_price)}</td><td>${inr(p.price)}</td>
-        <td>${inr(p.value)}</td><td class="${cls(p.pnl)}">${pct(p.pnl_pct)}</td></tr>`),
-      ["Symbol","Qty","Avg","LTP","Value","P&L"]);
+        <td>${inr(p.value)}</td><td class="${cls(p.pnl)}">${pct(p.pnl_pct)} (${inr(p.pnl)})</td></tr>`),
+      ["Stock","How many","We paid","Price now","Worth now","Profit / loss"]);
   } else {
+    const reg = daily && daily.market_regime || {};
+    const riskoff = /risk-off/i.test(reg.reason||"");
     document.getElementById("positions").innerHTML =
-      '<span class="err">No open positions — book is in cash'
-      + (daily && daily.market_regime && /risk-off/i.test(daily.market_regime.reason||"") ? " (market regime is risk-off)." : ".")
-      + '</span>';
+      `<span class="err">None right now — all money is in cash${riskoff?" because the market looks risky":""}.</span>`;
   }
 
-  // ---- pending orders
-  const pend = state && state.pending_orders && state.pending_orders.length ? state.pending_orders : null;
-  document.getElementById("pending").innerHTML = pend ? table(
-      pend.map(o=>`<tr><td>${esc(o.action||o.side||"")}</td><td>${esc((o.symbol||"").replace(".NS",""))}</td>
-        <td>${o.qty??"—"}</td><td>${esc(o.reason||"")}</td></tr>`),
-      ["Action","Symbol","Qty","Reason"])
-    : '<span class="err">None queued.</span>';
+  drawChart(paper && paper.history);
+  if(paper) renderStats(paper, state);
 
-  // ---- readiness gate
+  // ---- watchlist
+  if(watch && (watch.watchlist||[]).length){
+    const all = watch.watchlist;
+    const render = n => table(
+      all.slice(0,n).map(w=>
+        `<tr><td>#${w.rank} ${esc(w.symbol.replace(".NS",""))}</td><td>${esc(w.sector||"")}</td>
+         <td>${inr(w.price)}</td><td class="${cls(w.ret_3m)}">${pct(w.ret_3m)}</td>
+         <td class="${cls(w.ret_1m)}">${pct(w.ret_1m)}</td>
+         <td>${(w.composite??0).toFixed(2)}</td></tr>`),
+      ["Stock","Sector","Price","Last 3 months","Last month","Score"]) +
+      `<div class="s" style="margin-top:4px;color:var(--muted)">These are the ${all.length} strongest stocks (out of ${watch.universe_size??"?"} checked) that the system considers buying from. Refreshed every Sunday.</div>`;
+    const watchEl = document.getElementById("watch");
+    const tog = document.getElementById("watchtoggle");
+    document.getElementById("watchcount").textContent = `(top 10 of ${all.length})`;
+    watchEl.innerHTML = render(10);
+    let expanded = false;
+    tog.style.display = "inline";
+    tog.onclick = e => { e.preventDefault(); expanded = !expanded;
+      watchEl.innerHTML = render(expanded ? all.length : 10);
+      tog.textContent = expanded ? "show top 10" : "show all";
+      document.getElementById("watchcount").textContent = expanded ? `(all ${all.length})` : `(top 10 of ${all.length})`; };
+  } else document.getElementById("watch").innerHTML = '<span class="err">The first watchlist appears Sunday evening.</span>';
+
+  // ---- last few days
+  if(paper && (paper.history||[]).length){
+    const rows = paper.history.slice(-8).reverse().map(h=>
+      `<tr><td>${esc(h.date)}</td>
+       <td class="${cls(h.day_pnl)}">${inr(h.day_pnl)} (${pct(h.day_pnl_pct)})</td>
+       <td>${inr(h.value)}</td><td>${h.n_trades??0}</td><td>${inr(h.costs)}</td></tr>`);
+    document.getElementById("activity").innerHTML =
+      table(rows, ["Day","Made / lost","Money at close","Trades","Fees paid"]);
+  } else document.getElementById("activity").innerHTML = '<span class="err">History builds up day by day once trading starts.</span>';
+
+  // ---- advanced: readiness gate
   if(ready){
     const dec = esc(ready.decision||"unknown");
     const b = dec==="incubating" ? "b-amber" : dec.includes("eligible") ? "b-green" : "b-blue";
@@ -292,7 +334,7 @@ function renderStats(paper, state){
        <div class="s" style="margin-top:6px">This gate can only mark the system for human review — it never enables real trading.</div></div>`;
   } else document.getElementById("gate").innerHTML = '<span class="err">No readiness report yet.</span>';
 
-  // ---- market snapshot
+  // ---- advanced: market detail
   if(daily){
     const sc = daily.signal_counts||{};
     const reg = daily.market_regime||{};
@@ -306,39 +348,6 @@ function renderStats(paper, state){
         ${live && live.market_open ? `<div class="s" style="margin-top:6px">Live: ${pct(live.day_pnl_pct)} today (as of ${esc(live.ist||"")})</div>`:""}
       </div>`;
   } else document.getElementById("market").innerHTML = '<span class="err">No daily analysis yet.</span>';
-
-  // ---- recent activity (last 8 history rows, newest first)
-  if(paper && (paper.history||[]).length){
-    const rows = paper.history.slice(-8).reverse().map(h=>
-      `<tr><td>${esc(h.date)}</td><td class="${cls(h.day_pnl)}">${pct(h.day_pnl_pct)}</td>
-       <td>${inr(h.value)}</td><td class="${cls(h.alpha_pct)}">${pct(h.alpha_pct)}</td>
-       <td>${h.n_trades??0}</td><td>${h.n_stops??0}</td><td>${inr(h.costs)}</td></tr>`);
-    document.getElementById("activity").innerHTML =
-      table(rows, ["Date","Day P&L","Value","Alpha","Fills","Stops","Costs"]);
-  } else document.getElementById("activity").innerHTML = '<span class="err">No trading history yet.</span>';
-
-  // ---- watchlist (top 10 by default, expandable to the full list)
-  if(watch && (watch.watchlist||[]).length){
-    const all = watch.watchlist;
-    const render = n => table(
-      all.slice(0,n).map(w=>
-        `<tr><td>#${w.rank} ${esc(w.symbol.replace(".NS",""))}</td><td>${esc(w.sector||"")}</td>
-         <td>${inr(w.price)}</td><td class="${cls(w.ret_3m)}">${pct(w.ret_3m)}</td>
-         <td class="${cls(w.ret_1m)}">${pct(w.ret_1m)}</td><td>${w.rsi14??"—"}</td>
-         <td>${(w.composite??0).toFixed(2)}</td></tr>`),
-      ["Symbol","Sector","Price","3M","1M","RSI","Score"]) +
-      `<div class="s" style="margin-top:4px;color:var(--muted)">Generated ${esc(watch.generated_ist||watch.generated_at||"")} — top ${all.length} of ${watch.universe_size??"?"} names (${watch.liquidity_rejected??0} rejected for liquidity). Refreshes Sundays 17:30 IST.</div>`;
-    const watchEl = document.getElementById("watch");
-    const tog = document.getElementById("watchtoggle");
-    document.getElementById("watchcount").textContent = `(top 10 of ${all.length})`;
-    watchEl.innerHTML = render(10);
-    let expanded = false;
-    tog.style.display = "inline";
-    tog.onclick = e => { e.preventDefault(); expanded = !expanded;
-      watchEl.innerHTML = render(expanded ? all.length : 10);
-      tog.textContent = expanded ? "show top 10" : "show all";
-      document.getElementById("watchcount").textContent = expanded ? `(all ${all.length})` : `(top 10 of ${all.length})`; };
-  } else document.getElementById("watch").innerHTML = '<span class="err">No watchlist yet — first one generates Sunday 17:30 IST.</span>';
 })();
 </script>
 </body>
