@@ -90,6 +90,8 @@
     <div id="gate"><span class="err">Loading…</span></div>
     <h2>Market detail</h2>
     <div id="market"><span class="err">Loading…</span></div>
+    <h2>News signal contribution</h2>
+    <div id="newsablation"><span class="err">Loading…</span></div>
   </details>
 
   <div class="foot">
@@ -198,9 +200,10 @@ function renderStats(paper, state){
 }
 
 (async () => {
-  const [paper, state, ready, daily, watch, live] = await Promise.all([
+  const [paper, state, ready, daily, watch, live, back] = await Promise.all([
     jget("paper/latest.json"), jget("paper/state.json"), jget("paper/readiness.json"),
     jget("daily/latest.json"), jget("watchlist/latest.json"), jget("paper/live.json"),
+    jget("backtest/latest.json"),
   ]);
 
   document.getElementById("updated").textContent = paper
@@ -348,6 +351,40 @@ function renderStats(paper, state){
         ${live && live.market_open ? `<div class="s" style="margin-top:6px">Live: ${pct(live.day_pnl_pct)} today (as of ${esc(live.ist||"")})</div>`:""}
       </div>`;
   } else document.getElementById("market").innerHTML = '<span class="err">No daily analysis yet.</span>';
+
+  // ---- advanced: news signal contribution (backtest news ablation)
+  if(back && back.news_ablation){
+    const na = back.news_ablation;
+    const V = {news_helping:["b-green","News is helping"],
+               news_neutral:["b-blue","News barely matters"],
+               news_hurting:["b-red","News is hurting"],
+               insufficient_data:["b-amber","Not enough data yet"]};
+    const [vb, vtxt] = V[na.verdict] || ["b-amber", esc(na.verdict||"unknown")];
+    const wfCell = wf => wf ? `${pct(wf.mean_validation_alpha_pct)} · ${wf.folds_positive??"?"}/${wf.n_folds??"?"} folds +` : "—";
+    const row = (label, s) => `<tr><td>${label}</td>
+      <td class="${cls(s&&s.validation_alpha_pct)}">${pct(s&&s.validation_alpha_pct)}</td>
+      <td>${wfCell(s&&s.walk_forward)}</td>
+      <td class="${cls(s&&s.total_return_pct)}">${pct(s&&s.total_return_pct)}</td></tr>`;
+    const delta = na.delta_validation_alpha_pct;
+    document.getElementById("newsablation").innerHTML =
+      `<div class="card"><span class="badge ${vb}">${vtxt}</span>
+       <div class="s" style="margin-top:6px">The weekly backtest replays the live strategy twice on the same
+       history — once scoring with the archived news sentiment, once with the news term switched off —
+       and compares them on out-of-sample (validation) alpha.</div>
+       <div style="margin-top:8px">${table([
+         row("With news", na.with_news),
+         row("Without news", na.without_news)],
+         ["Run","OOS alpha","Walk-forward (mean · folds)","Total return"])}</div>
+       <div class="s" style="margin-top:6px">News effect: <b class="${cls(delta)}">${pct(delta)}</b> OOS alpha
+       (needs beyond ±${na.neutral_band_pp??0.5} pct-pts to count)${na.news_days_used!=null?
+       ` · archived news on ${na.news_days_used} replay day${na.news_days_used===1?"":"s"}`:""}.
+       The news archive only covers days since it was switched on, so this verdict firms up over time.</div></div>`;
+  } else if(back){
+    document.getElementById("newsablation").innerHTML =
+      '<span class="err">No news study in the latest backtest yet — it appears after the next weekly backtest run.</span>';
+  } else {
+    document.getElementById("newsablation").innerHTML = '<span class="err">No backtest yet.</span>';
+  }
 })();
 </script>
 </body>
