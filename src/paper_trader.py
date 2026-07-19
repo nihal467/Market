@@ -681,6 +681,9 @@ def run() -> dict:
 
     # 4) Day P&L from the close-marked book (positions/cash are unchanged by
     # queueing — fills only happen at the next session's open).
+    # Absolute fill notional traded today (both sides), for turnover stats.
+    traded_value = round(sum(abs(t.get("qty", 0) * t.get("price", 0.0)) for t in trades), 2)
+
     day_pnl = round(end_value - prev_value, 2)
     day_pnl_pct = round(day_pnl / prev_value * 100, 3) if prev_value else 0.0
     total_pnl = round(end_value - state["start_capital"], 2)
@@ -723,6 +726,7 @@ def run() -> dict:
         "active_profile": ACTIVE_PROFILE,
         "costs": round(cost_total, 2),
         "total_costs": state["total_costs"],
+        "traded_value": traded_value,
         "trades": trades,
         "dropped_orders": dropped_orders,
         "n_queued": len(state["pending_orders"]),

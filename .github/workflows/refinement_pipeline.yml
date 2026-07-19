@@ -381,3 +381,9 @@ jobs:
           echo "- Review 3: ${{ steps.review3.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Review 4: ${{ steps.review4.outputs.structured_output || 'skipped' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Auto-merge: ${AUTO_MERGE}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Ops alert on failure
+        if: failure()
+        run: |
+          python scripts/ops_alert.py --source "Refinement PR Pipeline" \
+            --detail "Workflow run failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

@@ -18,6 +18,9 @@ MAX_DAYS_SINCE_DAILY = 5
 MAX_WATCHLIST_AGE_DAYS = 10
 MAX_INTRADAY_AGE_MINUTES = 75
 MAX_AVG_TRADES_PER_DAY = 4.0
+# Walk-forward gate: the backtest's mean out-of-sample alpha must be positive
+# AND at least this many validation folds must be individually positive.
+WALK_FORWARD_MIN_POSITIVE_FOLDS = 2
 
 
 def _parse_dt(value: str | None) -> datetime | None:
@@ -128,6 +131,43 @@ def _oos_validation_alpha(backtest: dict, active_variant: dict | None) -> float 
     return None
 
 
+def _walk_forward_summary(backtest: dict, active_variant: dict | None) -> dict | None:
+    """Walk-forward fold summary from the backtest payload, if present.
+
+    Prefers the headline validation (which replays ACTIVE_PROFILE), falling
+    back to the active lab variant. Returns None on old payloads that predate
+    walk-forward validation so the caller can fall back to the single split.
+    """
+    for source in ((backtest or {}).get("validation") or {},
+                   (active_variant or {}).get("validation") or {}):
+        wf = source.get("walk_forward") or {}
+        if wf.get("mean_validation_alpha_pct") is not None and \
+                wf.get("folds_positive") is not None:
+            return wf
+    return None
+
+
+def _drift_status() -> tuple[bool, str]:
+    """Advisory backtest-vs-live drift check from drift/latest.json.
+
+    Missing file passes with a note (fresh start — the weekly monitor has not
+    run yet). Verdicts 'ok' and 'insufficient_data' pass; 'drift' (or anything
+    unknown) fails the advisory criterion.
+    """
+    drift = ds.read_json("drift/latest.json", default=None)
+    if not drift:
+        return True, "no drift report yet (fresh start) — advisory pass"
+    verdict = drift.get("verdict")
+    div = drift.get("final_divergence_pct")
+    corr = drift.get("daily_return_correlation")
+    detail = (
+        f"drift verdict '{verdict}'"
+        f" (final divergence {div if div is not None else 'n/a'}%,"
+        f" daily-return correlation {corr if corr is not None else 'n/a'})"
+    )
+    return verdict in ("ok", "insufficient_data"), detail
+
+
 def _history_by_date(history: list[dict]) -> list[dict]:
     by_date = {
         row.get("date"): row for row in history
@@ -179,8 +219,29 @@ def run() -> dict:
     )
     recomputed = _recompute_totals(paper, history)
     oos_alpha = _oos_validation_alpha(backtest, active_variant)
+    walk_forward = _walk_forward_summary(backtest, active_variant)
+    drift_ok, drift_detail = _drift_status()
     paper_exec = paper.get("execution_model")
     backtest_exec = backtest.get("execution_model")
+
+    if walk_forward is not None:
+        wf_mean = float(walk_forward["mean_validation_alpha_pct"])
+        wf_pos = int(walk_forward["folds_positive"])
+        wf_n = int(walk_forward.get("n_folds") or 0)
+        oos_passed = wf_mean > 0 and wf_pos >= WALK_FORWARD_MIN_POSITIVE_FOLDS
+        oos_detail = (
+            f"walk-forward mean validation alpha {wf_mean:.2f}%, "
+            f"{wf_pos}/{wf_n} folds positive "
+            f"(need mean > 0 and >= {WALK_FORWARD_MIN_POSITIVE_FOLDS} positive folds)"
+        )
+    else:
+        # Old payloads without walk-forward folds: single-split check.
+        oos_passed = oos_alpha is not None and oos_alpha > 0
+        oos_detail = (
+            f"validation-window alpha {oos_alpha:.2f}%"
+            if oos_alpha is not None
+            else "no train/validation split in backtest output"
+        )
 
     criteria = [
         _criterion(
@@ -255,12 +316,8 @@ def run() -> dict:
         _criterion(
             "backtest_oos_positive",
             "Active profile backtest is positive out-of-sample",
-            oos_alpha is not None and oos_alpha > 0,
-            (
-                f"validation-window alpha {oos_alpha:.2f}%"
-                if oos_alpha is not None
-                else "no train/validation split in backtest output"
-            ),
+            oos_passed,
+            oos_detail,
         ),
         _criterion(
             "execution_model_next_open",
@@ -273,6 +330,13 @@ def run() -> dict:
             "Trading frequency is controlled",
             avg_trades_per_day <= MAX_AVG_TRADES_PER_DAY,
             f"{avg_trades_per_day:.2f} average trades/day after inception; {trade_days} trade days",
+            blocking=False,
+        ),
+        _criterion(
+            "drift_ok",
+            "Backtest replay tracks the live paper book (advisory)",
+            drift_ok,
+            drift_detail,
             blocking=False,
         ),
     ]
@@ -300,6 +364,7 @@ def run() -> dict:
             "alpha_pct": paper.get("alpha_pct"),
             "recomputed_totals": recomputed,
             "oos_validation_alpha_pct": oos_alpha,
+            "walk_forward": walk_forward,
             "execution_model_paper": paper_exec,
             "execution_model_backtest": backtest_exec,
             "max_drawdown_pct": max_dd,

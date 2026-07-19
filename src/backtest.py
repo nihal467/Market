@@ -75,6 +75,10 @@ DOWNLOAD_RETRIES = 3
 MIN_COVERAGE = 0.8
 # First 60% of trading days = train window, last 40% = validation window.
 TRAIN_FRACTION = 0.6
+# Walk-forward validation: after an initial training chunk, the remaining days
+# are split into this many sequential validation folds (expanding window: each
+# fold's "train" is everything before it).
+WALK_FORWARD_FOLDS = 3
 
 # Which lab score mode each live profile corresponds to (for the headline run).
 PROFILE_SCORE_MODES = {
@@ -264,9 +268,58 @@ def _bench_level_at(bclose: pd.Series, date_str: str) -> float | None:
     return float(win.iloc[-1]) if len(win) else None
 
 
+def _walk_forward(equity: list[float], eq_dates: list[str],
+                  bclose: pd.Series) -> dict | None:
+    """Rolling walk-forward validation over the single replayed history.
+
+    The full window is cut into WALK_FORWARD_FOLDS + 1 equal chunks: the first
+    chunk is the initial training window and each remaining chunk is a
+    sequential validation fold. The training window EXPANDS: fold k validates
+    on chunk k+1 with all prior days as its train period. There is no
+    per-fold re-fitting (the strategy has no fitted parameters); this measures
+    whether out-of-sample alpha holds across sub-periods rather than being
+    concentrated in one lucky stretch.
+    """
+    n = len(equity)
+    # Need at least ~5 days per chunk for the fold returns to mean anything.
+    if n < (WALK_FORWARD_FOLDS + 1) * 5:
+        return None
+    edges = [int(n * i / (WALK_FORWARD_FOLDS + 1)) for i in range(WALK_FORWARD_FOLDS + 2)]
+    folds = []
+    for k in range(WALK_FORWARD_FOLDS):
+        start, end = edges[k + 1], edges[k + 2]      # fold = [start, end)
+        anchor = start - 1                            # last day of its train window
+        strat_ret = (equity[end - 1] / equity[anchor] - 1) * 100 if equity[anchor] else 0.0
+        b0 = _bench_level_at(bclose, eq_dates[anchor])
+        b1 = _bench_level_at(bclose, eq_dates[end - 1])
+        bench_ret = round((b1 / b0 - 1) * 100, 2) if b0 and b1 else None
+        folds.append({
+            "fold": k + 1,
+            "train_days": start,
+            "validation_days": end - start,
+            "validation_start": eq_dates[start],
+            "validation_end": eq_dates[end - 1],
+            "validation_return_pct": round(strat_ret, 2),
+            "validation_benchmark_return_pct": bench_ret,
+            "validation_alpha_pct": round(strat_ret - bench_ret, 2)
+            if bench_ret is not None else None,
+        })
+    alphas = [f["validation_alpha_pct"] for f in folds
+              if f["validation_alpha_pct"] is not None]
+    return {
+        "n_folds": len(folds),
+        "expanding_window": True,
+        "folds": folds,
+        "mean_validation_alpha_pct": round(sum(alphas) / len(alphas), 2) if alphas else None,
+        "folds_positive": sum(1 for a in alphas if a > 0),
+        "note": ("Expanding-window walk-forward over one replayed history; "
+                 "no per-fold re-optimization (the strategy has no fitted parameters)."),
+    }
+
+
 def _validation_split(equity: list[float], eq_dates: list[str],
                       bclose: pd.Series) -> dict | None:
-    """Simple 60/40 train/validation split of the single replayed history."""
+    """60/40 train/validation split plus walk-forward folds of the replay."""
     if len(equity) < 10:
         return None
     split = max(1, min(len(equity) - 1, int(len(equity) * TRAIN_FRACTION)))
@@ -288,6 +341,7 @@ def _validation_split(equity: list[float], eq_dates: list[str],
         "validation_return_pct": round(val_ret, 2),
         "validation_benchmark_return_pct": val_bench,
         "validation_alpha_pct": round(val_ret - val_bench, 2) if val_bench is not None else None,
+        "walk_forward": _walk_forward(equity, eq_dates, bclose),
     }
 
 

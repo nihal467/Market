@@ -1,0 +1,34 @@
+name: Monthly Meta Review
+
+# On the 1st of each month (10:00 IST), open one "Meta-review: YYYY-MM" issue
+# auditing the previous month's auto-refinement PRs against the paper book's
+# actual performance. Human hindsight check — no code changes are made here.
+on:
+  schedule:
+    - cron: "30 4 1 * *"   # 04:30 UTC == 10:00 IST on the 1st
+  workflow_dispatch: {}
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: monthly-meta-review
+  cancel-in-progress: false
+
+jobs:
+  meta-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code (main)
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create meta-review issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/monthly_review.py

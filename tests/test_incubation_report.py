@@ -212,6 +212,98 @@ class IncubationReportTests(unittest.TestCase):
         self.assertTrue(pnl["passed"])
         self.assertIn("recomputed from history", pnl["detail"])
 
+    def test_walk_forward_gate_passes_with_positive_mean_and_two_folds(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+        write_json(self.root, "backtest/latest.json", {
+            "execution_model": "next_open",
+            "validation": {
+                "validation_alpha_pct": -1.0,   # ignored once walk-forward exists
+                "walk_forward": {
+                    "n_folds": 3,
+                    "mean_validation_alpha_pct": 1.4,
+                    "folds_positive": 2,
+                },
+            },
+        })
+
+        oos = self.criterion("backtest_oos_positive")
+
+        self.assertTrue(oos["passed"])
+        self.assertIn("walk-forward mean validation alpha 1.40%", oos["detail"])
+        self.assertIn("2/3 folds positive", oos["detail"])
+
+    def test_walk_forward_gate_fails_with_only_one_positive_fold(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+        write_json(self.root, "backtest/latest.json", {
+            "validation": {
+                "validation_alpha_pct": 5.0,    # would pass the old single split
+                "walk_forward": {
+                    "n_folds": 3,
+                    "mean_validation_alpha_pct": 0.6,
+                    "folds_positive": 1,
+                },
+            },
+        })
+
+        self.assertFalse(self.criterion("backtest_oos_positive")["passed"])
+
+    def test_walk_forward_gate_fails_with_negative_mean_alpha(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+        write_json(self.root, "backtest/latest.json", {
+            "validation": {
+                "walk_forward": {
+                    "n_folds": 3,
+                    "mean_validation_alpha_pct": -0.2,
+                    "folds_positive": 2,
+                },
+            },
+        })
+
+        self.assertFalse(self.criterion("backtest_oos_positive")["passed"])
+
+    def test_drift_criterion_is_advisory_and_passes_without_report(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+
+        criterion = self.criterion("drift_ok")
+
+        self.assertTrue(criterion["passed"])
+        self.assertFalse(criterion["blocking"])
+        self.assertIn("fresh start", criterion["detail"])
+
+    def test_drift_criterion_passes_on_ok_and_insufficient_data(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+        for verdict in ("ok", "insufficient_data"):
+            write_json(self.root, "drift/latest.json", {"verdict": verdict})
+            criterion = self.criterion("drift_ok")
+            self.assertTrue(criterion["passed"], verdict)
+            self.assertIn(verdict, criterion["detail"])
+
+    def test_drift_criterion_fails_on_drift_but_never_blocks(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+        ])
+        write_json(self.root, "drift/latest.json", {
+            "verdict": "drift",
+            "final_divergence_pct": -4.2,
+            "daily_return_correlation": 0.61,
+        })
+
+        criterion = self.criterion("drift_ok")
+
+        self.assertFalse(criterion["passed"])
+        self.assertFalse(criterion["blocking"])
+        self.assertIn("'drift'", criterion["detail"])
+
     def test_backtest_gate_uses_active_profile_variant(self) -> None:
         self.seed_common_files([
             {"date": "2026-07-01", "value": 500000, "n_trades": 10},

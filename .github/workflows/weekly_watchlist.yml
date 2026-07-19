@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 # Serialize watchlist refreshes without waiting behind the long intraday loop.
 # Push conflicts are still handled by the pull --rebase retry below.
@@ -46,6 +47,14 @@ jobs:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
         run: python src/backtest.py
 
+      # Advisory sanity check: replay the backtest engine over the live paper
+      # window and flag divergence. Never blocks the watchlist refresh.
+      - name: Backtest-vs-live drift monitor (advisory)
+        continue-on-error: true
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+        run: python src/drift_monitor.py
+
       - name: Commit & push data
         working-directory: data-branch
         run: |
@@ -61,3 +70,12 @@ jobs:
             echo "push retry $i"; sleep $((RANDOM % 8 + 2))
           done
           echo "push failed after retries"; exit 1
+
+      - name: Ops alert on failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python scripts/ops_alert.py --source "Weekly Watchlist" \
+            --detail "Workflow run failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

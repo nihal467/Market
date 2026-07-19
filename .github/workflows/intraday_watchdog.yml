@@ -6,6 +6,7 @@ on:
 permissions:
   actions: write
   contents: read
+  issues: write
 
 concurrency:
   group: intraday-watchdog
@@ -15,6 +16,10 @@ jobs:
   watchdog:
     runs-on: ubuntu-latest
     steps:
+      # Needed only for scripts/ops_alert.py in the failure step below.
+      - name: Checkout code (main)
+        uses: actions/checkout@v4
+
       - name: Check and start intraday loop
         env:
           GH_TOKEN: ${{ github.token }}
@@ -53,3 +58,12 @@ jobs:
 
           echo "No intraday loop active; dispatching intraday.yml."
           gh workflow run intraday.yml --repo "$REPO" --ref main
+
+      - name: Ops alert on failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python scripts/ops_alert.py --source "Intraday Watchdog" \
+            --detail "Workflow run failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

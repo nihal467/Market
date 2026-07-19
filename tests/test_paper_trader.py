@@ -258,6 +258,12 @@ class PaperTraderTests(unittest.TestCase):
 
         snap = state["history"][-1]
         self.assertEqual(snap["execution_model"], "next_open")
+        # Turnover stat: absolute fill notional of both legs is recorded
+        # (computed from the trade rows, whose prices are paisa-rounded).
+        self.assertAlmostEqual(
+            snap["traded_value"],
+            round(1000 * round(sell_fill, 2) + buy_qty * round(buy_fill, 2), 2),
+            places=2)
         fills = {t["symbol"]: t for t in snap["trades"]}
         self.assertEqual(set(fills), {"AAA.NS", "CCC.NS"})
         self.assertGreater(fills["AAA.NS"]["price"], 100.0)   # buy pays up
@@ -452,6 +458,7 @@ class PaperTraderTests(unittest.TestCase):
         self.assertEqual(state["cash"], 500000.0)          # nothing filled
         self.assertEqual(state["positions"], {})
         self.assertEqual(state["history"][-1]["trades"], [])
+        self.assertEqual(state["history"][-1]["traded_value"], 0.0)  # no fills
         # The same-day order is still queued for the next session.
         self.assertEqual(len(state["pending_orders"]), 1)
         self.assertEqual(state["pending_orders"][0]["symbol"], "AAA.NS")

@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   # Keep end-of-day analysis serialized, but do not queue it behind the
@@ -54,6 +55,36 @@ jobs:
           MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
         run: python src/incubation_report.py
 
+      # If the paper book's drawdown circuit-breaker is active, raise (or
+      # update) a single ops-alert issue so a human actually notices. Advisory
+      # only — a failure here never blocks the data publish below.
+      - name: Circuit-breaker alert
+        continue-on-error: true
+        env:
+          MARKET_DATA_DIR: ${{ github.workspace }}/data-branch
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 - <<'PY' > /tmp/cb.env
+          import json, os
+          path = os.path.join(os.environ["MARKET_DATA_DIR"], "paper", "latest.json")
+          tripped = False
+          try:
+              with open(path, encoding="utf-8") as fh:
+                  tripped = json.load(fh).get("circuit_breaker") is True
+          except (OSError, ValueError):
+              pass
+          print(f"CIRCUIT_BREAKER={'true' if tripped else 'false'}")
+          PY
+          cat /tmp/cb.env
+          . /tmp/cb.env
+          if [ "$CIRCUIT_BREAKER" = "true" ]; then
+            python scripts/ops_alert.py --source "circuit-breaker" \
+              --detail "Paper book drawdown circuit-breaker is ACTIVE (book >= 15% below peak; new buys paused). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          else
+            echo "Circuit breaker not tripped."
+          fi
+
       - name: Commit & push data
         working-directory: data-branch
         run: |
@@ -69,3 +100,12 @@ jobs:
             echo "push retry $i"; sleep $((RANDOM % 8 + 2))
           done
           echo "push failed after retries"; exit 1
+
+      - name: Ops alert on failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python scripts/ops_alert.py --source "Daily Analysis" \
+            --detail "Workflow run failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

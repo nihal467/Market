@@ -61,6 +61,10 @@
     <span><span class="dot" style="background:var(--muted)"></span>NIFTY (scaled)</span>
   </div>
 
+  <h2>Statistics</h2>
+  <div class="cards" id="stats"><span class="err">Loading…</span></div>
+  <div class="legend" id="statsnote"></div>
+
   <div class="grid2">
     <div>
       <h2>Positions</h2>
@@ -131,6 +135,69 @@ function table(rows, headers){
   return `<table><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>${rows.join("")}</table>`;
 }
 
+// Client-side portfolio statistics from the recorded paper history. Old-shape
+// rows (no traded_value) are tolerated: missing fields default to 0/—.
+const STAT_KEYS = ["Sharpe (ann.)","Rolling alpha","Max drawdown","Hit rate","Monthly turnover","Cost drag"];
+const MIN_STAT_DAYS = 5;
+function renderStats(paper, state){
+  const el = document.getElementById("stats");
+  const note = document.getElementById("statsnote");
+  const hist = ((paper && paper.history) || []).filter(h => h && h.value != null);
+  if(hist.length < MIN_STAT_DAYS){
+    el.innerHTML = STAT_KEYS.map(k => card(k, "—", "")).join("");
+    const need = MIN_STAT_DAYS - hist.length;
+    note.textContent = `Needs ${need} more trading day${need!==1?"s":""} of history before these are meaningful.`;
+    return;
+  }
+  note.textContent = "";
+  // Daily returns from consecutive close-marked values.
+  const rets = [];
+  for(let i=1;i<hist.length;i++){
+    if(hist[i-1].value > 0) rets.push(hist[i].value/hist[i-1].value - 1);
+  }
+  const mean = rets.reduce((s,r)=>s+r,0)/(rets.length||1);
+  const sd = rets.length > 1
+    ? Math.sqrt(rets.reduce((s,r)=>s+(r-mean)*(r-mean),0)/(rets.length-1)) : 0;
+  const sharpe = sd > 0 ? mean/sd*Math.sqrt(252) : null;
+  // Rolling 30-day alpha (latest window; full period when shorter).
+  const w = hist.length >= 30 ? hist.slice(-30) : hist;
+  const wLabel = hist.length >= 30 ? "30d" : "full period";
+  let alpha = null;
+  if(w[0].value > 0){
+    const stratRet = (w[w.length-1].value/w[0].value - 1)*100;
+    const b0 = w[0].benchmark_value, b1 = w[w.length-1].benchmark_value;
+    const benchRet = (b0 > 0 && b1 != null) ? (b1/b0 - 1)*100 : 0;
+    alpha = stratRet - benchRet;
+  }
+  // Max drawdown on close-marked values.
+  let peak = -Infinity, mdd = 0;
+  hist.forEach(h => { peak = Math.max(peak, h.value);
+    if(peak > 0) mdd = Math.min(mdd, h.value/peak - 1); });
+  // Hit rate among days that actually moved (nonzero day P&L).
+  const active = hist.filter(h => h.day_pnl != null && Math.abs(h.day_pnl) > 1e-9);
+  const hit = active.length ? 100*active.filter(h => h.day_pnl > 0).length/active.length : null;
+  // Monthly turnover: traded notional over the last 21 sessions vs avg book.
+  const w21 = hist.slice(-21);
+  const traded = w21.reduce((s,h)=>s+(h.traded_value||0),0);
+  const avgBook = w21.reduce((s,h)=>s+h.value,0)/w21.length;
+  const turnover = avgBook > 0 ? traded/avgBook*100 : null;
+  // Cost drag: cumulative slippage+txn costs vs start capital.
+  const costs = (state && state.total_costs != null) ? state.total_costs
+    : hist.reduce((s,h)=>s+(h.costs||0),0);
+  const start = paper.start_capital || 500000;
+  const drag = start > 0 ? costs/start*100 : null;
+  el.innerHTML =
+    card("Sharpe (ann.)", sharpe==null ? "—" : sharpe.toFixed(2),
+      `${rets.length} daily returns`, sharpe==null ? "" : cls(sharpe)) +
+    card(`Rolling alpha (${wLabel})`, pct(alpha), "vs NIFTY over the window", cls(alpha)) +
+    card("Max drawdown", pct(mdd*100), "close-to-close", cls(mdd)) +
+    card("Hit rate", hit==null ? "—" : hit.toFixed(0)+"%",
+      `${active.length} day${active.length!==1?"s":""} with nonzero P&L`) +
+    card("Monthly turnover", turnover==null ? "—" : turnover.toFixed(0)+"%",
+      "last 21 sessions / avg book") +
+    card("Cost drag", drag==null ? "—" : drag.toFixed(2)+"%", "cum. costs vs start capital");
+}
+
 (async () => {
   const [paper, state, ready, daily, watch, live] = await Promise.all([
     jget("paper/latest.json"), jget("paper/state.json"), jget("paper/readiness.json"),
@@ -156,6 +223,9 @@ function table(rows, headers){
       card("Cost drag", inr(costs), "slippage + txn costs") +
       (dd!=null ? card("Drawdown", pct(-dd), cb?"⛔ circuit breaker ON":"from peak", cb?"warn":cls(-dd)) : "");
     drawChart(paper.history);
+    renderStats(paper, state);
+  } else {
+    document.getElementById("stats").innerHTML = '<span class="err">No data yet.</span>';
   }
 
   // ---- today: plain-language summary + trade-by-trade table
