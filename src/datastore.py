@@ -12,6 +12,8 @@ Layout (date-partitioned to keep files small and appendable):
     <root>/intraday/latest.json            # newest intraday snapshot
     <root>/daily/YYYY/MM/DD.json           # end-of-day analysis
     <root>/daily/latest.json               # newest daily analysis
+    <root>/news/YYYY/MM/DD.json            # daily news headline/sentiment archive
+    <root>/news/latest.json                # newest news archive snapshot
 
 The output root is controlled by the ``MARKET_DATA_DIR`` env var so that CI
 can point it at a checkout of the ``data`` branch. Defaults to ``data_out``
@@ -85,3 +87,8 @@ def intraday_path(dt: datetime | None = None) -> str:
 def daily_path(dt: datetime | None = None) -> str:
     dt = dt or now_utc()
     return f"daily/{dt.year}/{dt.month:02d}/{dt.day:02d}.json"
+
+
+def news_path(dt: datetime | None = None) -> str:
+    dt = dt or now_utc()
+    return f"news/{dt.year}/{dt.month:02d}/{dt.day:02d}.json"

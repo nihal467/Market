@@ -24,7 +24,10 @@ What it does:
     60/40 train/validation split with out-of-sample alpha per variant.
 
 Caveats (stated honestly):
-  - News sentiment is excluded (RSS is current-only), so live results can differ.
+  - News sentiment is excluded from the headline run (RSS is current-only), so
+    live results can differ. The news-ablation pair replays the active profile
+    with the DATED news archive (news/ on the data branch) enabled vs zeroed —
+    but that archive only covers dates after it was switched on.
   - Survivorship: the universe is today's list; delisted names aren't included.
   - Single-history replay: the 60/40 split is a sanity check, not a true
     walk-forward optimization.
@@ -43,6 +46,7 @@ import yfinance as yf
 import datastore as ds
 import strategy
 from market_calendar import now_ist
+from news_ablation import build_news_ablation
 from universe import load_universe
 
 # Same knobs as the live bot so the backtest reflects real behaviour.
@@ -111,6 +115,26 @@ def _active_variant() -> dict:
         "use_regime": USE_MARKET_REGIME_GUARD,
         "hold_until_rank": HOLD_UNTIL_RANK,
     }
+
+
+def _news_ablation_pair() -> list[dict]:
+    """Matched pair for the ACTIVE profile: news signal enabled vs zeroed.
+
+    Both variants are byte-identical to the active configuration except for
+    ``use_news``: the first scores with archived daily news sentiment where a
+    news/YYYY/MM/DD.json file exists (zero contribution on uncovered dates),
+    the second zeroes the news contribution everywhere. Returned in
+    [with_news, without_news] order.
+    """
+    base = _active_variant()
+    return [
+        {**base, "id": f"{base['id']}__news_on",
+         "label": "Active profile + archived news sentiment",
+         "use_news": True},
+        {**base, "id": f"{base['id']}__news_off",
+         "label": "Active profile, news contribution zeroed",
+         "use_news": False},
+    ]
 
 
 def _download_batch(chunk: list[str]) -> pd.DataFrame | None:
@@ -237,13 +261,22 @@ def _regime_on(bclose: pd.Series, date) -> bool:
     return price >= sma50 and sma50 >= sma200
 
 
-def _variant_score(ind: dict, mode: str) -> float:
+def _variant_score(ind: dict, mode: str, sentiment: dict | None = None) -> float:
+    """Score one candidate for a variant.
+
+    ``sentiment`` ({'score','count'}, from the dated news archive) is only
+    passed for use_news variants: "full" mode feeds it straight into
+    strategy.decide, every other mode adds the SAME graded news term the live
+    scorer uses (W_NEWS x sentiment x confidence), so the news-ablation pair
+    differs by exactly that term and nothing else. Default None keeps every
+    existing variant byte-identical to before.
+    """
     if mode == "full":
-        rec = strategy.decide(ind, None)
+        rec = strategy.decide(ind, sentiment)
         return float(rec["score"]) if rec["signal"] == "BUY" else -999.0
     if mode == "momentum":
-        return float(ind.get("ret_3m") or -999.0)
-    if mode == "trend":
+        score = float(ind.get("ret_3m") or -999.0)
+    elif mode == "trend":
         price, sma50, sma200 = ind.get("price"), ind.get("sma50"), ind.get("sma200")
         if price is None or sma50 is None:
             return -999.0
@@ -251,14 +284,43 @@ def _variant_score(ind: dict, mode: str) -> float:
         score += 1.0 if price > sma50 else -1.0
         if sma200 is not None:
             score += 1.0 if sma50 > sma200 else -1.0
-        return score
-    if mode == "rsi":
+    elif mode == "rsi":
         rsi = ind.get("rsi14")
         if rsi is None:
             return -999.0
         # Prefer constructive pullbacks, not panic lows or overheated names.
-        return 70.0 - abs(45.0 - rsi) if 25 <= rsi <= 65 else -999.0
-    return -999.0
+        score = 70.0 - abs(45.0 - rsi) if 25 <= rsi <= 65 else -999.0
+    else:
+        return -999.0
+    if sentiment and score > -999.0:
+        score += strategy._news_component(sentiment)[0]
+    return score
+
+
+def _load_archived_news(dates: list) -> dict[str, dict]:
+    """{'YYYY-MM-DD': {symbol: {'score','count'}}} from the dated news archive.
+
+    Reads news/YYYY/MM/DD.json (written daily by news_archive.py) for each
+    replay date, exact-date match only. The data branch starts empty and the
+    archive only grows going forward, so missing days are normal — they simply
+    contribute no news signal to the with-news ablation run.
+    """
+    out: dict[str, dict] = {}
+    for date in dates:
+        ts = pd.Timestamp(date)
+        payload = ds.read_json(ds.news_path(ts), default=None)
+        if not payload:
+            continue
+        day = {}
+        for row in payload.get("symbols", []) or []:
+            sym = row.get("symbol")
+            if not sym:
+                continue
+            day[sym] = {"score": row.get("score"),
+                        "count": row.get("n_headlines") or 0}
+        if day:
+            out[ts.strftime("%Y-%m-%d")] = day
+    return out
 
 
 def _bench_level_at(bclose: pd.Series, date_str: str) -> float | None:
@@ -371,7 +433,8 @@ def _metrics(equity: list[float], daily_returns: list[float], costs: float,
 
 
 def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Series,
-                      sectors: dict[str, str], variant: dict) -> dict:
+                      sectors: dict[str, str], variant: dict,
+                      news_by_date: dict | None = None) -> dict:
     """Walk-forward replay with NEXT-OPEN execution.
 
     Day T: (a) fill orders queued at T-1's close at T's adjusted open (sells
@@ -379,6 +442,10 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
     stop checks plus, on cadence days, the rebalance — queueing orders for
     T+1, (c) mark the book at T's close. Orders queued on the final day never
     fill (there is no T+1), exactly like live.
+
+    ``news_by_date`` ({'YYYY-MM-DD': {symbol: {'score','count'}}}, from the
+    dated news archive) is consulted only when the variant sets ``use_news`` —
+    dates or symbols without archived news simply contribute no news signal.
     """
     cash = START_CAPITAL
     positions: dict[str, dict] = {}     # sym -> {qty, avg, peak}
@@ -392,6 +459,7 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
     stops = 0
     rebalances = 0
     dropped = 0
+    news_days_used = 0
     slip = SLIPPAGE_BPS / 10000.0
     cost_rate = COST_BPS_PER_SIDE / 10000.0
 
@@ -465,12 +533,18 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
 
         if di % int(variant["rebalance_every"]) == 0:
             rebalances += 1
+            day_news: dict | None = None
+            if variant.get("use_news") and news_by_date:
+                day_news = news_by_date.get(pd.Timestamp(date).strftime("%Y-%m-%d"))
+                if day_news:
+                    news_days_used += 1
             ranked = []
             for sym, df in feats.items():
                 ind = _indicators_at(df, date)
                 if not ind:
                     continue
-                score = _variant_score(ind, variant["score"])
+                score = _variant_score(ind, variant["score"],
+                                       (day_news or {}).get(sym))
                 if score > 0:
                     ranked.append((score, ind.get("pct_from_high") or 0, sym, ind["price"]))
             ranked.sort(key=lambda x: (x[0], -x[1]), reverse=True)
@@ -551,6 +625,8 @@ def _simulate_variant(feats: dict[str, pd.DataFrame], dates: list, bclose: pd.Se
         "rebalance_every_days": variant["rebalance_every"],
         "use_regime": bool(variant.get("use_regime")),
         "hold_until_rank": variant.get("hold_until_rank"),
+        "use_news": bool(variant.get("use_news")),
+        "news_days_used": news_days_used,
         "execution_model": EXECUTION_MODEL,
         "n_orders_dropped": dropped,
         "validation": _validation_split(equity, eq_dates, bclose),
@@ -600,6 +676,11 @@ def run() -> dict:
         print("Not enough history after warmup — aborting.")
         return {"skipped": True}
 
+    # Dated news archive (data branch) for the news-ablation pair. Empty until
+    # news_archive.py has been running for a while — handled gracefully.
+    news_by_date = _load_archived_news(dates)
+    print(f"  archived news available for {len(news_by_date)}/{len(dates)} replay days")
+
     # HEADLINE: replay the ACTIVE_PROFILE — the exact configuration the live
     # paper trader runs — with next-open execution.
     active = _simulate_variant(feats, dates, bclose, sectors, _active_variant())
@@ -624,16 +705,21 @@ def run() -> dict:
     total_ret = active["total_return_pct"]
     alpha = round(total_ret - bench_ret, 2) if bench_ret is not None else None
 
-    # Secondary: the strategy lab, same history + same next-open execution.
+    # Secondary: the strategy lab, same history + same next-open execution,
+    # plus the matched news-ablation pair for the active profile.
+    ablation_pair = _news_ablation_pair()
     lab_variants = []
-    for v in LAB_VARIANTS:
-        row = _simulate_variant(feats, dates, bclose, sectors, v)
+    for v in LAB_VARIANTS + ablation_pair:
+        row = _simulate_variant(feats, dates, bclose, sectors, v, news_by_date)
         row.pop("_equity", None)
         row.pop("_eq_dates", None)
         row["benchmark_return_pct"] = bench_ret
         row["alpha_pct"] = round(row["total_return_pct"] - bench_ret, 2) \
             if bench_ret is not None and not row.get("skipped") else None
         lab_variants.append(row)
+    rows_by_id = {r.get("id"): r for r in lab_variants}
+    news_ablation = build_news_ablation(rows_by_id.get(ablation_pair[0]["id"]),
+                                        rows_by_id.get(ablation_pair[1]["id"]))
     lab_variants.sort(key=lambda r: (r.get("alpha_pct") is not None,
                                      r.get("total_return_pct", -999)), reverse=True)
 
@@ -689,18 +775,25 @@ def run() -> dict:
         },
         "strategy_lab": {
             "description": ("Same downloaded history replayed with signal/churn "
-                            "variants under identical next-open execution. News is excluded."),
+                            "variants under identical next-open execution. News is "
+                            "excluded everywhere except the *_news_on ablation "
+                            "variant, which uses the dated news archive where it exists."),
             "variants": lab_variants,
             "takeaway": "Prefer variants that beat benchmark after costs with lower turnover and drawdown.",
         },
+        "news_ablation": news_ablation,
         "equity_curve": curve,
         "benchmark_curve": bench_curve,
-        "note": ("Technicals-only historical replay (news excluded). Today's "
-                 "universe (survivorship bias). Signals from the close fill at "
-                 "the NEXT session's adjusted open with slippage + costs. Past "
-                 "performance does not guarantee future results."),
+        "note": ("Technicals-only historical replay for the headline run (news "
+                 "excluded; see news_ablation for the with/without-news study). "
+                 "Today's universe (survivorship bias). Signals from the close "
+                 "fill at the NEXT session's adjusted open with slippage + "
+                 "costs. Past performance does not guarantee future results."),
     }
     ds.write_json("backtest/latest.json", payload)
+    print(f"  news ablation: {news_ablation.get('verdict')} "
+          f"(delta {news_ablation.get('delta_validation_alpha_pct')} pp on "
+          f"{news_ablation.get('news_days_used')} archived news days)")
     val_alpha = validation.get("validation_alpha_pct")
     bench_txt = f"{bench_ret:+.2f}%" if bench_ret is not None else "n/a"
     alpha_txt = f"{alpha:+.2f}%" if alpha is not None else "n/a"

@@ -17,6 +17,11 @@ import requests
 
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
 
+# Version tag for the scoring lexicon/method below. Bump whenever POSITIVE /
+# NEGATIVE or _score_text change so archived scores (news/ on the data branch)
+# can be segmented by scorer version in signal-quality studies.
+LEXICON_VERSION = "v1"
+
 POSITIVE = {
     "surge", "surges", "soar", "soars", "gain", "gains", "rise", "rises", "rally",
     "rallies", "jump", "jumps", "up", "high", "record", "profit", "profits",
@@ -48,6 +53,20 @@ def get_news_sentiment(query: str, max_items: int = 8) -> dict:
         "items": items[:5],
         "newest_published": items[0].get("published_at"),
     }
+
+
+def score_headlines(query: str, max_items: int = 10) -> list[dict]:
+    """Fetch up to ``max_items`` headlines and score each one individually.
+
+    Same fetching + lexicon scoring as get_news_sentiment, but returns every
+    item with its own ``score`` so the daily news archive can persist
+    per-headline scores (the aggregate is then reproducible from the archive).
+    Returns [] on any fetch failure — callers must tolerate empty results.
+    """
+    items = _fetch_headlines(query, max_items)
+    for item in items:
+        item["score"] = round(_score_text(item["clean_title"]), 3)
+    return items
 
 
 def _fetch_headlines(query: str, max_items: int) -> list[dict]:
