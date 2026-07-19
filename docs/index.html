@@ -51,6 +51,9 @@
 
   <div class="cards" id="cards"></div>
 
+  <h2>Today</h2>
+  <div id="today"><span class="err">Loading…</span></div>
+
   <h2>Equity curve — book vs NIFTY</h2>
   <svg id="chart" preserveAspectRatio="none"></svg>
   <div class="legend">
@@ -152,6 +155,33 @@ function table(rows, headers){
       card("Cost drag", inr(costs), "slippage + txn costs") +
       (dd!=null ? card("Drawdown", pct(-dd), cb?"⛔ circuit breaker ON":"from peak", cb?"warn":cls(-dd)) : "");
     drawChart(paper.history);
+  }
+
+  // ---- today: plain-language summary + trade-by-trade table
+  if(paper){
+    const tr = paper.today_trades || [];
+    const buys = tr.filter(t=>/buy/i.test(t.action||""));
+    const sells = tr.filter(t=>/sell/i.test(t.action||""));
+    const stops = tr.filter(t=>/stop|shock/i.test(t.reason||""));
+    const words = tr.length===0
+      ? "No trades today"
+      : `${buys.length} buy${buys.length!==1?"s":""}, ${sells.length} sell${sells.length!==1?"s":""}` +
+        (stops.length?` (${stops.length} stop${stops.length!==1?"s":""})`:"");
+    const summary =
+      `<div class="card" style="margin-bottom:10px"><b>${words}</b> · day P&L
+       <b class="${cls(paper.day_pnl)}">${pct(paper.day_pnl_pct)} (${inr(paper.day_pnl)})</b> · overall
+       <b class="${cls(paper.total_pnl)}">${pct(paper.total_pnl_pct)} (${inr(paper.total_pnl)})</b> · alpha
+       <b class="${cls(paper.alpha_pct)}">${pct(paper.alpha_pct)}</b></div>`;
+    const tradeRows = tr.map(t=>
+      `<tr><td><span class="badge ${/buy/i.test(t.action)?"b-green":"b-red"}">${esc(t.action)}</span>
+       ${esc((t.symbol||"").replace(".NS",""))}</td>
+       <td>${t.qty??"—"}</td><td>${inr(t.price)}</td>
+       <td>${t.cost!=null?inr(t.cost):"—"}</td><td>${esc(t.reason||"")}</td></tr>`);
+    document.getElementById("today").innerHTML = summary +
+      (tr.length ? table(tradeRows, ["Trade","Qty","Fill price","Cost","Reason"])
+                 : '<span class="err">Decisions made today (if any) appear under "Pending orders" and fill at tomorrow\'s open.</span>');
+  } else {
+    document.getElementById("today").innerHTML = '<span class="err">No data yet.</span>';
   }
 
   // ---- positions
