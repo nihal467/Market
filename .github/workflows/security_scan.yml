@@ -26,6 +26,7 @@ jobs:
       - name: gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # required by the action for PR scans
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
 
   sensitive-data:
