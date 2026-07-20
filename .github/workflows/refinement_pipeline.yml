@@ -133,7 +133,7 @@ jobs:
           claude_args: |
             --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
             --allowedTools Edit,Read,Write,Bash
-            --max-turns 30
+            --max-turns 60
             --json-schema '{"type":"object","properties":{"action":{"type":"string","enum":["opened_pr","no_change"]},"pr_number":{"type":"number"},"branch":{"type":"string"},"summary":{"type":"string"}},"required":["action"]}'
 
       - name: Parse propose result
@@ -206,7 +206,7 @@ jobs:
           claude_args: |
             --model ${{ vars.REVIEWER_MODEL || 'opus' }}
             --allowedTools Read,Bash
-            --max-turns 20
+            --max-turns 40
             --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
 
       # -------- cycle 1
@@ -229,7 +229,7 @@ jobs:
           claude_args: |
             --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
             --allowedTools Edit,Read,Write,Bash
-            --max-turns 30
+            --max-turns 60
       - name: Scan 1
         if: >
           steps.p.outputs.pr != '' && steps.review1.outputs.structured_output != '' &&
@@ -252,7 +252,7 @@ jobs:
           claude_args: |
             --model ${{ vars.REVIEWER_MODEL || 'opus' }}
             --allowedTools Read,Bash
-            --max-turns 20
+            --max-turns 40
             --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
 
       # -------- cycle 2
@@ -275,7 +275,7 @@ jobs:
           claude_args: |
             --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
             --allowedTools Edit,Read,Write,Bash
-            --max-turns 30
+            --max-turns 60
       - name: Scan 2
         if: >
           steps.p.outputs.pr != '' && steps.review2.outputs.structured_output != '' &&
@@ -298,7 +298,7 @@ jobs:
           claude_args: |
             --model ${{ vars.REVIEWER_MODEL || 'opus' }}
             --allowedTools Read,Bash
-            --max-turns 20
+            --max-turns 40
             --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
 
       # -------- cycle 3
@@ -321,7 +321,7 @@ jobs:
           claude_args: |
             --model ${{ vars.PROPOSER_MODEL || 'sonnet' }}
             --allowedTools Edit,Read,Write,Bash
-            --max-turns 30
+            --max-turns 60
       - name: Scan 3
         if: >
           steps.p.outputs.pr != '' && steps.review3.outputs.structured_output != '' &&
@@ -344,7 +344,7 @@ jobs:
           claude_args: |
             --model ${{ vars.REVIEWER_MODEL || 'opus' }}
             --allowedTools Read,Bash
-            --max-turns 20
+            --max-turns 40
             --json-schema '{"type":"object","properties":{"decision":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"}},"required":["decision"]}'
 
       # ------------------------------------------------------------------ merge
