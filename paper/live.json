@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-20T09:56:32.901592+00:00",
-  "ist": "2026-07-20T15:26:32.900258+05:30",
+  "generated_at": "2026-07-21T03:45:54.233381+00:00",
+  "ist": "2026-07-21T09:15:54.231917+05:30",
   "market_open": true,
   "as_of_prices": "intraday/latest.json",
   "data_source": "yfinance",
@@ -18,14 +18,19 @@
   "n_positions": 0,
   "intraday_trades": [],
   "stops": [],
-  "risk_events": [],
+  "risk_events": [
+    {
+      "type": "market_regime_guard",
+      "reason": "NIFTY trend filter is risk-off"
+    }
+  ],
   "intraday_shock_mode": false,
   "intraday_shock_metrics": {
-    "index_drop_pct": -0.3,
-    "watchlist_down_fraction": 0.38,
-    "watchlist_median_chg_pct": 0.415
+    "index_drop_pct": 0.0,
+    "watchlist_down_fraction": 0.294,
+    "watchlist_median_chg_pct": 0.28
   },
-  "risk_block_new_buys": false,
+  "risk_block_new_buys": true,
   "intraday_deploy_enabled": false,
   "active_profile": "momentum_weekly_churn_control",
   "risk_settings": {
@@ -53,7 +58,16 @@
     "min_avg_daily_value_rs": 50000000.0,
     "min_price_rs": 20.0
   },
-  "market_regime": {},
+  "market_regime": {
+    "benchmark": "NIFTY 50",
+    "symbol": "^NSEI",
+    "risk_on": false,
+    "price": 24238.5,
+    "sma50": 23829.7,
+    "sma200": 24814.52,
+    "ret_1m_pct": 0.94,
+    "reason": "NIFTY trend filter is risk-off"
+  },
   "positions": [],
   "note": "Delayed intraday mark-to-market of the virtual Rs 5L book. Stop-loss checks run every ~15 minutes; weekly allocation happens in the end-of-day paper trader. Simulation only \u2014 not investment advice."
 }
