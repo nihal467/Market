@@ -1,58 +1,58 @@
 {
-  "generated_at": "2026-07-24T11:01:35.277535+00:00",
-  "ist": "2026-07-24T16:31:35.274439+05:30",
+  "generated_at": "2026-07-27T11:01:55.062256+00:00",
+  "ist": "2026-07-27T16:31:55.059818+05:30",
   "decision": "incubating",
   "summary": {
-    "paper_days": 5,
+    "paper_days": 6,
     "min_trading_days": 20,
     "passed_blocking": 9,
     "blocking_criteria": 11,
     "total_pnl_pct": 0.0,
-    "alpha_pct": 1.943,
+    "alpha_pct": 1.001,
     "recomputed_totals": {
       "available": true,
       "total_pnl_pct": 0.0,
-      "alpha_pct": 1.943,
+      "alpha_pct": 1.001,
       "max_mismatch_pct": 0.0,
       "consistent": true
     },
-    "oos_validation_alpha_pct": 1.2,
+    "oos_validation_alpha_pct": 2.37,
     "walk_forward": {
       "n_folds": 3,
       "expanding_window": true,
       "folds": [
         {
           "fold": 1,
-          "train_days": 74,
+          "train_days": 75,
           "validation_days": 75,
-          "validation_start": "2025-08-22",
-          "validation_end": "2025-12-10",
-          "validation_return_pct": 0.24,
-          "validation_benchmark_return_pct": 2.69,
-          "validation_alpha_pct": -2.45
+          "validation_start": "2025-09-01",
+          "validation_end": "2025-12-17",
+          "validation_return_pct": 5.19,
+          "validation_benchmark_return_pct": 5.7,
+          "validation_alpha_pct": -0.51
         },
         {
           "fold": 2,
-          "train_days": 149,
+          "train_days": 150,
           "validation_days": 75,
-          "validation_start": "2025-12-11",
-          "validation_end": "2026-04-01",
-          "validation_return_pct": 8.43,
-          "validation_benchmark_return_pct": -11.95,
-          "validation_alpha_pct": 20.38
+          "validation_start": "2025-12-18",
+          "validation_end": "2026-04-09",
+          "validation_return_pct": 5.81,
+          "validation_benchmark_return_pct": -7.91,
+          "validation_alpha_pct": 13.72
         },
         {
           "fold": 3,
-          "train_days": 224,
+          "train_days": 225,
           "validation_days": 75,
-          "validation_start": "2026-04-02",
-          "validation_end": "2026-07-17",
-          "validation_return_pct": 0.41,
-          "validation_benchmark_return_pct": 7.3,
-          "validation_alpha_pct": -6.89
+          "validation_start": "2026-04-10",
+          "validation_end": "2026-07-24",
+          "validation_return_pct": -0.35,
+          "validation_benchmark_return_pct": -0.03,
+          "validation_alpha_pct": -0.32
         }
       ],
-      "mean_validation_alpha_pct": 3.68,
+      "mean_validation_alpha_pct": 4.3,
       "folds_positive": 1,
       "note": "Expanding-window walk-forward over one replayed history; no per-fold re-optimization (the strategy has no fitted parameters)."
     },
@@ -62,16 +62,16 @@
     "trade_days": 0,
     "active_profile": "momentum_weekly_churn_control",
     "active_lab_variant": {
-      "final_value": 533740.7,
-      "total_return_pct": 6.75,
-      "cagr_pct": 5.66,
-      "max_drawdown_pct": -10.01,
-      "sharpe": 0.54,
-      "win_rate_pct": 41.5,
-      "costs": 5435.98,
-      "total_costs": 5435.98,
-      "turnover_pct_of_start": 906.0,
-      "n_stops": 26,
+      "final_value": 548984.73,
+      "total_return_pct": 9.8,
+      "cagr_pct": 8.17,
+      "max_drawdown_pct": -7.89,
+      "sharpe": 0.73,
+      "win_rate_pct": 44.0,
+      "costs": 5844.29,
+      "total_costs": 5844.29,
+      "turnover_pct_of_start": 974.05,
+      "n_stops": 28,
       "n_rebalances": 60,
       "id": "momentum_only_weekly",
       "label": "3M momentum only, weekly rebalance",
@@ -85,133 +85,133 @@
       "n_orders_dropped": 0,
       "validation": {
         "train_fraction": 0.6,
-        "split_date": "2026-01-22",
-        "train_days": 179,
+        "split_date": "2026-01-30",
+        "train_days": 180,
         "validation_days": 120,
-        "train_return_pct": 9.57,
-        "train_benchmark_return_pct": 5.34,
-        "train_alpha_pct": 4.23,
-        "validation_return_pct": -2.58,
-        "validation_benchmark_return_pct": -3.78,
-        "validation_alpha_pct": 1.2,
+        "train_return_pct": 14.09,
+        "train_benchmark_return_pct": 1.03,
+        "train_alpha_pct": 13.06,
+        "validation_return_pct": -3.76,
+        "validation_benchmark_return_pct": -6.13,
+        "validation_alpha_pct": 2.37,
         "walk_forward": {
           "n_folds": 3,
           "expanding_window": true,
           "folds": [
             {
               "fold": 1,
-              "train_days": 74,
+              "train_days": 75,
               "validation_days": 75,
-              "validation_start": "2025-08-22",
-              "validation_end": "2025-12-10",
-              "validation_return_pct": 0.24,
-              "validation_benchmark_return_pct": 2.69,
-              "validation_alpha_pct": -2.45
+              "validation_start": "2025-09-01",
+              "validation_end": "2025-12-17",
+              "validation_return_pct": 5.19,
+              "validation_benchmark_return_pct": 5.7,
+              "validation_alpha_pct": -0.51
             },
             {
               "fold": 2,
-              "train_days": 149,
+              "train_days": 150,
               "validation_days": 75,
-              "validation_start": "2025-12-11",
-              "validation_end": "2026-04-01",
-              "validation_return_pct": 8.43,
-              "validation_benchmark_return_pct": -11.95,
-              "validation_alpha_pct": 20.38
+              "validation_start": "2025-12-18",
+              "validation_end": "2026-04-09",
+              "validation_return_pct": 5.81,
+              "validation_benchmark_return_pct": -7.91,
+              "validation_alpha_pct": 13.72
             },
             {
               "fold": 3,
-              "train_days": 224,
+              "train_days": 225,
               "validation_days": 75,
-              "validation_start": "2026-04-02",
-              "validation_end": "2026-07-17",
-              "validation_return_pct": 0.41,
-              "validation_benchmark_return_pct": 7.3,
-              "validation_alpha_pct": -6.89
+              "validation_start": "2026-04-10",
+              "validation_end": "2026-07-24",
+              "validation_return_pct": -0.35,
+              "validation_benchmark_return_pct": -0.03,
+              "validation_alpha_pct": -0.32
             }
           ],
-          "mean_validation_alpha_pct": 3.68,
+          "mean_validation_alpha_pct": 4.3,
           "folds_positive": 1,
           "note": "Expanding-window walk-forward over one replayed history; no per-fold re-optimization (the strategy has no fitted parameters)."
         }
       },
-      "benchmark_return_pct": 1.36,
-      "alpha_pct": 5.39
+      "benchmark_return_pct": -5.17,
+      "alpha_pct": 14.97
     },
     "best_lab_variant": {
-      "final_value": 541082.91,
-      "total_return_pct": 8.22,
-      "cagr_pct": 6.88,
-      "max_drawdown_pct": -15.26,
-      "sharpe": 0.48,
-      "win_rate_pct": 53.2,
-      "costs": 91701.66,
-      "total_costs": 91701.66,
-      "turnover_pct_of_start": 15283.61,
-      "n_stops": 16,
-      "n_rebalances": 299,
-      "id": "no_regime_filter",
-      "label": "Full score, daily rebalance, no regime filter",
-      "score_mode": "full",
-      "rebalance_every_days": 1,
-      "use_regime": false,
-      "hold_until_rank": 10,
+      "final_value": 548984.73,
+      "total_return_pct": 9.8,
+      "cagr_pct": 8.17,
+      "max_drawdown_pct": -7.89,
+      "sharpe": 0.73,
+      "win_rate_pct": 44.0,
+      "costs": 5844.29,
+      "total_costs": 5844.29,
+      "turnover_pct_of_start": 974.05,
+      "n_stops": 28,
+      "n_rebalances": 60,
+      "id": "momentum_only_weekly",
+      "label": "3M momentum only, weekly rebalance",
+      "score_mode": "momentum",
+      "rebalance_every_days": 5,
+      "use_regime": true,
+      "hold_until_rank": 20,
       "use_news": false,
       "news_days_used": 0,
       "execution_model": "next_open",
-      "n_orders_dropped": 5,
+      "n_orders_dropped": 0,
       "validation": {
         "train_fraction": 0.6,
-        "split_date": "2026-01-22",
-        "train_days": 179,
+        "split_date": "2026-01-30",
+        "train_days": 180,
         "validation_days": 120,
-        "train_return_pct": 2.53,
-        "train_benchmark_return_pct": 5.34,
-        "train_alpha_pct": -2.81,
-        "validation_return_pct": 5.54,
-        "validation_benchmark_return_pct": -3.78,
-        "validation_alpha_pct": 9.32,
+        "train_return_pct": 14.09,
+        "train_benchmark_return_pct": 1.03,
+        "train_alpha_pct": 13.06,
+        "validation_return_pct": -3.76,
+        "validation_benchmark_return_pct": -6.13,
+        "validation_alpha_pct": 2.37,
         "walk_forward": {
           "n_folds": 3,
           "expanding_window": true,
           "folds": [
             {
               "fold": 1,
-              "train_days": 74,
+              "train_days": 75,
               "validation_days": 75,
-              "validation_start": "2025-08-22",
-              "validation_end": "2025-12-10",
-              "validation_return_pct": -3.61,
-              "validation_benchmark_return_pct": 2.69,
-              "validation_alpha_pct": -6.3
+              "validation_start": "2025-09-01",
+              "validation_end": "2025-12-17",
+              "validation_return_pct": 5.19,
+              "validation_benchmark_return_pct": 5.7,
+              "validation_alpha_pct": -0.51
             },
             {
               "fold": 2,
-              "train_days": 149,
+              "train_days": 150,
               "validation_days": 75,
-              "validation_start": "2025-12-11",
-              "validation_end": "2026-04-01",
-              "validation_return_pct": -6.02,
-              "validation_benchmark_return_pct": -11.95,
-              "validation_alpha_pct": 5.93
+              "validation_start": "2025-12-18",
+              "validation_end": "2026-04-09",
+              "validation_return_pct": 5.81,
+              "validation_benchmark_return_pct": -7.91,
+              "validation_alpha_pct": 13.72
             },
             {
               "fold": 3,
-              "train_days": 224,
+              "train_days": 225,
               "validation_days": 75,
-              "validation_start": "2026-04-02",
-              "validation_end": "2026-07-17",
-              "validation_return_pct": 18.18,
-              "validation_benchmark_return_pct": 7.3,
-              "validation_alpha_pct": 10.88
+              "validation_start": "2026-04-10",
+              "validation_end": "2026-07-24",
+              "validation_return_pct": -0.35,
+              "validation_benchmark_return_pct": -0.03,
+              "validation_alpha_pct": -0.32
             }
           ],
-          "mean_validation_alpha_pct": 3.5,
-          "folds_positive": 2,
+          "mean_validation_alpha_pct": 4.3,
+          "folds_positive": 1,
           "note": "Expanding-window walk-forward over one replayed history; no per-fold re-optimization (the strategy has no fitted parameters)."
         }
       },
-      "benchmark_return_pct": 1.36,
-      "alpha_pct": 6.86
+      "benchmark_return_pct": -5.17,
+      "alpha_pct": 14.97
     }
   },
   "criteria": [
@@ -220,7 +220,7 @@
       "label": "Run at least one trading month in dummy mode",
       "passed": false,
       "blocking": true,
-      "detail": "5/20 paper-trading days recorded"
+      "detail": "6/20 paper-trading days recorded"
     },
     {
       "key": "positive_dummy_pnl",
@@ -234,14 +234,14 @@
       "label": "Dummy portfolio beats NIFTY 50",
       "passed": true,
       "blocking": true,
-      "detail": "alpha 1.94% (recomputed from history)"
+      "detail": "alpha 1.00% (recomputed from history)"
     },
     {
       "key": "totals_recomputed_consistent",
       "label": "Stored totals match independent recomputation",
       "passed": true,
       "blocking": true,
-      "detail": "recomputed total 0.00% / alpha 1.94% vs stored 0.00% / 1.94% (max mismatch 0.0 pct-pts, limit 0.1)"
+      "detail": "recomputed total 0.00% / alpha 1.00% vs stored 0.00% / 1.00% (max mismatch 0.0 pct-pts, limit 0.1)"
     },
     {
       "key": "drawdown_inside_limit",
@@ -262,7 +262,7 @@
       "label": "Watchlist is fresh",
       "passed": true,
       "blocking": true,
-      "detail": "4 calendar days old"
+      "detail": "0 calendar days old"
     },
     {
       "key": "intraday_fresh_when_open",
@@ -276,14 +276,14 @@
       "label": "Backtest lab supports the active profile",
       "passed": true,
       "blocking": true,
-      "detail": "active variant momentum_only_weekly alpha 5.39%"
+      "detail": "active variant momentum_only_weekly alpha 14.97%"
     },
     {
       "key": "backtest_oos_positive",
       "label": "Active profile backtest is positive out-of-sample",
       "passed": false,
       "blocking": true,
-      "detail": "walk-forward mean validation alpha 3.68%, 1/3 folds positive (need mean > 0 and >= 2 positive folds)"
+      "detail": "walk-forward mean validation alpha 4.30%, 1/3 folds positive (need mean > 0 and >= 2 positive folds)"
     },
     {
       "key": "execution_model_next_open",
