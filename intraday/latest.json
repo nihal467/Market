@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-04T09:46:42.388122+00:00",
-  "ist": "2026-08-04T15:16:36.530702+05:30",
+  "generated_at": "2026-08-04T09:51:33.606892+00:00",
+  "ist": "2026-08-04T15:21:26.102661+05:30",
   "phase": "open",
-  "count": 53,
+  "count": 52,
   "expected_count": 53,
-  "coverage_pct": 100.0,
+  "coverage_pct": 98.11,
   "quality": "ok",
   "data_source": "yfinance",
   "source_label": "Yahoo Finance",
@@ -20,17 +20,6 @@
       "rsi": 32.21,
       "flags": [
         "big_move_down"
-      ]
-    },
-    {
-      "symbol": "DIVISLAB.NS",
-      "name": "Divi's Laboratories",
-      "price": 8371.0,
-      "prev_close": 8056.0,
-      "chg_pct": 3.91,
-      "rsi": 66.2,
-      "flags": [
-        "big_move_up"
       ]
     },
     {
@@ -158,10 +147,10 @@
     {
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
-      "price": 1696.3,
+      "price": 1699.0,
       "prev_close": 1725.6,
-      "chg_pct": -1.7,
-      "rsi": 23.93,
+      "chg_pct": -1.54,
+      "rsi": 25.32,
       "flags": [
         "rsi_oversold"
       ]
@@ -204,28 +193,28 @@
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 278.99,
+      "price": 279.09,
       "prev_close": 277.42,
-      "chg_pct": 0.57,
-      "rsi": 42.4,
+      "chg_pct": 0.6,
+      "rsi": 45.83,
       "flags": []
     },
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 802.73,
+      "price": 802.98,
       "prev_close": 795.65,
-      "chg_pct": 0.89,
-      "rsi": 43.69,
+      "chg_pct": 0.92,
+      "rsi": 46.51,
       "flags": []
     },
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 241.27,
+      "price": 242.2,
       "prev_close": 241.51,
-      "chg_pct": -0.1,
-      "rsi": 47.62,
+      "chg_pct": 0.29,
+      "rsi": 69.86,
       "flags": []
     },
     {
@@ -269,10 +258,10 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2584.7,
+      "price": 2590.1,
       "prev_close": 2579.2,
-      "chg_pct": 0.21,
-      "rsi": 38.69,
+      "chg_pct": 0.42,
+      "rsi": 41.56,
       "flags": []
     },
     {
@@ -388,17 +377,6 @@
       "chg_pct": -0.34,
       "rsi": 45.91,
       "flags": []
-    },
-    {
-      "symbol": "DIVISLAB.NS",
-      "name": "Divi's Laboratories",
-      "price": 8371.0,
-      "prev_close": 8056.0,
-      "chg_pct": 3.91,
-      "rsi": 66.2,
-      "flags": [
-        "big_move_up"
-      ]
     },
     {
       "symbol": "INDHOTEL.NS",
@@ -555,10 +533,10 @@
     {
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
-      "price": 1696.3,
+      "price": 1699.0,
       "prev_close": 1725.6,
-      "chg_pct": -1.7,
-      "rsi": 23.93,
+      "chg_pct": -1.54,
+      "rsi": 25.32,
       "flags": [
         "rsi_oversold"
       ]
@@ -714,5 +692,7 @@
       ]
     }
   ],
-  "missing_symbols": []
+  "missing_symbols": [
+    "DIVISLAB.NS"
+  ]
 }
