@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-06T09:51:34.219485+00:00",
-  "ist": "2026-08-06T15:21:34.217811+05:30",
+  "generated_at": "2026-08-06T09:56:45.517389+00:00",
+  "ist": "2026-08-06T15:26:45.515978+05:30",
   "market_open": true,
   "as_of_prices": "intraday/latest.json",
   "data_source": "yfinance",
@@ -22,9 +22,9 @@
     {
       "type": "intraday_shock_guard",
       "book_day_pnl_pct": 0.0,
-      "index_drop_pct": -0.12,
-      "watchlist_down_fraction": 0.6,
-      "watchlist_median_chg_pct": -0.55
+      "index_drop_pct": 0.02,
+      "watchlist_down_fraction": 0.62,
+      "watchlist_median_chg_pct": -0.6
     },
     {
       "type": "market_regime_guard",
@@ -33,9 +33,9 @@
   ],
   "intraday_shock_mode": true,
   "intraday_shock_metrics": {
-    "index_drop_pct": -0.12,
-    "watchlist_down_fraction": 0.6,
-    "watchlist_median_chg_pct": -0.55
+    "index_drop_pct": 0.02,
+    "watchlist_down_fraction": 0.62,
+    "watchlist_median_chg_pct": -0.6
   },
   "risk_block_new_buys": true,
   "intraday_deploy_enabled": false,

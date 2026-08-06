@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-06T09:51:34.118128+00:00",
-  "ist": "2026-08-06T15:21:25.486365+05:30",
+  "generated_at": "2026-08-06T09:56:45.377659+00:00",
+  "ist": "2026-08-06T15:26:33.600406+05:30",
   "phase": "open",
   "count": 53,
   "expected_count": 53,
@@ -70,23 +70,23 @@
       ]
     },
     {
-      "symbol": "GLAND.NS",
-      "name": "Gland Pharma",
-      "price": 2618.0,
-      "prev_close": 2545.1,
-      "chg_pct": 2.86,
-      "rsi": 69.09,
-      "flags": [
-        "big_move_up"
-      ]
-    },
-    {
       "symbol": "BIOCON.NS",
       "name": "Biocon",
       "price": 436.55,
       "prev_close": 425.2,
       "chg_pct": 2.67,
       "rsi": 46.01,
+      "flags": [
+        "big_move_up"
+      ]
+    },
+    {
+      "symbol": "GLAND.NS",
+      "name": "Gland Pharma",
+      "price": 2602.2,
+      "prev_close": 2545.1,
+      "chg_pct": 2.24,
+      "rsi": 59.08,
       "flags": [
         "big_move_up"
       ]
@@ -225,6 +225,17 @@
       ]
     },
     {
+      "symbol": "INDUSINDBK.NS",
+      "name": "IndusInd Bank",
+      "price": 1011.0,
+      "prev_close": 1019.0,
+      "chg_pct": -0.79,
+      "rsi": 0.44,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
       "symbol": "ADANIENT.NS",
       "name": "Adani Enterprises",
       "price": 3026.0,
@@ -242,6 +253,17 @@
       "prev_close": 14310.0,
       "chg_pct": -0.77,
       "rsi": 24.55,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
+      "symbol": "GAIL.NS",
+      "name": "GAIL India",
+      "price": 175.75,
+      "prev_close": 176.96,
+      "chg_pct": -0.68,
+      "rsi": 20.61,
       "flags": [
         "rsi_oversold"
       ]
@@ -267,6 +289,17 @@
       "flags": [
         "rsi_oversold"
       ]
+    },
+    {
+      "symbol": "SUNPHARMA.NS",
+      "name": "Sun Pharmaceutical",
+      "price": 1947.5,
+      "prev_close": 1940.0,
+      "chg_pct": 0.39,
+      "rsi": 24.23,
+      "flags": [
+        "rsi_oversold"
+      ]
     }
   ],
   "snapshots": [
@@ -282,19 +315,19 @@
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 807.0,
+      "price": 808.01,
       "prev_close": 805.74,
-      "chg_pct": 0.16,
-      "rsi": 45.7,
+      "chg_pct": 0.28,
+      "rsi": 54.17,
       "flags": []
     },
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 241.8,
+      "price": 242.15,
       "prev_close": 242.1,
-      "chg_pct": -0.12,
-      "rsi": 34.62,
+      "chg_pct": 0.02,
+      "rsi": 45.16,
       "flags": []
     },
     {
@@ -338,10 +371,10 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2618.0,
+      "price": 2602.2,
       "prev_close": 2545.1,
-      "chg_pct": 2.86,
-      "rsi": 69.09,
+      "chg_pct": 2.24,
+      "rsi": 59.08,
       "flags": [
         "big_move_up"
       ]
@@ -440,10 +473,10 @@
     {
       "symbol": "ICICIBANK.NS",
       "name": "ICICI Bank",
-      "price": 1454.4,
+      "price": 1457.5,
       "prev_close": 1450.1,
-      "chg_pct": 0.3,
-      "rsi": 53.93,
+      "chg_pct": 0.51,
+      "rsi": 47.83,
       "flags": []
     },
     {
@@ -548,11 +581,13 @@
     {
       "symbol": "GAIL.NS",
       "name": "GAIL India",
-      "price": 176.06,
+      "price": 175.75,
       "prev_close": 176.96,
-      "chg_pct": -0.51,
-      "rsi": 36.61,
-      "flags": []
+      "chg_pct": -0.68,
+      "rsi": 20.61,
+      "flags": [
+        "rsi_oversold"
+      ]
     },
     {
       "symbol": "COFORGE.NS",
@@ -566,20 +601,24 @@
     {
       "symbol": "SUNPHARMA.NS",
       "name": "Sun Pharmaceutical",
-      "price": 1952.7,
+      "price": 1947.5,
       "prev_close": 1940.0,
-      "chg_pct": 0.65,
-      "rsi": 51.34,
-      "flags": []
+      "chg_pct": 0.39,
+      "rsi": 24.23,
+      "flags": [
+        "rsi_oversold"
+      ]
     },
     {
       "symbol": "INDUSINDBK.NS",
       "name": "IndusInd Bank",
-      "price": 1024.4,
+      "price": 1011.0,
       "prev_close": 1019.0,
-      "chg_pct": 0.53,
-      "rsi": 52.02,
-      "flags": []
+      "chg_pct": -0.79,
+      "rsi": 0.44,
+      "flags": [
+        "rsi_oversold"
+      ]
     },
     {
       "symbol": "INDIGO.NS",
@@ -606,10 +645,10 @@
     {
       "symbol": "BHEL.NS",
       "name": "Bharat Heavy Electricals",
-      "price": 408.55,
+      "price": 408.15,
       "prev_close": 412.4,
-      "chg_pct": -0.93,
-      "rsi": 54.43,
+      "chg_pct": -1.03,
+      "rsi": 42.76,
       "flags": []
     },
     {
@@ -624,19 +663,19 @@
     {
       "symbol": "BOSCHLTD.NS",
       "name": "Bosch",
-      "price": 42265.0,
+      "price": 42230.0,
       "prev_close": 42920.0,
-      "chg_pct": -1.53,
-      "rsi": 52.45,
+      "chg_pct": -1.61,
+      "rsi": 60.9,
       "flags": []
     },
     {
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
-      "price": 1732.2,
+      "price": 1733.7,
       "prev_close": 1765.0,
-      "chg_pct": -1.86,
-      "rsi": 38.23,
+      "chg_pct": -1.77,
+      "rsi": 41.12,
       "flags": []
     },
     {
