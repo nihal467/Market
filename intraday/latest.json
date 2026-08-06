@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-06T08:18:36.289429+00:00",
-  "ist": "2026-08-06T13:48:29.133897+05:30",
+  "generated_at": "2026-08-06T08:33:48.791583+00:00",
+  "ist": "2026-08-06T14:03:38.588632+05:30",
   "phase": "open",
   "count": 53,
   "expected_count": 53,
@@ -36,6 +36,18 @@
       ]
     },
     {
+      "symbol": "AUBANK.NS",
+      "name": "AU Small Finance Bank",
+      "price": 1087.8,
+      "prev_close": 1051.3,
+      "chg_pct": 3.47,
+      "rsi": 85.64,
+      "flags": [
+        "big_move_up",
+        "rsi_overbought"
+      ]
+    },
+    {
       "symbol": "CHOLAFIN.NS",
       "name": "Cholamandalam Investment",
       "price": 1943.4,
@@ -48,24 +60,12 @@
       ]
     },
     {
-      "symbol": "AUBANK.NS",
-      "name": "AU Small Finance Bank",
-      "price": 1087.8,
-      "prev_close": 1059.0,
-      "chg_pct": 2.72,
-      "rsi": 85.64,
-      "flags": [
-        "big_move_up",
-        "rsi_overbought"
-      ]
-    },
-    {
-      "symbol": "BOSCHLTD.NS",
-      "name": "Bosch",
-      "price": 42265.0,
-      "prev_close": 41200.0,
-      "chg_pct": 2.58,
-      "rsi": 52.45,
+      "symbol": "GLAND.NS",
+      "name": "Gland Pharma",
+      "price": 2600.0,
+      "prev_close": 2545.1,
+      "chg_pct": 2.16,
+      "rsi": 55.04,
       "flags": [
         "big_move_up"
       ]
@@ -79,17 +79,6 @@
       "rsi": 36.96,
       "flags": [
         "big_move_down"
-      ]
-    },
-    {
-      "symbol": "MARICO.NS",
-      "name": "Marico",
-      "price": 858.0,
-      "prev_close": 875.0,
-      "chg_pct": -1.94,
-      "rsi": 76.41,
-      "flags": [
-        "rsi_overbought"
       ]
     },
     {
@@ -110,6 +99,28 @@
       "prev_close": 1765.0,
       "chg_pct": -1.66,
       "rsi": 9.25,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
+      "symbol": "BAJAJ-AUTO.NS",
+      "name": "Bajaj Auto",
+      "price": 11607.0,
+      "prev_close": 11800.0,
+      "chg_pct": -1.64,
+      "rsi": 17.04,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
+      "symbol": "ALKEM.NS",
+      "name": "Alkem Laboratories",
+      "price": 5608.0,
+      "prev_close": 5696.5,
+      "chg_pct": -1.55,
+      "rsi": 15.34,
       "flags": [
         "rsi_oversold"
       ]
@@ -137,17 +148,6 @@
       ]
     },
     {
-      "symbol": "OFSS.NS",
-      "name": "Oracle Financial Services",
-      "price": 11721.0,
-      "prev_close": 11600.0,
-      "chg_pct": 1.04,
-      "rsi": 26.14,
-      "flags": [
-        "rsi_oversold"
-      ]
-    },
-    {
       "symbol": "INDIGO.NS",
       "name": "InterGlobe Aviation",
       "price": 5347.0,
@@ -167,6 +167,17 @@
       "rsi": 28.71,
       "flags": [
         "rsi_oversold"
+      ]
+    },
+    {
+      "symbol": "MARICO.NS",
+      "name": "Marico",
+      "price": 858.0,
+      "prev_close": 852.0,
+      "chg_pct": 0.7,
+      "rsi": 76.41,
+      "flags": [
+        "rsi_overbought"
       ]
     },
     {
@@ -192,34 +203,23 @@
       ]
     },
     {
+      "symbol": "OFSS.NS",
+      "name": "Oracle Financial Services",
+      "price": 11721.0,
+      "prev_close": 11759.0,
+      "chg_pct": -0.32,
+      "rsi": 26.14,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
       "symbol": "TECHM.NS",
       "name": "Tech Mahindra",
       "price": 1646.7,
       "prev_close": 1650.0,
       "chg_pct": -0.2,
       "rsi": 29.96,
-      "flags": [
-        "rsi_oversold"
-      ]
-    },
-    {
-      "symbol": "BAJAJ-AUTO.NS",
-      "name": "Bajaj Auto",
-      "price": 11607.0,
-      "prev_close": 11600.0,
-      "chg_pct": 0.06,
-      "rsi": 17.04,
-      "flags": [
-        "rsi_oversold"
-      ]
-    },
-    {
-      "symbol": "ALKEM.NS",
-      "name": "Alkem Laboratories",
-      "price": 5608.0,
-      "prev_close": 5608.0,
-      "chg_pct": 0.0,
-      "rsi": 15.34,
       "flags": [
         "rsi_oversold"
       ]
@@ -295,10 +295,12 @@
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
       "price": 2600.0,
-      "prev_close": 2583.1,
-      "chg_pct": 0.65,
+      "prev_close": 2545.1,
+      "chg_pct": 2.16,
       "rsi": 55.04,
-      "flags": []
+      "flags": [
+        "big_move_up"
+      ]
     },
     {
       "symbol": "IDFCFIRSTB.NS",
@@ -322,8 +324,8 @@
       "symbol": "OFSS.NS",
       "name": "Oracle Financial Services",
       "price": 11721.0,
-      "prev_close": 11600.0,
-      "chg_pct": 1.04,
+      "prev_close": 11759.0,
+      "chg_pct": -0.32,
       "rsi": 26.14,
       "flags": [
         "rsi_oversold"
@@ -362,8 +364,8 @@
       "symbol": "APOLLOHOSP.NS",
       "name": "Apollo Hospitals",
       "price": 8918.0,
-      "prev_close": 9050.0,
-      "chg_pct": -1.46,
+      "prev_close": 8910.0,
+      "chg_pct": 0.09,
       "rsi": 32.48,
       "flags": []
     },
@@ -383,8 +385,8 @@
       "symbol": "ABCAPITAL.NS",
       "name": "Aditya Birla Capital",
       "price": 424.65,
-      "prev_close": 420.0,
-      "chg_pct": 1.11,
+      "prev_close": 424.7,
+      "chg_pct": -0.01,
       "rsi": 65.73,
       "flags": []
     },
@@ -424,8 +426,8 @@
       "symbol": "DIVISLAB.NS",
       "name": "Divi's Laboratories",
       "price": 8397.0,
-      "prev_close": 8378.0,
-      "chg_pct": 0.23,
+      "prev_close": 8388.0,
+      "chg_pct": 0.11,
       "rsi": 46.92,
       "flags": []
     },
@@ -471,8 +473,8 @@
       "symbol": "MARICO.NS",
       "name": "Marico",
       "price": 858.0,
-      "prev_close": 875.0,
-      "chg_pct": -1.94,
+      "prev_close": 852.0,
+      "chg_pct": 0.7,
       "rsi": 76.41,
       "flags": [
         "rsi_overbought"
@@ -509,8 +511,8 @@
       "symbol": "COFORGE.NS",
       "name": "Coforge",
       "price": 1774.4,
-      "prev_close": 1749.9,
-      "chg_pct": 1.4,
+      "prev_close": 1777.0,
+      "chg_pct": -0.15,
       "rsi": 32.43,
       "flags": []
     },
@@ -547,8 +549,8 @@
       "symbol": "NAUKRI.NS",
       "name": "Info Edge India",
       "price": 1244.9,
-      "prev_close": 1260.0,
-      "chg_pct": -1.2,
+      "prev_close": 1242.0,
+      "chg_pct": 0.23,
       "rsi": 50.0,
       "flags": []
     },
@@ -576,12 +578,10 @@
       "symbol": "BOSCHLTD.NS",
       "name": "Bosch",
       "price": 42265.0,
-      "prev_close": 41200.0,
-      "chg_pct": 2.58,
+      "prev_close": 42920.0,
+      "chg_pct": -1.53,
       "rsi": 52.45,
-      "flags": [
-        "big_move_up"
-      ]
+      "flags": []
     },
     {
       "symbol": "IPCALAB.NS",
@@ -627,8 +627,8 @@
       "symbol": "AUBANK.NS",
       "name": "AU Small Finance Bank",
       "price": 1087.8,
-      "prev_close": 1059.0,
-      "chg_pct": 2.72,
+      "prev_close": 1051.3,
+      "chg_pct": 3.47,
       "rsi": 85.64,
       "flags": [
         "big_move_up",
@@ -639,8 +639,8 @@
       "symbol": "BAJAJ-AUTO.NS",
       "name": "Bajaj Auto",
       "price": 11607.0,
-      "prev_close": 11600.0,
-      "chg_pct": 0.06,
+      "prev_close": 11800.0,
+      "chg_pct": -1.64,
       "rsi": 17.04,
       "flags": [
         "rsi_oversold"
@@ -698,8 +698,8 @@
       "symbol": "ALKEM.NS",
       "name": "Alkem Laboratories",
       "price": 5608.0,
-      "prev_close": 5608.0,
-      "chg_pct": 0.0,
+      "prev_close": 5696.5,
+      "chg_pct": -1.55,
       "rsi": 15.34,
       "flags": [
         "rsi_oversold"
@@ -740,8 +740,8 @@
       "symbol": "PRESTIGE.NS",
       "name": "Prestige Estates",
       "price": 1585.2,
-      "prev_close": 1595.0,
-      "chg_pct": -0.61,
+      "prev_close": 1593.0,
+      "chg_pct": -0.49,
       "rsi": 35.39,
       "flags": []
     }
