@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-08-02T12:02:50.588315+00:00",
-  "ist": "2026-08-02T17:32:36.535834+05:30",
+  "generated_at": "2026-08-09T12:02:28.444834+00:00",
+  "ist": "2026-08-09T17:32:22.081843+05:30",
   "active_profile": "momentum_weekly_churn_control",
   "verdict": "insufficient_data",
-  "detail": "final divergence 0.0%, daily-return correlation None, max single-day gap 0.0% over 10 common days",
-  "n_paper_days": 10,
+  "detail": "final divergence 0.0%, daily-return correlation None, max single-day gap 0.0% over 15 common days",
+  "n_paper_days": 15,
   "paper_start": "2026-07-20",
-  "paper_end": "2026-07-31",
+  "paper_end": "2026-08-07",
   "thresholds": {
     "final_divergence_limit_pct": 2.0,
     "min_daily_return_correlation": 0.9,
     "min_paper_days": 10
   },
   "note": "Sanity monitor, not an exact reconciliation: the live book trades an evolving watchlist with news-aware signals while the replay uses today's universe and technicals only, so modest divergence is expected.",
-  "n_common_days": 10,
+  "n_common_days": 15,
   "final_divergence_pct": 0.0,
   "daily_return_correlation": null,
   "max_single_day_gap_pct": 0.0
