@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-13T11:01:32.322138+00:00",
-  "ist": "2026-08-13T16:31:32.319578+05:30",
-  "decision": "incubating",
+  "generated_at": "2026-08-14T11:01:27.027180+00:00",
+  "ist": "2026-08-14T16:31:27.024879+05:30",
+  "decision": "not_ready",
   "summary": {
-    "paper_days": 19,
+    "paper_days": 20,
     "min_trading_days": 20,
-    "passed_blocking": 9,
+    "passed_blocking": 10,
     "blocking_criteria": 11,
     "total_pnl_pct": 0.0,
-    "alpha_pct": -0.649,
+    "alpha_pct": -0.526,
     "recomputed_totals": {
       "available": true,
       "total_pnl_pct": 0.0,
-      "alpha_pct": -0.649,
+      "alpha_pct": -0.526,
       "max_mismatch_pct": 0.0,
       "consistent": true
     },
@@ -218,9 +218,9 @@
     {
       "key": "min_trading_days",
       "label": "Run at least one trading month in dummy mode",
-      "passed": false,
+      "passed": true,
       "blocking": true,
-      "detail": "19/20 paper-trading days recorded"
+      "detail": "20/20 paper-trading days recorded"
     },
     {
       "key": "positive_dummy_pnl",
@@ -234,14 +234,14 @@
       "label": "Dummy portfolio beats NIFTY 50",
       "passed": false,
       "blocking": true,
-      "detail": "alpha -0.65% (recomputed from history)"
+      "detail": "alpha -0.53% (recomputed from history)"
     },
     {
       "key": "totals_recomputed_consistent",
       "label": "Stored totals match independent recomputation",
       "passed": true,
       "blocking": true,
-      "detail": "recomputed total 0.00% / alpha -0.65% vs stored 0.00% / -0.65% (max mismatch 0.0 pct-pts, limit 0.1)"
+      "detail": "recomputed total 0.00% / alpha -0.53% vs stored 0.00% / -0.53% (max mismatch 0.0 pct-pts, limit 0.1)"
     },
     {
       "key": "drawdown_inside_limit",
@@ -262,7 +262,7 @@
       "label": "Watchlist is fresh",
       "passed": true,
       "blocking": true,
-      "detail": "3 calendar days old"
+      "detail": "4 calendar days old"
     },
     {
       "key": "intraday_fresh_when_open",
