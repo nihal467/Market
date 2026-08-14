@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-14T09:46:27.060545+00:00",
-  "ist": "2026-08-14T15:16:20.275171+05:30",
+  "generated_at": "2026-08-14T09:51:15.557574+00:00",
+  "ist": "2026-08-14T15:21:08.403320+05:30",
   "phase": "open",
   "count": 53,
   "expected_count": 53,
@@ -69,14 +69,15 @@
       ]
     },
     {
-      "symbol": "ABCAPITAL.NS",
-      "name": "Aditya Birla Capital",
-      "price": 401.5,
-      "prev_close": 410.95,
-      "chg_pct": -2.3,
-      "rsi": 34.15,
+      "symbol": "BERGEPAINT.NS",
+      "name": "Berger Paints",
+      "price": 545.5,
+      "prev_close": 559.8,
+      "chg_pct": -2.55,
+      "rsi": 24.12,
       "flags": [
-        "big_move_down"
+        "big_move_down",
+        "rsi_oversold"
       ]
     },
     {
@@ -91,6 +92,18 @@
       ]
     },
     {
+      "symbol": "PRESTIGE.NS",
+      "name": "Prestige Estates",
+      "price": 1583.0,
+      "prev_close": 1618.9,
+      "chg_pct": -2.22,
+      "rsi": 20.52,
+      "flags": [
+        "big_move_down",
+        "rsi_oversold"
+      ]
+    },
+    {
       "symbol": "CHOLAFIN.NS",
       "name": "Cholamandalam Investment",
       "price": 1885.3,
@@ -99,17 +112,6 @@
       "rsi": 27.51,
       "flags": [
         "big_move_down",
-        "rsi_oversold"
-      ]
-    },
-    {
-      "symbol": "TORNTPHARM.NS",
-      "name": "Torrent Pharmaceuticals",
-      "price": 4847.0,
-      "prev_close": 4914.5,
-      "chg_pct": -1.37,
-      "rsi": 10.71,
-      "flags": [
         "rsi_oversold"
       ]
     },
@@ -158,6 +160,17 @@
       ]
     },
     {
+      "symbol": "TORNTPHARM.NS",
+      "name": "Torrent Pharmaceuticals",
+      "price": 4847.0,
+      "prev_close": 4893.0,
+      "chg_pct": -0.94,
+      "rsi": 10.71,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
       "symbol": "ABB.NS",
       "name": "ABB India",
       "price": 7650.0,
@@ -177,17 +190,6 @@
       "rsi": 75.07,
       "flags": [
         "rsi_overbought"
-      ]
-    },
-    {
-      "symbol": "PRESTIGE.NS",
-      "name": "Prestige Estates",
-      "price": 1583.0,
-      "prev_close": 1588.7,
-      "chg_pct": -0.36,
-      "rsi": 20.52,
-      "flags": [
-        "rsi_oversold"
       ]
     },
     {
@@ -222,27 +224,16 @@
       "flags": [
         "rsi_oversold"
       ]
-    },
-    {
-      "symbol": "BERGEPAINT.NS",
-      "name": "Berger Paints",
-      "price": 546.0,
-      "prev_close": 546.35,
-      "chg_pct": -0.06,
-      "rsi": 25.58,
-      "flags": [
-        "rsi_oversold"
-      ]
     }
   ],
   "snapshots": [
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 278.3,
+      "price": 278.21,
       "prev_close": 278.32,
-      "chg_pct": -0.01,
-      "rsi": 64.89,
+      "chg_pct": -0.04,
+      "rsi": 61.93,
       "flags": []
     },
     {
@@ -257,10 +248,10 @@
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 243.04,
+      "price": 243.1,
       "prev_close": 243.53,
-      "chg_pct": -0.2,
-      "rsi": 52.49,
+      "chg_pct": -0.18,
+      "rsi": 54.01,
       "flags": []
     },
     {
@@ -278,12 +269,10 @@
       "symbol": "ABCAPITAL.NS",
       "name": "Aditya Birla Capital",
       "price": 401.5,
-      "prev_close": 410.95,
-      "chg_pct": -2.3,
+      "prev_close": 407.7,
+      "chg_pct": -1.52,
       "rsi": 34.15,
-      "flags": [
-        "big_move_down"
-      ]
+      "flags": []
     },
     {
       "symbol": "OFSS.NS",
@@ -300,10 +289,10 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2968.6,
+      "price": 2968.1,
       "prev_close": 2967.6,
-      "chg_pct": 0.03,
-      "rsi": 55.98,
+      "chg_pct": 0.02,
+      "rsi": 55.45,
       "flags": []
     },
     {
@@ -353,8 +342,8 @@
       "symbol": "FEDERALBNK.NS",
       "name": "Federal Bank",
       "price": 352.85,
-      "prev_close": 351.25,
-      "chg_pct": 0.46,
+      "prev_close": 356.85,
+      "chg_pct": -1.12,
       "rsi": 50.0,
       "flags": []
     },
@@ -371,8 +360,8 @@
       "symbol": "IDFCFIRSTB.NS",
       "name": "IDFC First Bank",
       "price": 85.62,
-      "prev_close": 86.55,
-      "chg_pct": -1.07,
+      "prev_close": 85.8,
+      "chg_pct": -0.21,
       "rsi": 43.24,
       "flags": []
     },
@@ -485,8 +474,8 @@
       "symbol": "TORNTPHARM.NS",
       "name": "Torrent Pharmaceuticals",
       "price": 4847.0,
-      "prev_close": 4914.5,
-      "chg_pct": -1.37,
+      "prev_close": 4893.0,
+      "chg_pct": -0.94,
       "rsi": 10.71,
       "flags": [
         "rsi_oversold"
@@ -624,8 +613,8 @@
       "symbol": "MPHASIS.NS",
       "name": "Mphasis",
       "price": 2555.0,
-      "prev_close": 2541.0,
-      "chg_pct": 0.55,
+      "prev_close": 2537.6,
+      "chg_pct": 0.69,
       "rsi": 67.37,
       "flags": []
     },
@@ -633,8 +622,8 @@
       "symbol": "SUNPHARMA.NS",
       "name": "Sun Pharmaceutical",
       "price": 1917.0,
-      "prev_close": 1944.0,
-      "chg_pct": -1.39,
+      "prev_close": 1932.0,
+      "chg_pct": -0.78,
       "rsi": 43.19,
       "flags": []
     },
@@ -692,11 +681,12 @@
     {
       "symbol": "BERGEPAINT.NS",
       "name": "Berger Paints",
-      "price": 546.0,
-      "prev_close": 546.35,
-      "chg_pct": -0.06,
-      "rsi": 25.58,
+      "price": 545.5,
+      "prev_close": 559.8,
+      "chg_pct": -2.55,
+      "rsi": 24.12,
       "flags": [
+        "big_move_down",
         "rsi_oversold"
       ]
     },
@@ -749,10 +739,11 @@
       "symbol": "PRESTIGE.NS",
       "name": "Prestige Estates",
       "price": 1583.0,
-      "prev_close": 1588.7,
-      "chg_pct": -0.36,
+      "prev_close": 1618.9,
+      "chg_pct": -2.22,
       "rsi": 20.52,
       "flags": [
+        "big_move_down",
         "rsi_oversold"
       ]
     }
