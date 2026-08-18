@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-17T09:45:53.478613+00:00",
-  "ist": "2026-08-17T15:15:53.475831+05:30",
+  "generated_at": "2026-08-18T03:45:52.821280+00:00",
+  "ist": "2026-08-18T09:15:52.819073+05:30",
   "market_open": true,
   "as_of_prices": "intraday/latest.json",
   "data_source": "yfinance",
@@ -20,22 +20,15 @@
   "stops": [],
   "risk_events": [
     {
-      "type": "intraday_shock_guard",
-      "book_day_pnl_pct": 0.0,
-      "index_drop_pct": -0.13,
-      "watchlist_down_fraction": 0.5,
-      "watchlist_median_chg_pct": -0.02
-    },
-    {
       "type": "market_regime_guard",
       "reason": "NIFTY trend filter is risk-off"
     }
   ],
-  "intraday_shock_mode": true,
+  "intraday_shock_mode": false,
   "intraday_shock_metrics": {
-    "index_drop_pct": -0.13,
-    "watchlist_down_fraction": 0.5,
-    "watchlist_median_chg_pct": -0.02
+    "index_drop_pct": 0.0,
+    "watchlist_down_fraction": 0.333,
+    "watchlist_median_chg_pct": 0.105
   },
   "risk_block_new_buys": true,
   "intraday_deploy_enabled": false,
@@ -69,10 +62,10 @@
     "benchmark": "NIFTY 50",
     "symbol": "^NSEI",
     "risk_on": false,
-    "price": 24366.0,
-    "sma50": 24084.1,
-    "sma200": 24735.75,
-    "ret_1m_pct": 0.13,
+    "price": 24287.65,
+    "sma50": 24102.52,
+    "sma200": 24727.73,
+    "ret_1m_pct": 0.2,
     "reason": "NIFTY trend filter is risk-off"
   },
   "positions": [],
