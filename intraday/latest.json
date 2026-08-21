@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-08-21T09:46:29.838617+00:00",
-  "ist": "2026-08-21T15:16:23.799452+05:30",
+  "generated_at": "2026-08-21T09:51:26.958296+00:00",
+  "ist": "2026-08-21T15:21:18.575247+05:30",
   "phase": "open",
-  "count": 53,
+  "count": 52,
   "expected_count": 53,
-  "coverage_pct": 100.0,
+  "coverage_pct": 98.11,
   "quality": "ok",
   "data_source": "yfinance",
   "source_label": "Yahoo Finance",
@@ -170,28 +170,28 @@
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 276.7,
+      "price": 276.82,
       "prev_close": 274.62,
-      "chg_pct": 0.76,
-      "rsi": 50.0,
+      "chg_pct": 0.8,
+      "rsi": 55.88,
       "flags": []
     },
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 800.92,
+      "price": 801.87,
       "prev_close": 799.85,
-      "chg_pct": 0.13,
-      "rsi": 47.65,
+      "chg_pct": 0.25,
+      "rsi": 56.48,
       "flags": []
     },
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 242.38,
+      "price": 242.47,
       "prev_close": 242.3,
-      "chg_pct": 0.03,
-      "rsi": 50.0,
+      "chg_pct": 0.07,
+      "rsi": 54.64,
       "flags": []
     },
     {
@@ -251,15 +251,6 @@
       "flags": [
         "rsi_overbought"
       ]
-    },
-    {
-      "symbol": "FEDERALBNK.NS",
-      "name": "Federal Bank",
-      "price": 359.5,
-      "prev_close": 355.3,
-      "chg_pct": 1.18,
-      "rsi": 50.0,
-      "flags": []
     },
     {
       "symbol": "PIDILITIND.NS",
@@ -322,10 +313,10 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2819.0,
+      "price": 2818.9,
       "prev_close": 2820.0,
       "chg_pct": -0.04,
-      "rsi": 63.65,
+      "rsi": 63.56,
       "flags": []
     },
     {
@@ -646,10 +637,10 @@
     {
       "symbol": "BERGEPAINT.NS",
       "name": "Berger Paints",
-      "price": 524.55,
+      "price": 524.6,
       "prev_close": 528.55,
-      "chg_pct": -0.76,
-      "rsi": 57.53,
+      "chg_pct": -0.75,
+      "rsi": 58.11,
       "flags": []
     },
     {
@@ -673,5 +664,7 @@
       ]
     }
   ],
-  "missing_symbols": []
+  "missing_symbols": [
+    "FEDERALBNK.NS"
+  ]
 }
