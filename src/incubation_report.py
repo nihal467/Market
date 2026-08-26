@@ -333,6 +333,17 @@ def run() -> dict:
             blocking=False,
         ),
         _criterion(
+            "execution_path_exercised",
+            "Live paper engine has filled at least one trade (advisory)",
+            trade_days > 0,
+            (
+                f"{trade_days} of {len(post_inception)} post-inception day(s) had a fill; "
+                "0 means order sizing, fills, and stop-loss handling are backtest-only so "
+                "far and have not run through the live paper engine"
+            ),
+            blocking=False,
+        ),
+        _criterion(
             "drift_ok",
             "Backtest replay tracks the live paper book (advisory)",
             drift_ok,

@@ -304,6 +304,29 @@ class IncubationReportTests(unittest.TestCase):
         self.assertFalse(criterion["blocking"])
         self.assertIn("'drift'", criterion["detail"])
 
+    def test_execution_path_advisory_fails_open_when_no_trades_ever_fill(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 0},
+            {"date": "2026-07-02", "value": 500000, "n_trades": 0},
+        ])
+
+        criterion = self.criterion("execution_path_exercised")
+
+        self.assertFalse(criterion["passed"])
+        self.assertFalse(criterion["blocking"])
+        self.assertIn("0 of 1 post-inception day(s) had a fill", criterion["detail"])
+
+    def test_execution_path_advisory_passes_once_a_trade_fills(self) -> None:
+        self.seed_common_files([
+            {"date": "2026-07-01", "value": 500000, "n_trades": 10},
+            {"date": "2026-07-02", "value": 501000, "n_trades": 2},
+        ])
+
+        criterion = self.criterion("execution_path_exercised")
+
+        self.assertTrue(criterion["passed"])
+        self.assertIn("1 of 1 post-inception day(s) had a fill", criterion["detail"])
+
     def test_backtest_gate_uses_active_profile_variant(self) -> None:
         self.seed_common_files([
             {"date": "2026-07-01", "value": 500000, "n_trades": 10},
