@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-01T09:47:03.173192+00:00",
-  "ist": "2026-09-01T15:16:54.393251+05:30",
+  "generated_at": "2026-09-01T09:51:23.706710+00:00",
+  "ist": "2026-09-01T15:21:17.198523+05:30",
   "phase": "open",
-  "count": 52,
+  "count": 53,
   "expected_count": 53,
-  "coverage_pct": 98.11,
+  "coverage_pct": 100.0,
   "quality": "ok",
   "data_source": "yfinance",
   "source_label": "Yahoo Finance",
@@ -66,6 +66,18 @@
       "rsi": 39.88,
       "flags": [
         "big_move_down"
+      ]
+    },
+    {
+      "symbol": "NYKAA.NS",
+      "name": "FSN E-Commerce (Nykaa)",
+      "price": 337.25,
+      "prev_close": 349.55,
+      "chg_pct": -3.52,
+      "rsi": 28.65,
+      "flags": [
+        "big_move_down",
+        "rsi_oversold"
       ]
     },
     {
@@ -295,17 +307,6 @@
       ]
     },
     {
-      "symbol": "JUNIORBEES.NS",
-      "name": "Nifty Next 50 (proxy)",
-      "price": 788.04,
-      "prev_close": 801.29,
-      "chg_pct": -1.65,
-      "rsi": 29.44,
-      "flags": [
-        "rsi_oversold"
-      ]
-    },
-    {
       "symbol": "BAJAJ-AUTO.NS",
       "name": "Bajaj Auto",
       "price": 12329.0,
@@ -328,12 +329,23 @@
       ]
     },
     {
+      "symbol": "GLAND.NS",
+      "name": "Gland Pharma",
+      "price": 2864.6,
+      "prev_close": 2885.8,
+      "chg_pct": -0.73,
+      "rsi": 28.1,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 273.54,
+      "price": 273.66,
       "prev_close": 275.62,
-      "chg_pct": -0.75,
-      "rsi": 21.95,
+      "chg_pct": -0.71,
+      "rsi": 25.08,
       "flags": [
         "rsi_oversold"
       ]
@@ -350,12 +362,12 @@
       ]
     },
     {
-      "symbol": "GLAND.NS",
-      "name": "Gland Pharma",
-      "price": 2870.4,
-      "prev_close": 2885.8,
-      "chg_pct": -0.53,
-      "rsi": 29.88,
+      "symbol": "MID150BEES.NS",
+      "name": "Nifty Midcap 150 (proxy)",
+      "price": 240.75,
+      "prev_close": 242.15,
+      "chg_pct": -0.58,
+      "rsi": 26.42,
       "flags": [
         "rsi_oversold"
       ]
@@ -376,10 +388,10 @@
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 273.54,
+      "price": 273.66,
       "prev_close": 275.62,
-      "chg_pct": -0.75,
-      "rsi": 21.95,
+      "chg_pct": -0.71,
+      "rsi": 25.08,
       "flags": [
         "rsi_oversold"
       ]
@@ -387,22 +399,22 @@
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 788.04,
+      "price": 788.49,
       "prev_close": 801.29,
-      "chg_pct": -1.65,
-      "rsi": 29.44,
-      "flags": [
-        "rsi_oversold"
-      ]
+      "chg_pct": -1.6,
+      "rsi": 30.87,
+      "flags": []
     },
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 241.0,
+      "price": 240.75,
       "prev_close": 242.15,
-      "chg_pct": -0.47,
-      "rsi": 33.21,
-      "flags": []
+      "chg_pct": -0.58,
+      "rsi": 26.42,
+      "flags": [
+        "rsi_oversold"
+      ]
     },
     {
       "symbol": "TITAN.NS",
@@ -420,6 +432,18 @@
       "prev_close": 1717.1,
       "chg_pct": -5.36,
       "rsi": 20.33,
+      "flags": [
+        "big_move_down",
+        "rsi_oversold"
+      ]
+    },
+    {
+      "symbol": "NYKAA.NS",
+      "name": "FSN E-Commerce (Nykaa)",
+      "price": 337.25,
+      "prev_close": 349.55,
+      "chg_pct": -3.52,
+      "rsi": 28.65,
       "flags": [
         "big_move_down",
         "rsi_oversold"
@@ -471,10 +495,10 @@
     {
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
-      "price": 1985.7,
+      "price": 1986.0,
       "prev_close": 1974.9,
-      "chg_pct": 0.55,
-      "rsi": 64.51,
+      "chg_pct": 0.56,
+      "rsi": 64.8,
       "flags": []
     },
     {
@@ -556,10 +580,10 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2870.4,
+      "price": 2864.6,
       "prev_close": 2885.8,
-      "chg_pct": -0.53,
-      "rsi": 29.88,
+      "chg_pct": -0.73,
+      "rsi": 28.1,
       "flags": [
         "rsi_oversold"
       ]
@@ -818,10 +842,10 @@
     {
       "symbol": "APOLLOTYRE.NS",
       "name": "Apollo Tyres",
-      "price": 442.95,
+      "price": 442.55,
       "prev_close": 438.95,
-      "chg_pct": 0.91,
-      "rsi": 62.03,
+      "chg_pct": 0.82,
+      "rsi": 59.49,
       "flags": []
     },
     {
@@ -914,7 +938,5 @@
       "flags": []
     }
   ],
-  "missing_symbols": [
-    "NYKAA.NS"
-  ]
+  "missing_symbols": []
 }
