@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-10T08:03:09.281613+00:00",
-  "ist": "2026-09-10T13:33:03.671325+05:30",
+  "generated_at": "2026-09-10T08:18:17.088231+00:00",
+  "ist": "2026-09-10T13:48:11.435205+05:30",
   "phase": "open",
   "count": 53,
   "expected_count": 53,
@@ -14,21 +14,22 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2937.9,
+      "price": 2939.5,
       "prev_close": 3026.2,
-      "chg_pct": -2.92,
-      "rsi": 30.91,
+      "chg_pct": -2.86,
+      "rsi": 24.91,
       "flags": [
-        "big_move_down"
+        "big_move_down",
+        "rsi_oversold"
       ]
     },
     {
       "symbol": "OBEROIRLTY.NS",
       "name": "Oberoi Realty",
-      "price": 1784.1,
+      "price": 1783.0,
       "prev_close": 1833.8,
-      "chg_pct": -2.71,
-      "rsi": 49.23,
+      "chg_pct": -2.77,
+      "rsi": 47.87,
       "flags": [
         "big_move_down"
       ]
@@ -36,10 +37,10 @@
     {
       "symbol": "UNIONBANK.NS",
       "name": "Union Bank of India",
-      "price": 178.82,
+      "price": 178.88,
       "prev_close": 183.22,
-      "chg_pct": -2.4,
-      "rsi": 7.09,
+      "chg_pct": -2.37,
+      "rsi": 7.35,
       "flags": [
         "big_move_down",
         "rsi_oversold"
@@ -48,12 +49,23 @@
     {
       "symbol": "DIXON.NS",
       "name": "Dixon Technologies",
-      "price": 13526.0,
+      "price": 13533.0,
       "prev_close": 13845.0,
-      "chg_pct": -2.3,
-      "rsi": 15.91,
+      "chg_pct": -2.25,
+      "rsi": 21.05,
       "flags": [
         "big_move_down",
+        "rsi_oversold"
+      ]
+    },
+    {
+      "symbol": "INDUSINDBK.NS",
+      "name": "IndusInd Bank",
+      "price": 989.5,
+      "prev_close": 1004.0,
+      "chg_pct": -1.44,
+      "rsi": 20.45,
+      "flags": [
         "rsi_oversold"
       ]
     },
@@ -63,20 +75,9 @@
       "price": 1539.2,
       "prev_close": 1561.6,
       "chg_pct": -1.43,
-      "rsi": 70.02,
+      "rsi": 71.74,
       "flags": [
         "rsi_overbought"
-      ]
-    },
-    {
-      "symbol": "INDUSINDBK.NS",
-      "name": "IndusInd Bank",
-      "price": 989.6,
-      "prev_close": 1004.0,
-      "chg_pct": -1.43,
-      "rsi": 17.16,
-      "flags": [
-        "rsi_oversold"
       ]
     },
     {
@@ -85,7 +86,7 @@
       "price": 1060.1,
       "prev_close": 1073.7,
       "chg_pct": -1.27,
-      "rsi": 88.37,
+      "rsi": 86.33,
       "flags": [
         "rsi_overbought"
       ]
@@ -93,10 +94,10 @@
     {
       "symbol": "SAIL.NS",
       "name": "Steel Authority of India",
-      "price": 184.18,
+      "price": 184.08,
       "prev_close": 186.4,
-      "chg_pct": -1.19,
-      "rsi": 28.06,
+      "chg_pct": -1.24,
+      "rsi": 28.61,
       "flags": [
         "rsi_oversold"
       ]
@@ -104,10 +105,21 @@
     {
       "symbol": "JSWSTEEL.NS",
       "name": "JSW Steel",
-      "price": 1296.7,
+      "price": 1296.3,
       "prev_close": 1310.0,
-      "chg_pct": -1.02,
-      "rsi": 19.1,
+      "chg_pct": -1.05,
+      "rsi": 10.84,
+      "flags": [
+        "rsi_oversold"
+      ]
+    },
+    {
+      "symbol": "PNB.NS",
+      "name": "Punjab National Bank",
+      "price": 116.69,
+      "prev_close": 115.61,
+      "chg_pct": 0.93,
+      "rsi": 18.89,
       "flags": [
         "rsi_oversold"
       ]
@@ -115,23 +127,34 @@
     {
       "symbol": "HEROMOTOCO.NS",
       "name": "Hero MotoCorp",
-      "price": 5248.0,
+      "price": 5246.0,
       "prev_close": 5218.0,
-      "chg_pct": 0.57,
-      "rsi": 76.77,
+      "chg_pct": 0.54,
+      "rsi": 71.75,
       "flags": [
         "rsi_overbought"
       ]
     },
     {
-      "symbol": "ABCAPITAL.NS",
-      "name": "Aditya Birla Capital",
-      "price": 399.0,
-      "prev_close": 400.0,
-      "chg_pct": -0.25,
-      "rsi": 71.54,
+      "symbol": "JUBLFOOD.NS",
+      "name": "Jubilant FoodWorks",
+      "price": 477.1,
+      "prev_close": 475.95,
+      "chg_pct": 0.24,
+      "rsi": 73.74,
       "flags": [
         "rsi_overbought"
+      ]
+    },
+    {
+      "symbol": "BAJFINANCE.NS",
+      "name": "Bajaj Finance",
+      "price": 1040.9,
+      "prev_close": 1039.3,
+      "chg_pct": 0.15,
+      "rsi": 27.27,
+      "flags": [
+        "rsi_oversold"
       ]
     }
   ],
@@ -142,162 +165,163 @@
       "price": 267.65,
       "prev_close": 270.05,
       "chg_pct": -0.89,
-      "rsi": 55.37,
+      "rsi": 50.61,
       "flags": []
     },
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 786.5,
+      "price": 786.4,
       "prev_close": 787.59,
-      "chg_pct": -0.14,
-      "rsi": 49.37,
+      "chg_pct": -0.15,
+      "rsi": 44.59,
       "flags": []
     },
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 237.05,
+      "price": 236.99,
       "prev_close": 238.02,
-      "chg_pct": -0.41,
-      "rsi": 44.39,
+      "chg_pct": -0.43,
+      "rsi": 49.7,
       "flags": []
     },
     {
       "symbol": "NYKAA.NS",
       "name": "FSN E-Commerce (Nykaa)",
-      "price": 344.1,
+      "price": 344.05,
       "prev_close": 341.0,
-      "chg_pct": 0.91,
-      "rsi": 66.39,
+      "chg_pct": 0.89,
+      "rsi": 56.57,
       "flags": []
     },
     {
       "symbol": "OFSS.NS",
       "name": "Oracle Financial Services",
-      "price": 11676.0,
+      "price": 11692.0,
       "prev_close": 11630.0,
-      "chg_pct": 0.4,
-      "rsi": 35.79,
+      "chg_pct": 0.53,
+      "rsi": 52.44,
       "flags": []
     },
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2937.9,
+      "price": 2939.5,
       "prev_close": 3026.2,
-      "chg_pct": -2.92,
-      "rsi": 30.91,
+      "chg_pct": -2.86,
+      "rsi": 24.91,
       "flags": [
-        "big_move_down"
+        "big_move_down",
+        "rsi_oversold"
       ]
     },
     {
       "symbol": "IDFCFIRSTB.NS",
       "name": "IDFC First Bank",
-      "price": 86.62,
+      "price": 86.65,
       "prev_close": 86.0,
-      "chg_pct": 0.72,
-      "rsi": 47.27,
+      "chg_pct": 0.76,
+      "rsi": 39.86,
       "flags": []
     },
     {
       "symbol": "COFORGE.NS",
       "name": "Coforge",
-      "price": 1837.1,
+      "price": 1835.6,
       "prev_close": 1845.0,
-      "chg_pct": -0.43,
-      "rsi": 47.83,
+      "chg_pct": -0.51,
+      "rsi": 61.38,
       "flags": []
     },
     {
       "symbol": "BAJAJ-AUTO.NS",
       "name": "Bajaj Auto",
-      "price": 11720.0,
+      "price": 11721.0,
       "prev_close": 11790.0,
       "chg_pct": -0.59,
-      "rsi": 49.6,
+      "rsi": 52.8,
       "flags": []
     },
     {
       "symbol": "PAYTM.NS",
       "name": "One 97 Communications",
-      "price": 1739.7,
+      "price": 1739.1,
       "prev_close": 1751.5,
-      "chg_pct": -0.67,
-      "rsi": 47.59,
+      "chg_pct": -0.71,
+      "rsi": 44.04,
       "flags": []
     },
     {
       "symbol": "AUROPHARMA.NS",
       "name": "Aurobindo Pharma",
-      "price": 1668.5,
+      "price": 1667.2,
       "prev_close": 1692.0,
-      "chg_pct": -1.39,
-      "rsi": 48.98,
+      "chg_pct": -1.47,
+      "rsi": 46.91,
       "flags": []
     },
     {
       "symbol": "DLF.NS",
       "name": "DLF",
-      "price": 658.1,
+      "price": 659.6,
       "prev_close": 655.1,
-      "chg_pct": 0.46,
-      "rsi": 58.18,
+      "chg_pct": 0.69,
+      "rsi": 61.43,
       "flags": []
     },
     {
       "symbol": "BOSCHLTD.NS",
       "name": "Bosch",
-      "price": 48905.0,
+      "price": 48780.0,
       "prev_close": 49100.0,
-      "chg_pct": -0.4,
-      "rsi": 55.19,
+      "chg_pct": -0.65,
+      "rsi": 50.6,
       "flags": []
     },
     {
       "symbol": "ETERNAL.NS",
       "name": "Eternal (formerly Zomato)",
-      "price": 321.6,
+      "price": 320.65,
       "prev_close": 320.6,
-      "chg_pct": 0.31,
-      "rsi": 66.03,
+      "chg_pct": 0.02,
+      "rsi": 57.4,
       "flags": []
     },
     {
       "symbol": "SOLARINDS.NS",
       "name": "Solar Industries",
-      "price": 22405.0,
+      "price": 22395.0,
       "prev_close": 22355.0,
-      "chg_pct": 0.22,
-      "rsi": 55.56,
+      "chg_pct": 0.18,
+      "rsi": 49.32,
       "flags": []
     },
     {
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
-      "price": 1968.9,
+      "price": 1969.8,
       "prev_close": 1967.2,
-      "chg_pct": 0.09,
-      "rsi": 33.85,
+      "chg_pct": 0.13,
+      "rsi": 33.84,
       "flags": []
     },
     {
       "symbol": "DIVISLAB.NS",
       "name": "Divi's Laboratories",
-      "price": 9400.0,
+      "price": 9402.0,
       "prev_close": 9488.0,
-      "chg_pct": -0.93,
-      "rsi": 36.67,
+      "chg_pct": -0.91,
+      "rsi": 31.68,
       "flags": []
     },
     {
       "symbol": "DIXON.NS",
       "name": "Dixon Technologies",
-      "price": 13526.0,
+      "price": 13533.0,
       "prev_close": 13845.0,
-      "chg_pct": -2.3,
-      "rsi": 15.91,
+      "chg_pct": -2.25,
+      "rsi": 21.05,
       "flags": [
         "big_move_down",
         "rsi_oversold"
@@ -306,10 +330,10 @@
     {
       "symbol": "UNIONBANK.NS",
       "name": "Union Bank of India",
-      "price": 178.82,
+      "price": 178.88,
       "prev_close": 183.22,
-      "chg_pct": -2.4,
-      "rsi": 7.09,
+      "chg_pct": -2.37,
+      "rsi": 7.35,
       "flags": [
         "big_move_down",
         "rsi_oversold"
@@ -318,37 +342,37 @@
     {
       "symbol": "TITAN.NS",
       "name": "Titan Company",
-      "price": 5005.0,
+      "price": 5002.0,
       "prev_close": 5005.0,
-      "chg_pct": 0.0,
-      "rsi": 46.9,
+      "chg_pct": -0.06,
+      "rsi": 38.89,
       "flags": []
     },
     {
       "symbol": "LODHA.NS",
       "name": "Macrotech Developers",
-      "price": 1163.0,
+      "price": 1158.6,
       "prev_close": 1166.0,
-      "chg_pct": -0.26,
-      "rsi": 66.86,
+      "chg_pct": -0.63,
+      "rsi": 61.3,
       "flags": []
     },
     {
       "symbol": "KALYANKJIL.NS",
       "name": "Kalyan Jewellers",
-      "price": 615.15,
+      "price": 614.6,
       "prev_close": 607.6,
-      "chg_pct": 1.24,
-      "rsi": 52.36,
+      "chg_pct": 1.15,
+      "rsi": 42.27,
       "flags": []
     },
     {
       "symbol": "TVSMOTOR.NS",
       "name": "TVS Motor",
-      "price": 4127.1,
+      "price": 4137.1,
       "prev_close": 4133.2,
-      "chg_pct": -0.15,
-      "rsi": 40.63,
+      "chg_pct": 0.09,
+      "rsi": 52.77,
       "flags": []
     },
     {
@@ -357,54 +381,52 @@
       "price": 1800.0,
       "prev_close": 1826.0,
       "chg_pct": -1.42,
-      "rsi": 57.51,
+      "rsi": 62.98,
       "flags": []
     },
     {
       "symbol": "SIEMENS.NS",
       "name": "Siemens",
-      "price": 3926.3,
+      "price": 3911.7,
       "prev_close": 3951.3,
-      "chg_pct": -0.63,
-      "rsi": 49.66,
+      "chg_pct": -1.0,
+      "rsi": 41.35,
       "flags": []
     },
     {
       "symbol": "ICICIBANK.NS",
       "name": "ICICI Bank",
-      "price": 1381.0,
+      "price": 1382.6,
       "prev_close": 1389.1,
-      "chg_pct": -0.58,
-      "rsi": 38.57,
+      "chg_pct": -0.47,
+      "rsi": 36.49,
       "flags": []
     },
     {
       "symbol": "BHEL.NS",
       "name": "Bharat Heavy Electricals",
-      "price": 431.95,
+      "price": 431.5,
       "prev_close": 433.7,
-      "chg_pct": -0.4,
-      "rsi": 53.66,
+      "chg_pct": -0.51,
+      "rsi": 48.34,
       "flags": []
     },
     {
       "symbol": "ABCAPITAL.NS",
       "name": "Aditya Birla Capital",
-      "price": 399.0,
+      "price": 399.1,
       "prev_close": 400.0,
-      "chg_pct": -0.25,
-      "rsi": 71.54,
-      "flags": [
-        "rsi_overbought"
-      ]
+      "chg_pct": -0.22,
+      "rsi": 69.92,
+      "flags": []
     },
     {
       "symbol": "JSWSTEEL.NS",
       "name": "JSW Steel",
-      "price": 1296.7,
+      "price": 1296.3,
       "prev_close": 1310.0,
-      "chg_pct": -1.02,
-      "rsi": 19.1,
+      "chg_pct": -1.05,
+      "rsi": 10.84,
       "flags": [
         "rsi_oversold"
       ]
@@ -412,28 +434,28 @@
     {
       "symbol": "GRASIM.NS",
       "name": "Grasim Industries",
-      "price": 3305.0,
+      "price": 3308.5,
       "prev_close": 3306.8,
-      "chg_pct": -0.05,
-      "rsi": 57.68,
+      "chg_pct": 0.05,
+      "rsi": 68.61,
       "flags": []
     },
     {
       "symbol": "NAUKRI.NS",
       "name": "Info Edge India",
-      "price": 1264.4,
+      "price": 1263.6,
       "prev_close": 1267.0,
-      "chg_pct": -0.21,
-      "rsi": 43.15,
+      "chg_pct": -0.27,
+      "rsi": 41.67,
       "flags": []
     },
     {
       "symbol": "OBEROIRLTY.NS",
       "name": "Oberoi Realty",
-      "price": 1784.1,
+      "price": 1783.0,
       "prev_close": 1833.8,
-      "chg_pct": -2.71,
-      "rsi": 49.23,
+      "chg_pct": -2.77,
+      "rsi": 47.87,
       "flags": [
         "big_move_down"
       ]
@@ -444,7 +466,7 @@
       "price": 1539.2,
       "prev_close": 1561.6,
       "chg_pct": -1.43,
-      "rsi": 70.02,
+      "rsi": 71.74,
       "flags": [
         "rsi_overbought"
       ]
@@ -452,64 +474,66 @@
     {
       "symbol": "CHOLAFIN.NS",
       "name": "Cholamandalam Investment",
-      "price": 1855.6,
+      "price": 1856.4,
       "prev_close": 1829.0,
-      "chg_pct": 1.45,
-      "rsi": 64.8,
+      "chg_pct": 1.5,
+      "rsi": 64.21,
       "flags": []
     },
     {
       "symbol": "HAL.NS",
       "name": "Hindustan Aeronautics",
-      "price": 4960.0,
+      "price": 4957.0,
       "prev_close": 5000.5,
-      "chg_pct": -0.81,
-      "rsi": 54.12,
+      "chg_pct": -0.87,
+      "rsi": 39.75,
       "flags": []
     },
     {
       "symbol": "PETRONET.NS",
       "name": "Petronet LNG",
-      "price": 288.25,
+      "price": 287.55,
       "prev_close": 285.8,
-      "chg_pct": 0.86,
-      "rsi": 44.72,
+      "chg_pct": 0.61,
+      "rsi": 31.36,
       "flags": []
     },
     {
       "symbol": "MOTHERSON.NS",
       "name": "Samvardhana Motherson",
-      "price": 163.47,
+      "price": 163.41,
       "prev_close": 163.7,
-      "chg_pct": -0.14,
-      "rsi": 53.36,
+      "chg_pct": -0.18,
+      "rsi": 56.49,
       "flags": []
     },
     {
       "symbol": "TECHM.NS",
       "name": "Tech Mahindra",
-      "price": 1516.3,
+      "price": 1516.5,
       "prev_close": 1508.0,
-      "chg_pct": 0.55,
-      "rsi": 38.21,
+      "chg_pct": 0.56,
+      "rsi": 52.79,
       "flags": []
     },
     {
       "symbol": "PNB.NS",
       "name": "Punjab National Bank",
-      "price": 116.76,
+      "price": 116.69,
       "prev_close": 115.61,
-      "chg_pct": 0.99,
-      "rsi": 48.36,
-      "flags": []
+      "chg_pct": 0.93,
+      "rsi": 18.89,
+      "flags": [
+        "rsi_oversold"
+      ]
     },
     {
       "symbol": "BAJAJFINSV.NS",
       "name": "Bajaj Finserv",
-      "price": 1930.9,
+      "price": 1930.0,
       "prev_close": 1938.1,
-      "chg_pct": -0.37,
-      "rsi": 48.47,
+      "chg_pct": -0.42,
+      "rsi": 46.58,
       "flags": []
     },
     {
@@ -518,7 +542,7 @@
       "price": 1060.1,
       "prev_close": 1073.7,
       "chg_pct": -1.27,
-      "rsi": 88.37,
+      "rsi": 86.33,
       "flags": [
         "rsi_overbought"
       ]
@@ -526,37 +550,39 @@
     {
       "symbol": "GAIL.NS",
       "name": "GAIL India",
-      "price": 174.04,
+      "price": 173.89,
       "prev_close": 174.9,
-      "chg_pct": -0.49,
-      "rsi": 35.78,
+      "chg_pct": -0.58,
+      "rsi": 31.79,
       "flags": []
     },
     {
       "symbol": "PIDILITIND.NS",
       "name": "Pidilite Industries",
-      "price": 1561.5,
+      "price": 1562.0,
       "prev_close": 1572.0,
-      "chg_pct": -0.67,
-      "rsi": 47.81,
+      "chg_pct": -0.64,
+      "rsi": 65.76,
       "flags": []
     },
     {
       "symbol": "JUBLFOOD.NS",
       "name": "Jubilant FoodWorks",
-      "price": 477.2,
+      "price": 477.1,
       "prev_close": 475.95,
-      "chg_pct": 0.26,
-      "rsi": 67.39,
-      "flags": []
+      "chg_pct": 0.24,
+      "rsi": 73.74,
+      "flags": [
+        "rsi_overbought"
+      ]
     },
     {
       "symbol": "INDUSINDBK.NS",
       "name": "IndusInd Bank",
-      "price": 989.6,
+      "price": 989.5,
       "prev_close": 1004.0,
-      "chg_pct": -1.43,
-      "rsi": 17.16,
+      "chg_pct": -1.44,
+      "rsi": 20.45,
       "flags": [
         "rsi_oversold"
       ]
@@ -564,19 +590,19 @@
     {
       "symbol": "ABB.NS",
       "name": "ABB India",
-      "price": 7334.0,
+      "price": 7323.0,
       "prev_close": 7401.5,
-      "chg_pct": -0.91,
-      "rsi": 43.45,
+      "chg_pct": -1.06,
+      "rsi": 38.01,
       "flags": []
     },
     {
       "symbol": "SAIL.NS",
       "name": "Steel Authority of India",
-      "price": 184.18,
+      "price": 184.08,
       "prev_close": 186.4,
-      "chg_pct": -1.19,
-      "rsi": 28.06,
+      "chg_pct": -1.24,
+      "rsi": 28.61,
       "flags": [
         "rsi_oversold"
       ]
@@ -584,10 +610,10 @@
     {
       "symbol": "HEROMOTOCO.NS",
       "name": "Hero MotoCorp",
-      "price": 5248.0,
+      "price": 5246.0,
       "prev_close": 5218.0,
-      "chg_pct": 0.57,
-      "rsi": 76.77,
+      "chg_pct": 0.54,
+      "rsi": 71.75,
       "flags": [
         "rsi_overbought"
       ]
@@ -595,46 +621,48 @@
     {
       "symbol": "PHOENIXLTD.NS",
       "name": "Phoenix Mills",
-      "price": 1900.9,
+      "price": 1896.7,
       "prev_close": 1885.0,
-      "chg_pct": 0.84,
-      "rsi": 65.07,
+      "chg_pct": 0.62,
+      "rsi": 62.48,
       "flags": []
     },
     {
       "symbol": "PERSISTENT.NS",
       "name": "Persistent Systems",
-      "price": 5499.5,
+      "price": 5497.5,
       "prev_close": 5419.0,
-      "chg_pct": 1.49,
-      "rsi": 56.25,
+      "chg_pct": 1.45,
+      "rsi": 61.61,
       "flags": []
     },
     {
       "symbol": "BAJAJHLDNG.NS",
       "name": "Bajaj Holdings",
-      "price": 10991.0,
+      "price": 10987.0,
       "prev_close": 11046.0,
-      "chg_pct": -0.5,
-      "rsi": 50.75,
+      "chg_pct": -0.53,
+      "rsi": 49.41,
       "flags": []
     },
     {
       "symbol": "BAJFINANCE.NS",
       "name": "Bajaj Finance",
-      "price": 1041.2,
+      "price": 1040.9,
       "prev_close": 1039.3,
-      "chg_pct": 0.18,
-      "rsi": 31.15,
-      "flags": []
+      "chg_pct": 0.15,
+      "rsi": 27.27,
+      "flags": [
+        "rsi_oversold"
+      ]
     },
     {
       "symbol": "CONCOR.NS",
       "name": "Container Corp of India",
-      "price": 507.25,
+      "price": 507.4,
       "prev_close": 510.0,
-      "chg_pct": -0.54,
-      "rsi": 51.23,
+      "chg_pct": -0.51,
+      "rsi": 62.43,
       "flags": []
     }
   ],
