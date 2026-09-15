@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-09-14T11:00:56.490767+00:00",
-  "ist": "2026-09-14T16:30:56.488054+05:30",
+  "generated_at": "2026-09-15T11:00:57.428072+00:00",
+  "ist": "2026-09-15T16:30:57.425379+05:30",
   "decision": "eligible_for_review",
   "summary": {
-    "paper_days": 40,
+    "paper_days": 41,
     "min_trading_days": 20,
     "passed_blocking": 11,
     "blocking_criteria": 11,
     "total_pnl_pct": 0.0,
-    "alpha_pct": 3.467,
+    "alpha_pct": 4.62,
     "recomputed_totals": {
       "available": true,
       "total_pnl_pct": 0.0,
-      "alpha_pct": 3.467,
+      "alpha_pct": 4.62,
       "max_mismatch_pct": 0.0,
       "consistent": true
     },
@@ -220,7 +220,7 @@
       "label": "Run at least one trading month in dummy mode",
       "passed": true,
       "blocking": true,
-      "detail": "40/20 paper-trading days recorded"
+      "detail": "41/20 paper-trading days recorded"
     },
     {
       "key": "positive_dummy_pnl",
@@ -234,14 +234,14 @@
       "label": "Dummy portfolio beats NIFTY 50",
       "passed": true,
       "blocking": true,
-      "detail": "alpha 3.47% (recomputed from history)"
+      "detail": "alpha 4.62% (recomputed from history)"
     },
     {
       "key": "totals_recomputed_consistent",
       "label": "Stored totals match independent recomputation",
       "passed": true,
       "blocking": true,
-      "detail": "recomputed total 0.00% / alpha 3.47% vs stored 0.00% / 3.47% (max mismatch 0.0 pct-pts, limit 0.1)"
+      "detail": "recomputed total 0.00% / alpha 4.62% vs stored 0.00% / 4.62% (max mismatch 0.0 pct-pts, limit 0.1)"
     },
     {
       "key": "drawdown_inside_limit",
@@ -255,14 +255,14 @@
       "label": "Daily analysis is fresh",
       "passed": true,
       "blocking": true,
-      "detail": "3 calendar days old"
+      "detail": "0 calendar days old"
     },
     {
       "key": "watchlist_fresh",
       "label": "Watchlist is fresh",
       "passed": true,
       "blocking": true,
-      "detail": "0 calendar days old"
+      "detail": "1 calendar days old"
     },
     {
       "key": "intraday_fresh_when_open",
@@ -304,7 +304,7 @@
       "label": "Live paper engine has filled at least one trade (advisory)",
       "passed": false,
       "blocking": false,
-      "detail": "0 of 39 post-inception day(s) had a fill; 0 means order sizing, fills, and stop-loss handling are backtest-only so far and have not run through the live paper engine"
+      "detail": "0 of 40 post-inception day(s) had a fill; 0 means order sizing, fills, and stop-loss handling are backtest-only so far and have not run through the live paper engine"
     },
     {
       "key": "drift_ok",
