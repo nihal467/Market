@@ -411,6 +411,41 @@ class PaperTraderTests(unittest.TestCase):
         self.assertIn(("SELL", "BBB.NS"), actions)          # protective exit queued
         self.assertFalse(any(a == "BUY" for a, _s in actions))  # no new buys
 
+    def test_market_regime_risk_off_blocks_new_buys(self) -> None:
+        # Mirrors a live incubation observation (2026-07-21): regime turned
+        # risk-off with 40 BUY-ranked candidates and 0 existing positions,
+        # and the run correctly queued zero new orders. Lock that in.
+        self.freeze_now(datetime(2026, 7, 2, 16, 40, tzinfo=IST))
+        self.write_json("daily/latest.json", {
+            "trading_date": "2026-07-02",
+            "market_regime": {"risk_on": False, "reason": "nifty_trend_risk_off"},
+            "analysis": [
+                {"symbol": "AAA.NS", "name": "AAA", "price": 50.0,
+                 "signal": "BUY", "score": 5.0, "ret_3m": 30.0},
+                {"symbol": "CCC.NS", "name": "CCC", "price": 20.0,
+                 "signal": "BUY", "score": 4.0, "ret_3m": 25.0},
+            ],
+        })
+        self.write_json("paper/state.json", {
+            "inception": "2026-07-01",
+            "start_capital": 500000.0,
+            "cash": 500000.0,
+            "positions": {},
+            "last_date": "2026-07-01",
+            "last_rebalance_key": "2026-W20",
+            "history": [{"date": "2026-07-01", "value": 500000.0, "total_pnl": 0.0}],
+        })
+
+        result = paper_trader.run()
+
+        self.assertFalse(result.get("skipped", False))
+        state = json.loads((self.root / "paper/state.json").read_text(encoding="utf-8"))
+        snap = state["history"][-1]
+        self.assertEqual(state["positions"], {})
+        self.assertEqual(state["pending_orders"], [])
+        self.assertEqual(snap["trades"], [])
+        self.assertTrue(snap["risk_block_new_buys"])
+
     def test_same_day_replay_never_fills_orders_queued_today(self) -> None:
         # Replaying today's snapshot (legacy preliminary row) must NOT fill
         # orders that were queued from TODAY's close — no order may fill on
