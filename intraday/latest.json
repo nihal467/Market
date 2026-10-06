@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-06T06:02:00.048275+00:00",
-  "ist": "2026-10-06T11:31:53.194343+05:30",
+  "generated_at": "2026-10-06T06:17:08.951709+00:00",
+  "ist": "2026-10-06T11:47:02.224011+05:30",
   "phase": "open",
   "count": 52,
   "expected_count": 53,
@@ -12,22 +12,22 @@
   "delay": "~15-min delayed",
   "movers": [
     {
-      "symbol": "PETRONET.NS",
-      "name": "Petronet LNG",
-      "price": 297.25,
-      "prev_close": 285.5,
-      "chg_pct": 4.12,
+      "symbol": "BHEL.NS",
+      "name": "Bharat Heavy Electricals",
+      "price": 446.55,
+      "prev_close": 429.0,
+      "chg_pct": 4.09,
       "rsi": null,
       "flags": [
         "big_move_up"
       ]
     },
     {
-      "symbol": "BHEL.NS",
-      "name": "Bharat Heavy Electricals",
-      "price": 445.35,
-      "prev_close": 429.0,
-      "chg_pct": 3.81,
+      "symbol": "PETRONET.NS",
+      "name": "Petronet LNG",
+      "price": 297.0,
+      "prev_close": 285.5,
+      "chg_pct": 4.03,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -36,9 +36,9 @@
     {
       "symbol": "JUBLFOOD.NS",
       "name": "Jubilant FoodWorks",
-      "price": 457.6,
+      "price": 458.55,
       "prev_close": 443.4,
-      "chg_pct": 3.2,
+      "chg_pct": 3.42,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -47,9 +47,20 @@
     {
       "symbol": "KOTAKBANK.NS",
       "name": "Kotak Mahindra Bank",
-      "price": 429.85,
+      "price": 430.85,
       "prev_close": 418.35,
-      "chg_pct": 2.75,
+      "chg_pct": 2.99,
+      "rsi": null,
+      "flags": [
+        "big_move_up"
+      ]
+    },
+    {
+      "symbol": "SIEMENS.NS",
+      "name": "Siemens",
+      "price": 3803.4,
+      "prev_close": 3701.1,
+      "chg_pct": 2.76,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -58,19 +69,19 @@
     {
       "symbol": "PHOENIXLTD.NS",
       "name": "Phoenix Mills",
-      "price": 1877.5,
+      "price": 1877.3,
       "prev_close": 1930.0,
-      "chg_pct": -2.72,
+      "chg_pct": -2.73,
       "rsi": null,
       "flags": [
         "big_move_down"
       ]
     },
     {
-      "symbol": "SIEMENS.NS",
-      "name": "Siemens",
-      "price": 3801.2,
-      "prev_close": 3701.1,
+      "symbol": "CGPOWER.NS",
+      "name": "CG Power & Industrial",
+      "price": 906.1,
+      "prev_close": 882.3,
       "chg_pct": 2.7,
       "rsi": null,
       "flags": [
@@ -80,20 +91,9 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2947.8,
+      "price": 2950.1,
       "prev_close": 2874.4,
-      "chg_pct": 2.55,
-      "rsi": null,
-      "flags": [
-        "big_move_up"
-      ]
-    },
-    {
-      "symbol": "CGPOWER.NS",
-      "name": "CG Power & Industrial",
-      "price": 904.15,
-      "prev_close": 882.3,
-      "chg_pct": 2.48,
+      "chg_pct": 2.63,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -102,23 +102,45 @@
     {
       "symbol": "TECHM.NS",
       "name": "Tech Mahindra",
-      "price": 1500.2,
+      "price": 1499.5,
       "prev_close": 1535.9,
-      "chg_pct": -2.32,
+      "chg_pct": -2.37,
       "rsi": null,
       "flags": [
         "big_move_down"
       ]
     },
     {
+      "symbol": "HAL.NS",
+      "name": "Hindustan Aeronautics",
+      "price": 4785.2,
+      "prev_close": 4680.0,
+      "chg_pct": 2.25,
+      "rsi": null,
+      "flags": [
+        "big_move_up"
+      ]
+    },
+    {
       "symbol": "IDFCFIRSTB.NS",
       "name": "IDFC First Bank",
-      "price": 80.55,
+      "price": 80.48,
       "prev_close": 82.22,
-      "chg_pct": -2.03,
+      "chg_pct": -2.12,
       "rsi": null,
       "flags": [
         "big_move_down"
+      ]
+    },
+    {
+      "symbol": "MOTHERSON.NS",
+      "name": "Samvardhana Motherson",
+      "price": 159.68,
+      "prev_close": 156.5,
+      "chg_pct": 2.03,
+      "rsi": null,
+      "flags": [
+        "big_move_up"
       ]
     }
   ],
@@ -126,36 +148,36 @@
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 258.6,
+      "price": 258.8,
       "prev_close": 256.5,
-      "chg_pct": 0.82,
+      "chg_pct": 0.9,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 755.4,
+      "price": 755.85,
       "prev_close": 747.52,
-      "chg_pct": 1.05,
+      "chg_pct": 1.11,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "DIVISLAB.NS",
       "name": "Divi's Laboratories",
-      "price": 9358.0,
+      "price": 9347.0,
       "prev_close": 9196.0,
-      "chg_pct": 1.76,
+      "chg_pct": 1.64,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 2947.8,
+      "price": 2950.1,
       "prev_close": 2874.4,
-      "chg_pct": 2.55,
+      "chg_pct": 2.63,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -164,25 +186,25 @@
     {
       "symbol": "COFORGE.NS",
       "name": "Coforge",
-      "price": 1821.0,
+      "price": 1826.5,
       "prev_close": 1852.0,
-      "chg_pct": -1.67,
+      "chg_pct": -1.38,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "PAYTM.NS",
       "name": "One 97 Communications",
-      "price": 1680.9,
+      "price": 1680.0,
       "prev_close": 1684.0,
-      "chg_pct": -0.18,
+      "chg_pct": -0.24,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "KALYANKJIL.NS",
       "name": "Kalyan Jewellers",
-      "price": 556.1,
+      "price": 556.15,
       "prev_close": 556.85,
       "chg_pct": -0.13,
       "rsi": null,
@@ -191,27 +213,27 @@
     {
       "symbol": "AUROPHARMA.NS",
       "name": "Aurobindo Pharma",
-      "price": 1688.3,
+      "price": 1687.4,
       "prev_close": 1674.9,
-      "chg_pct": 0.8,
+      "chg_pct": 0.75,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
-      "price": 1940.2,
+      "price": 1937.5,
       "prev_close": 1943.2,
-      "chg_pct": -0.15,
+      "chg_pct": -0.29,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "KOTAKBANK.NS",
       "name": "Kotak Mahindra Bank",
-      "price": 429.85,
+      "price": 430.85,
       "prev_close": 418.35,
-      "chg_pct": 2.75,
+      "chg_pct": 2.99,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -220,9 +242,9 @@
     {
       "symbol": "BHEL.NS",
       "name": "Bharat Heavy Electricals",
-      "price": 445.35,
+      "price": 446.55,
       "prev_close": 429.0,
-      "chg_pct": 3.81,
+      "chg_pct": 4.09,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -231,36 +253,36 @@
     {
       "symbol": "MANKIND.NS",
       "name": "Mankind Pharma",
-      "price": 2498.9,
+      "price": 2499.0,
       "prev_close": 2479.0,
-      "chg_pct": 0.8,
+      "chg_pct": 0.81,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "PERSISTENT.NS",
       "name": "Persistent Systems",
-      "price": 5470.0,
+      "price": 5492.0,
       "prev_close": 5530.0,
-      "chg_pct": -1.08,
+      "chg_pct": -0.69,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "NAUKRI.NS",
       "name": "Info Edge India",
-      "price": 1207.1,
+      "price": 1220.8,
       "prev_close": 1201.7,
-      "chg_pct": 0.45,
+      "chg_pct": 1.59,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "PETRONET.NS",
       "name": "Petronet LNG",
-      "price": 297.25,
+      "price": 297.0,
       "prev_close": 285.5,
-      "chg_pct": 4.12,
+      "chg_pct": 4.03,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -269,27 +291,27 @@
     {
       "symbol": "ABBOTINDIA.NS",
       "name": "Abbott India",
-      "price": 26025.0,
+      "price": 26035.0,
       "prev_close": 26240.0,
-      "chg_pct": -0.82,
+      "chg_pct": -0.78,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "ETERNAL.NS",
       "name": "Eternal (formerly Zomato)",
-      "price": 325.35,
+      "price": 325.9,
       "prev_close": 320.8,
-      "chg_pct": 1.42,
+      "chg_pct": 1.59,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "TECHM.NS",
       "name": "Tech Mahindra",
-      "price": 1500.2,
+      "price": 1499.5,
       "prev_close": 1535.9,
-      "chg_pct": -2.32,
+      "chg_pct": -2.37,
       "rsi": null,
       "flags": [
         "big_move_down"
@@ -298,9 +320,9 @@
     {
       "symbol": "HEROMOTOCO.NS",
       "name": "Hero MotoCorp",
-      "price": 5074.0,
+      "price": 5091.0,
       "prev_close": 5168.0,
-      "chg_pct": -1.82,
+      "chg_pct": -1.49,
       "rsi": null,
       "flags": []
     },
@@ -316,45 +338,45 @@
     {
       "symbol": "ADANIPORTS.NS",
       "name": "Adani Ports & SEZ",
-      "price": 1776.8,
+      "price": 1777.4,
       "prev_close": 1774.0,
-      "chg_pct": 0.16,
+      "chg_pct": 0.19,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "SAIL.NS",
       "name": "Steel Authority of India",
-      "price": 178.56,
+      "price": 178.32,
       "prev_close": 176.95,
-      "chg_pct": 0.91,
+      "chg_pct": 0.77,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "COALINDIA.NS",
       "name": "Coal India",
-      "price": 417.2,
+      "price": 417.75,
       "prev_close": 425.1,
-      "chg_pct": -1.86,
+      "chg_pct": -1.73,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "BOSCHLTD.NS",
       "name": "Bosch",
-      "price": 45020.0,
+      "price": 44945.0,
       "prev_close": 44960.0,
-      "chg_pct": 0.13,
+      "chg_pct": -0.03,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "PHOENIXLTD.NS",
       "name": "Phoenix Mills",
-      "price": 1877.5,
+      "price": 1877.3,
       "prev_close": 1930.0,
-      "chg_pct": -2.72,
+      "chg_pct": -2.73,
       "rsi": null,
       "flags": [
         "big_move_down"
@@ -363,54 +385,56 @@
     {
       "symbol": "TVSMOTOR.NS",
       "name": "TVS Motor",
-      "price": 4013.1,
+      "price": 4018.0,
       "prev_close": 4031.0,
-      "chg_pct": -0.44,
+      "chg_pct": -0.32,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "TITAN.NS",
       "name": "Titan Company",
-      "price": 4555.5,
+      "price": 4556.2,
       "prev_close": 4580.0,
-      "chg_pct": -0.53,
+      "chg_pct": -0.52,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "INDHOTEL.NS",
       "name": "Indian Hotels",
-      "price": 728.25,
+      "price": 730.8,
       "prev_close": 718.0,
-      "chg_pct": 1.43,
+      "chg_pct": 1.78,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "HCLTECH.NS",
       "name": "HCL Technologies",
-      "price": 1191.3,
+      "price": 1196.2,
       "prev_close": 1201.9,
-      "chg_pct": -0.88,
+      "chg_pct": -0.47,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "MOTHERSON.NS",
       "name": "Samvardhana Motherson",
-      "price": 159.05,
+      "price": 159.68,
       "prev_close": 156.5,
-      "chg_pct": 1.63,
+      "chg_pct": 2.03,
       "rsi": null,
-      "flags": []
+      "flags": [
+        "big_move_up"
+      ]
     },
     {
       "symbol": "SIEMENS.NS",
       "name": "Siemens",
-      "price": 3801.2,
+      "price": 3803.4,
       "prev_close": 3701.1,
-      "chg_pct": 2.7,
+      "chg_pct": 2.76,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -419,63 +443,65 @@
     {
       "symbol": "BAJAJ-AUTO.NS",
       "name": "Bajaj Auto",
-      "price": 10009.0,
+      "price": 10013.0,
       "prev_close": 10045.0,
-      "chg_pct": -0.36,
+      "chg_pct": -0.32,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "PNB.NS",
       "name": "Punjab National Bank",
-      "price": 112.51,
+      "price": 112.04,
       "prev_close": 112.35,
-      "chg_pct": 0.14,
+      "chg_pct": -0.28,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "UNIONBANK.NS",
       "name": "Union Bank of India",
-      "price": 168.79,
+      "price": 168.39,
       "prev_close": 167.97,
-      "chg_pct": 0.49,
+      "chg_pct": 0.25,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "HAL.NS",
       "name": "Hindustan Aeronautics",
-      "price": 4771.4,
+      "price": 4785.2,
       "prev_close": 4680.0,
-      "chg_pct": 1.95,
+      "chg_pct": 2.25,
       "rsi": null,
-      "flags": []
+      "flags": [
+        "big_move_up"
+      ]
     },
     {
       "symbol": "LODHA.NS",
       "name": "Macrotech Developers",
-      "price": 1124.3,
+      "price": 1126.8,
       "prev_close": 1105.6,
-      "chg_pct": 1.69,
+      "chg_pct": 1.92,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "DRREDDY.NS",
       "name": "Dr Reddy's Laboratories",
-      "price": 1209.6,
+      "price": 1210.0,
       "prev_close": 1206.2,
-      "chg_pct": 0.28,
+      "chg_pct": 0.32,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "SOLARINDS.NS",
       "name": "Solar Industries",
-      "price": 19674.0,
+      "price": 19690.0,
       "prev_close": 19400.0,
-      "chg_pct": 1.41,
+      "chg_pct": 1.49,
       "rsi": null,
       "flags": []
     },
@@ -491,27 +517,27 @@
     {
       "symbol": "DLF.NS",
       "name": "DLF",
-      "price": 665.8,
+      "price": 666.8,
       "prev_close": 673.0,
-      "chg_pct": -1.07,
+      "chg_pct": -0.92,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "GRASIM.NS",
       "name": "Grasim Industries",
-      "price": 2949.9,
+      "price": 2954.4,
       "prev_close": 2962.0,
-      "chg_pct": -0.41,
+      "chg_pct": -0.26,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "CGPOWER.NS",
       "name": "CG Power & Industrial",
-      "price": 904.15,
+      "price": 906.1,
       "prev_close": 882.3,
-      "chg_pct": 2.48,
+      "chg_pct": 2.7,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -529,27 +555,27 @@
     {
       "symbol": "SUPREMEIND.NS",
       "name": "Supreme Industries",
-      "price": 3441.8,
+      "price": 3432.1,
       "prev_close": 3398.9,
-      "chg_pct": 1.26,
+      "chg_pct": 0.98,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "JINDALSTEL.NS",
       "name": "Jindal Steel & Power",
-      "price": 1080.3,
+      "price": 1085.5,
       "prev_close": 1097.3,
-      "chg_pct": -1.55,
+      "chg_pct": -1.08,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "JUBLFOOD.NS",
       "name": "Jubilant FoodWorks",
-      "price": 457.6,
+      "price": 458.55,
       "prev_close": 443.4,
-      "chg_pct": 3.2,
+      "chg_pct": 3.42,
       "rsi": null,
       "flags": [
         "big_move_up"
@@ -558,45 +584,45 @@
     {
       "symbol": "ICICIBANK.NS",
       "name": "ICICI Bank",
-      "price": 1330.3,
+      "price": 1332.3,
       "prev_close": 1332.0,
-      "chg_pct": -0.13,
+      "chg_pct": 0.02,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "SBILIFE.NS",
       "name": "SBI Life Insurance",
-      "price": 1737.4,
+      "price": 1741.0,
       "prev_close": 1721.6,
-      "chg_pct": 0.92,
+      "chg_pct": 1.13,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "CONCOR.NS",
       "name": "Container Corp of India",
-      "price": 443.35,
+      "price": 443.5,
       "prev_close": 442.0,
-      "chg_pct": 0.31,
+      "chg_pct": 0.34,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "JSWSTEEL.NS",
       "name": "JSW Steel",
-      "price": 1256.1,
+      "price": 1259.4,
       "prev_close": 1235.3,
-      "chg_pct": 1.68,
+      "chg_pct": 1.95,
       "rsi": null,
       "flags": []
     },
     {
       "symbol": "IDFCFIRSTB.NS",
       "name": "IDFC First Bank",
-      "price": 80.55,
+      "price": 80.48,
       "prev_close": 82.22,
-      "chg_pct": -2.03,
+      "chg_pct": -2.12,
       "rsi": null,
       "flags": [
         "big_move_down"
@@ -605,9 +631,9 @@
     {
       "symbol": "OFSS.NS",
       "name": "Oracle Financial Services",
-      "price": 10397.0,
+      "price": 10449.0,
       "prev_close": 10470.0,
-      "chg_pct": -0.7,
+      "chg_pct": -0.2,
       "rsi": null,
       "flags": []
     }
