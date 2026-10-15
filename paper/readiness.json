@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-10-14T11:01:22.444455+00:00",
-  "ist": "2026-10-14T16:31:22.441553+05:30",
+  "generated_at": "2026-10-15T11:01:12.635873+00:00",
+  "ist": "2026-10-15T16:31:12.633524+05:30",
   "decision": "eligible_for_review",
   "summary": {
-    "paper_days": 61,
+    "paper_days": 62,
     "min_trading_days": 20,
     "passed_blocking": 11,
     "blocking_criteria": 11,
     "total_pnl_pct": 0.0,
-    "alpha_pct": 6.666,
+    "alpha_pct": 5.121,
     "recomputed_totals": {
       "available": true,
       "total_pnl_pct": 0.0,
-      "alpha_pct": 6.666,
+      "alpha_pct": 5.121,
       "max_mismatch_pct": 0.0,
       "consistent": true
     },
@@ -220,7 +220,7 @@
       "label": "Run at least one trading month in dummy mode",
       "passed": true,
       "blocking": true,
-      "detail": "61/20 paper-trading days recorded"
+      "detail": "62/20 paper-trading days recorded"
     },
     {
       "key": "positive_dummy_pnl",
@@ -234,14 +234,14 @@
       "label": "Dummy portfolio beats NIFTY 50",
       "passed": true,
       "blocking": true,
-      "detail": "alpha 6.67% (recomputed from history)"
+      "detail": "alpha 5.12% (recomputed from history)"
     },
     {
       "key": "totals_recomputed_consistent",
       "label": "Stored totals match independent recomputation",
       "passed": true,
       "blocking": true,
-      "detail": "recomputed total 0.00% / alpha 6.67% vs stored 0.00% / 6.67% (max mismatch 0.0 pct-pts, limit 0.1)"
+      "detail": "recomputed total 0.00% / alpha 5.12% vs stored 0.00% / 5.12% (max mismatch 0.0 pct-pts, limit 0.1)"
     },
     {
       "key": "drawdown_inside_limit",
@@ -262,7 +262,7 @@
       "label": "Watchlist is fresh",
       "passed": true,
       "blocking": true,
-      "detail": "2 calendar days old"
+      "detail": "3 calendar days old"
     },
     {
       "key": "intraday_fresh_when_open",
@@ -304,7 +304,7 @@
       "label": "Live paper engine has filled at least one trade (advisory)",
       "passed": false,
       "blocking": false,
-      "detail": "0 of 60 post-inception day(s) had a fill; 0 means order sizing, fills, and stop-loss handling are backtest-only so far and have not run through the live paper engine"
+      "detail": "0 of 61 post-inception day(s) had a fill; 0 means order sizing, fills, and stop-loss handling are backtest-only so far and have not run through the live paper engine"
     },
     {
       "key": "drift_ok",

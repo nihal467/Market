@@ -1,0 +1,1584 @@
+{
+  "generated_at": "2026-10-15T11:01:11.820340+00:00",
+  "ist": "2026-10-15T16:30:50.759072+05:30",
+  "trading_date": "2026-10-15",
+  "watchlist_size": 50,
+  "analyzed": 50,
+  "coverage_pct": 100.0,
+  "partial": false,
+  "signal_counts": {
+    "BUY": 17,
+    "HOLD": 33,
+    "SELL": 0
+  },
+  "market_regime": {
+    "benchmark": "NIFTY 50",
+    "symbol": "^NSEI",
+    "risk_on": false,
+    "price": 22997.35,
+    "sma50": 23578.78,
+    "sma200": 24205.9,
+    "ret_1m_pct": -0.95,
+    "reason": "NIFTY trend filter is risk-off"
+  },
+  "strategy": {
+    "version": "2026-07-13.momentum-weekly-churn-control-v1",
+    "active_profile": "momentum_weekly_churn_control",
+    "top_n": 10,
+    "hold_until_rank": 20,
+    "rebalance_interval": "weekly",
+    "use_market_regime_guard": true,
+    "cost_per_side_pct": 0.12,
+    "cost_bps_per_side": 12,
+    "slippage_bps": 5,
+    "execution_model": "next_open",
+    "stop_loss_pct": 8.0,
+    "trailing_stop_pct": 10.0,
+    "max_daily_loss_pct": 4.0,
+    "max_drawdown_pct": 12.0,
+    "max_drawdown_pause_pct": 15,
+    "max_position_pct": 15.0,
+    "max_sector_pct": 40.0,
+    "intraday_shock_book_loss_pct": 1.0,
+    "intraday_shock_index_drop_pct": 0.75,
+    "intraday_weak_holding_day_drop_pct": 1.5,
+    "intraday_weak_holding_loss_pct": 2.0,
+    "min_avg_daily_value_rs": 50000000.0,
+    "min_price_rs": 20.0
+  },
+  "changes_since_prev": [
+    {
+      "symbol": "KOTAKBANK.NS",
+      "name": "Kotak Mahindra Bank",
+      "type": "rsi_entered_overbought",
+      "rsi": 78.54
+    },
+    {
+      "symbol": "DIVISLAB.NS",
+      "name": "Divi's Laboratories",
+      "type": "signal_flip",
+      "from": "HOLD",
+      "to": "BUY"
+    },
+    {
+      "symbol": "PNB.NS",
+      "name": "Punjab National Bank",
+      "type": "signal_flip",
+      "from": "BUY",
+      "to": "HOLD"
+    },
+    {
+      "symbol": "AUROPHARMA.NS",
+      "name": "Aurobindo Pharma",
+      "type": "signal_flip",
+      "from": "HOLD",
+      "to": "BUY"
+    },
+    {
+      "symbol": "IPCALAB.NS",
+      "name": "IPCA Laboratories",
+      "type": "signal_flip",
+      "from": "BUY",
+      "to": "HOLD"
+    },
+    {
+      "symbol": "SOLARINDS.NS",
+      "name": "Solar Industries",
+      "type": "signal_flip",
+      "from": "BUY",
+      "to": "HOLD"
+    },
+    {
+      "symbol": "MPHASIS.NS",
+      "name": "Mphasis",
+      "type": "rsi_entered_overbought",
+      "rsi": 70.81
+    },
+    {
+      "symbol": "AXISBANK.NS",
+      "name": "Axis Bank",
+      "type": "rsi_entered_overbought",
+      "rsi": 78.98
+    },
+    {
+      "symbol": "INDUSTOWER.NS",
+      "name": "Indus Towers",
+      "type": "signal_flip",
+      "from": "SELL",
+      "to": "HOLD"
+    },
+    {
+      "symbol": "BAJAJHLDNG.NS",
+      "name": "Bajaj Holdings",
+      "type": "signal_flip",
+      "from": "HOLD",
+      "to": "BUY"
+    },
+    {
+      "symbol": "INDHOTEL.NS",
+      "name": "Indian Hotels",
+      "type": "signal_flip",
+      "from": "BUY",
+      "to": "HOLD"
+    }
+  ],
+  "analysis": [
+    {
+      "symbol": "GLAND.NS",
+      "name": "Gland Pharma",
+      "signal": "BUY",
+      "score": 4.25,
+      "rsi14": 62.11,
+      "price": 3066.3,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.46,
+      "ret_1w": -0.42,
+      "ret_3m": 26.15,
+      "pct_from_high": -2.68,
+      "reasons": [
+        "Price above SMA50 (2905.32)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 62.11 neutral",
+        "Strong 3M momentum (26.15%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 2.0,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "KOTAKBANK.NS",
+      "name": "Kotak Mahindra Bank",
+      "signal": "BUY",
+      "score": 3.31,
+      "rsi14": 78.54,
+      "price": 447.95,
+      "price_date": "2026-10-15",
+      "ret_1d": 2.26,
+      "ret_1w": 2.98,
+      "ret_3m": 14.87,
+      "pct_from_high": 0.0,
+      "reasons": [
+        "Price above SMA50 (413.33)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 78.54 overbought \u2014 bearish",
+        "Near 52-week high",
+        "Strong 3M momentum (14.87%)",
+        "Positive news (score 0.375, 8 headlines)"
+      ],
+      "news_score": 0.375,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": -0.427,
+        "pos52w": -0.5,
+        "momentum": 1.487,
+        "news": 0.75
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "DIVISLAB.NS",
+      "name": "Divi's Laboratories",
+      "signal": "BUY",
+      "score": 2.0,
+      "rsi14": 31.86,
+      "price": 9030.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.08,
+      "ret_1w": -3.54,
+      "ret_3m": 25.11,
+      "pct_from_high": -6.17,
+      "reasons": [
+        "Price below SMA50 (9083.03)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 31.86 neutral",
+        "Strong 3M momentum (25.11%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 2.0,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "BHEL.NS",
+      "name": "Bharat Heavy Electricals",
+      "signal": "BUY",
+      "score": 2.79,
+      "rsi14": 56.88,
+      "price": 434.25,
+      "price_date": "2026-10-15",
+      "ret_1d": -6.41,
+      "ret_1w": 1.08,
+      "ret_3m": 2.9,
+      "pct_from_high": -6.41,
+      "reasons": [
+        "Price above SMA50 (425.14)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 56.88 neutral",
+        "Strong 3M momentum (2.9%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.29,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "COFORGE.NS",
+      "name": "Coforge",
+      "signal": "BUY",
+      "score": 4.5,
+      "rsi14": 68.73,
+      "price": 1934.3,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.33,
+      "ret_1w": 6.61,
+      "ret_3m": 28.53,
+      "pct_from_high": -3.99,
+      "reasons": [
+        "Price above SMA50 (1849.58)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 68.73 neutral",
+        "Strong 3M momentum (28.53%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 2.0,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "PNB.NS",
+      "name": "Punjab National Bank",
+      "signal": "HOLD",
+      "score": 1.377,
+      "rsi14": 45.92,
+      "price": 115.05,
+      "price_date": "2026-10-15",
+      "ret_1d": -2.91,
+      "ret_1w": -0.21,
+      "ret_3m": 8.77,
+      "pct_from_high": -10.55,
+      "reasons": [
+        "Price below SMA50 (115.74)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 45.92 neutral",
+        "Strong 3M momentum (8.77%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.877,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "PERSISTENT.NS",
+      "name": "Persistent Systems",
+      "signal": "BUY",
+      "score": 3.302,
+      "rsi14": 70.06,
+      "price": 5840.0,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.98,
+      "ret_1w": 6.8,
+      "ret_3m": 13.05,
+      "pct_from_high": -10.39,
+      "reasons": [
+        "Price above SMA50 (5545.18)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 70.06 overbought \u2014 bearish",
+        "Strong 3M momentum (13.05%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": -0.003,
+        "momentum": 1.305,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "AUROPHARMA.NS",
+      "name": "Aurobindo Pharma",
+      "signal": "BUY",
+      "score": 3.442,
+      "rsi14": 41.99,
+      "price": 1677.9,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.9,
+      "ret_1w": 2.0,
+      "ret_3m": 9.42,
+      "pct_from_high": -3.24,
+      "reasons": [
+        "Price above SMA50 (1665.36)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 41.99 neutral",
+        "Strong 3M momentum (9.42%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.942,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "NYKAA.NS",
+      "name": "FSN E-Commerce (Nykaa)",
+      "signal": "BUY",
+      "score": 2.475,
+      "rsi14": 52.18,
+      "price": 338.4,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.56,
+      "ret_1w": 1.84,
+      "ret_3m": 4.75,
+      "pct_from_high": -3.19,
+      "reasons": [
+        "Price above SMA50 (333.86)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 52.18 neutral",
+        "Strong 3M momentum (4.75%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.475,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "ETERNAL.NS",
+      "name": "Eternal (formerly Zomato)",
+      "signal": "HOLD",
+      "score": 1.27,
+      "rsi14": 40.46,
+      "price": 323.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 2.22,
+      "ret_1w": 1.24,
+      "ret_3m": 12.7,
+      "pct_from_high": -8.85,
+      "reasons": [
+        "Price below SMA50 (323.58)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 40.46 neutral",
+        "Strong 3M momentum (12.7%)",
+        "Neutral/weak news (score 0.0, 2 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 1.27,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "PAYTM.NS",
+      "name": "One 97 Communications",
+      "signal": "BUY",
+      "score": 3.0,
+      "rsi14": 47.29,
+      "price": 1712.3,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.01,
+      "ret_1w": 4.31,
+      "ret_3m": 27.03,
+      "pct_from_high": -7.44,
+      "reasons": [
+        "Price above SMA50 (1667.92)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 47.29 neutral",
+        "Strong 3M momentum (27.03%)",
+        "Negative news (score -0.5, 8 headlines)"
+      ],
+      "news_score": -0.5,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 2.0,
+        "news": -1.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "IPCALAB.NS",
+      "name": "IPCA Laboratories",
+      "signal": "HOLD",
+      "score": 0.851,
+      "rsi14": 30.17,
+      "price": 1913.1,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.08,
+      "ret_1w": -1.31,
+      "ret_3m": 1.01,
+      "pct_from_high": -4.8,
+      "reasons": [
+        "Price below SMA50 (1913.43)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 30.17 neutral",
+        "Flat 3M momentum (1.01%)",
+        "Positive news (score 0.375, 8 headlines)"
+      ],
+      "news_score": 0.375,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.101,
+        "news": 0.75
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "PETRONET.NS",
+      "name": "Petronet LNG",
+      "signal": "BUY",
+      "score": 2.782,
+      "rsi14": 59.86,
+      "price": 295.2,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.77,
+      "ret_1w": 2.32,
+      "ret_3m": 7.82,
+      "pct_from_high": -7.67,
+      "reasons": [
+        "Price above SMA50 (287.65)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 59.86 neutral",
+        "Strong 3M momentum (7.82%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.782,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "SOLARINDS.NS",
+      "name": "Solar Industries",
+      "signal": "HOLD",
+      "score": 0.764,
+      "rsi14": 54.12,
+      "price": 19866.0,
+      "price_date": "2026-10-15",
+      "ret_1d": -1.51,
+      "ret_1w": -0.02,
+      "ret_3m": 7.64,
+      "pct_from_high": -11.53,
+      "reasons": [
+        "Price below SMA50 (19965.46)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 54.12 neutral",
+        "Strong 3M momentum (7.64%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.764,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "KALYANKJIL.NS",
+      "name": "Kalyan Jewellers",
+      "signal": "HOLD",
+      "score": 0.769,
+      "rsi14": 45.33,
+      "price": 558.85,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.91,
+      "ret_1w": 0.97,
+      "ret_3m": -2.31,
+      "pct_from_high": -11.58,
+      "reasons": [
+        "Price below SMA50 (585.75)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 45.33 neutral",
+        "Flat 3M momentum (-2.31%)",
+        "Positive news (score 0.5, 8 headlines)"
+      ],
+      "news_score": 0.5,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.231,
+        "news": 1.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "TRENT.NS",
+      "name": "Trent",
+      "signal": "BUY",
+      "score": 3.043,
+      "rsi14": 69.1,
+      "price": 2949.7,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.72,
+      "ret_1w": 2.55,
+      "ret_3m": 3.77,
+      "pct_from_high": -38.64,
+      "reasons": [
+        "Price above SMA50 (2861.64)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 69.1 neutral",
+        "Strong 3M momentum (3.77%)",
+        "Positive news (score 0.333, 8 headlines)"
+      ],
+      "news_score": 0.333,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.377,
+        "news": 0.666
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "TVSMOTOR.NS",
+      "name": "TVS Motor",
+      "signal": "HOLD",
+      "score": 1.11,
+      "rsi14": 44.92,
+      "price": 4020.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.27,
+      "ret_1w": 4.7,
+      "ret_3m": 11.1,
+      "pct_from_high": -9.99,
+      "reasons": [
+        "Price below SMA50 (4193.6)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 44.92 neutral",
+        "Strong 3M momentum (11.1%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 1.11,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "NAUKRI.NS",
+      "name": "Info Edge India",
+      "signal": "HOLD",
+      "score": 1.436,
+      "rsi14": 52.05,
+      "price": 1235.2,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.25,
+      "ret_1w": 4.43,
+      "ret_3m": 4.36,
+      "pct_from_high": -11.06,
+      "reasons": [
+        "Price below SMA50 (1284.3)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 52.05 neutral",
+        "Strong 3M momentum (4.36%)",
+        "Positive news (score 0.5, 8 headlines)"
+      ],
+      "news_score": 0.5,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.436,
+        "news": 1.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "MPHASIS.NS",
+      "name": "Mphasis",
+      "signal": "BUY",
+      "score": 2.455,
+      "rsi14": 70.81,
+      "price": 2453.2,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.74,
+      "ret_1w": 6.5,
+      "ret_3m": 2.46,
+      "pct_from_high": -14.72,
+      "reasons": [
+        "Price above SMA50 (2379.33)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 70.81 overbought \u2014 bearish",
+        "Flat 3M momentum (2.46%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": -0.041,
+        "momentum": 0.246,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "PAGEIND.NS",
+      "name": "Page Industries",
+      "signal": "HOLD",
+      "score": -0.802,
+      "rsi14": 41.47,
+      "price": 36500.0,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.35,
+      "ret_1w": 0.14,
+      "ret_3m": -8.02,
+      "pct_from_high": -15.84,
+      "reasons": [
+        "Price below SMA50 (36589.37)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 41.47 neutral",
+        "Weak 3M momentum (-8.02%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.802,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "ADANIPORTS.NS",
+      "name": "Adani Ports & SEZ",
+      "signal": "BUY",
+      "score": 2.237,
+      "rsi14": 44.98,
+      "price": 1743.2,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.31,
+      "ret_1w": 2.06,
+      "ret_3m": -5.13,
+      "pct_from_high": -7.43,
+      "reasons": [
+        "Price above SMA50 (1725.77)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 44.98 neutral",
+        "Weak 3M momentum (-5.13%)",
+        "Positive news (score 0.375, 8 headlines)"
+      ],
+      "news_score": 0.375,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.513,
+        "news": 0.75
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "UNIONBANK.NS",
+      "name": "Union Bank of India",
+      "signal": "HOLD",
+      "score": 0.751,
+      "rsi14": 41.05,
+      "price": 172.68,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.76,
+      "ret_1w": 0.68,
+      "ret_3m": 2.51,
+      "pct_from_high": -12.11,
+      "reasons": [
+        "Price below SMA50 (179.92)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 41.05 neutral",
+        "Strong 3M momentum (2.51%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.251,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "SAIL.NS",
+      "name": "Steel Authority of India",
+      "signal": "HOLD",
+      "score": 1.415,
+      "rsi14": 35.57,
+      "price": 170.29,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.17,
+      "ret_1w": 2.43,
+      "ret_3m": 5.81,
+      "pct_from_high": -16.28,
+      "reasons": [
+        "Price below SMA50 (177.83)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 35.57 neutral",
+        "Strong 3M momentum (5.81%)",
+        "Positive news (score 0.417, 8 headlines)"
+      ],
+      "news_score": 0.417,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.581,
+        "news": 0.834
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "HDFCLIFE.NS",
+      "name": "HDFC Life Insurance",
+      "signal": "HOLD",
+      "score": 0.018,
+      "rsi14": 63.77,
+      "price": 550.55,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.19,
+      "ret_1w": 1.11,
+      "ret_3m": -2.32,
+      "pct_from_high": -29.84,
+      "reasons": [
+        "Price above SMA50 (541.0)",
+        "Death cross (SMA50<SMA200)",
+        "RSI 63.77 neutral",
+        "Flat 3M momentum (-2.32%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": -1.0,
+        "rsi": 0.0,
+        "momentum": -0.232,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "FEDERALBNK.NS",
+      "name": "Federal Bank",
+      "signal": "HOLD",
+      "score": 0.132,
+      "rsi14": 54.66,
+      "price": 335.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.52,
+      "ret_1w": 4.36,
+      "ret_3m": -3.68,
+      "pct_from_high": -9.56,
+      "reasons": [
+        "Price below SMA50 (340.87)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 54.66 neutral",
+        "Weak 3M momentum (-3.68%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.368,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "MOTHERSON.NS",
+      "name": "Samvardhana Motherson",
+      "signal": "HOLD",
+      "score": 1.394,
+      "rsi14": 47.72,
+      "price": 160.66,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.54,
+      "ret_1w": 4.95,
+      "ret_3m": 11.44,
+      "pct_from_high": -5.87,
+      "reasons": [
+        "Price below SMA50 (163.16)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 47.72 neutral",
+        "Strong 3M momentum (11.44%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 1.144,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "JUBLFOOD.NS",
+      "name": "Jubilant FoodWorks",
+      "signal": "HOLD",
+      "score": 1.793,
+      "rsi14": 26.84,
+      "price": 422.8,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.68,
+      "ret_1w": -1.12,
+      "ret_3m": 1.35,
+      "pct_from_high": -31.09,
+      "reasons": [
+        "Price below SMA50 (476.75)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 26.84 oversold \u2014 bullish",
+        "Near 52-week low \u2014 value zone",
+        "Flat 3M momentum (1.35%)",
+        "Positive news (score 0.5, 8 headlines)"
+      ],
+      "news_score": 0.5,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.158,
+        "pos52w": 0.5,
+        "momentum": 0.135,
+        "news": 1.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "AXISBANK.NS",
+      "name": "Axis Bank",
+      "signal": "HOLD",
+      "score": -0.504,
+      "rsi14": 78.98,
+      "price": 1288.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.85,
+      "ret_1w": 3.45,
+      "ret_3m": -3.05,
+      "pct_from_high": -8.13,
+      "reasons": [
+        "Price above SMA50 (1243.96)",
+        "Death cross (SMA50<SMA200)",
+        "RSI 78.98 overbought \u2014 bearish",
+        "Weak 3M momentum (-3.05%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": -1.0,
+        "rsi": -0.449,
+        "momentum": -0.305,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "DRREDDY.NS",
+      "name": "Dr Reddy's Laboratories",
+      "signal": "HOLD",
+      "score": 0.313,
+      "rsi14": 54.18,
+      "price": 1218.8,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.23,
+      "ret_1w": 3.29,
+      "ret_3m": 0.63,
+      "pct_from_high": -10.84,
+      "reasons": [
+        "Price above SMA50 (1186.33)",
+        "Death cross (SMA50<SMA200)",
+        "RSI 54.18 neutral",
+        "Flat 3M momentum (0.63%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": -1.0,
+        "rsi": 0.0,
+        "momentum": 0.063,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "BOSCHLTD.NS",
+      "name": "Bosch",
+      "signal": "HOLD",
+      "score": 1.346,
+      "rsi14": 36.89,
+      "price": 45035.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.08,
+      "ret_1w": 4.36,
+      "ret_3m": 10.96,
+      "pct_from_high": -9.93,
+      "reasons": [
+        "Price below SMA50 (46776.9)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 36.89 neutral",
+        "Strong 3M momentum (10.96%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 1.096,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "ASTRAL.NS",
+      "name": "Astral",
+      "signal": "HOLD",
+      "score": -1.008,
+      "rsi14": 62.29,
+      "price": 1443.3,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.01,
+      "ret_1w": 2.47,
+      "ret_3m": 4.92,
+      "pct_from_high": -17.22,
+      "reasons": [
+        "Price below SMA50 (1454.75)",
+        "Death cross (SMA50<SMA200)",
+        "RSI 62.29 neutral",
+        "Strong 3M momentum (4.92%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": -1.0,
+        "rsi": 0.0,
+        "momentum": 0.492,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "TECHM.NS",
+      "name": "Tech Mahindra",
+      "signal": "BUY",
+      "score": 2.74,
+      "rsi14": 64.95,
+      "price": 1650.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 4.75,
+      "ret_1w": 10.28,
+      "ret_3m": 4.9,
+      "pct_from_high": -4.27,
+      "reasons": [
+        "Price above SMA50 (1574.17)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 64.95 neutral",
+        "Strong 3M momentum (4.9%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.49,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "MANKIND.NS",
+      "name": "Mankind Pharma",
+      "signal": "HOLD",
+      "score": -0.05,
+      "rsi14": 36.48,
+      "price": 2347.6,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.54,
+      "ret_1w": -1.36,
+      "ret_3m": -5.5,
+      "pct_from_high": -10.33,
+      "reasons": [
+        "Price below SMA50 (2395.12)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 36.48 neutral",
+        "Weak 3M momentum (-5.5%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.55,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "INDUSTOWER.NS",
+      "name": "Indus Towers",
+      "signal": "HOLD",
+      "score": -0.187,
+      "rsi14": 50.99,
+      "price": 381.6,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.27,
+      "ret_1w": 2.31,
+      "ret_3m": -1.87,
+      "pct_from_high": -17.12,
+      "reasons": [
+        "Price above SMA50 (377.13)",
+        "Death cross (SMA50<SMA200)",
+        "RSI 50.99 neutral",
+        "Flat 3M momentum (-1.87%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": 1.0,
+        "cross": -1.0,
+        "rsi": 0.0,
+        "momentum": -0.187,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "HAL.NS",
+      "name": "Hindustan Aeronautics",
+      "signal": "BUY",
+      "score": 3.682,
+      "rsi14": 55.88,
+      "price": 4910.0,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.47,
+      "ret_1w": 5.65,
+      "ret_3m": 9.32,
+      "pct_from_high": -3.71,
+      "reasons": [
+        "Price above SMA50 (4843.17)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 55.88 neutral",
+        "Strong 3M momentum (9.32%)",
+        "Positive news (score 0.375, 8 headlines)"
+      ],
+      "news_score": 0.375,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.932,
+        "news": 0.75
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "SIEMENS.NS",
+      "name": "Siemens",
+      "signal": "HOLD",
+      "score": 0.574,
+      "rsi14": 41.94,
+      "price": 3668.0,
+      "price_date": "2026-10-15",
+      "ret_1d": -2.57,
+      "ret_1w": 0.8,
+      "ret_3m": 0.74,
+      "pct_from_high": -10.84,
+      "reasons": [
+        "Price below SMA50 (3891.48)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 41.94 neutral",
+        "Flat 3M momentum (0.74%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.074,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "CONCOR.NS",
+      "name": "Container Corp of India",
+      "signal": "HOLD",
+      "score": -0.533,
+      "rsi14": 35.98,
+      "price": 446.5,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.48,
+      "ret_1w": 2.88,
+      "ret_3m": -7.83,
+      "pct_from_high": -18.02,
+      "reasons": [
+        "Price below SMA50 (487.86)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 35.98 neutral",
+        "Weak 3M momentum (-7.83%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.783,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "ABBOTINDIA.NS",
+      "name": "Abbott India",
+      "signal": "HOLD",
+      "score": 0.26,
+      "rsi14": 40.32,
+      "price": 26070.0,
+      "price_date": "2026-10-15",
+      "ret_1d": -0.86,
+      "ret_1w": 1.92,
+      "ret_3m": -4.9,
+      "pct_from_high": -11.82,
+      "reasons": [
+        "Price below SMA50 (26515.9)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 40.32 neutral",
+        "Weak 3M momentum (-4.9%)",
+        "Positive news (score 0.375, 8 headlines)"
+      ],
+      "news_score": 0.375,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.49,
+        "news": 0.75
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "BAJAJ-AUTO.NS",
+      "name": "Bajaj Auto",
+      "signal": "HOLD",
+      "score": 0.194,
+      "rsi14": 34.91,
+      "price": 10385.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.32,
+      "ret_1w": 7.76,
+      "ret_3m": -0.56,
+      "pct_from_high": -15.99,
+      "reasons": [
+        "Price below SMA50 (11322.52)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 34.91 neutral",
+        "Flat 3M momentum (-0.56%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.056,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "TCS.NS",
+      "name": "Tata Consultancy Services",
+      "signal": "HOLD",
+      "score": 0.596,
+      "rsi14": 76.31,
+      "price": 2350.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 1.96,
+      "ret_1w": 13.8,
+      "ret_3m": 4.12,
+      "pct_from_high": -26.27,
+      "reasons": [
+        "Price above SMA50 (2229.23)",
+        "Death cross (SMA50<SMA200)",
+        "RSI 76.31 overbought \u2014 bearish",
+        "Strong 3M momentum (4.12%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": 1.0,
+        "cross": -1.0,
+        "rsi": -0.316,
+        "momentum": 0.412,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "BAJAJHLDNG.NS",
+      "name": "Bajaj Holdings",
+      "signal": "BUY",
+      "score": 2.858,
+      "rsi14": 58.42,
+      "price": 11225.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 4.19,
+      "ret_1w": 5.9,
+      "ret_3m": 8.58,
+      "pct_from_high": -13.04,
+      "reasons": [
+        "Price above SMA50 (11093.3)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 58.42 neutral",
+        "Strong 3M momentum (8.58%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.858,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "DEEPAKNTR.NS",
+      "name": "Deepak Nitrite",
+      "signal": "HOLD",
+      "score": -0.259,
+      "rsi14": 49.8,
+      "price": 1599.6,
+      "price_date": "2026-10-15",
+      "ret_1d": -2.78,
+      "ret_1w": 0.98,
+      "ret_3m": -5.92,
+      "pct_from_high": -14.34,
+      "reasons": [
+        "Price below SMA50 (1664.46)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 49.8 neutral",
+        "Weak 3M momentum (-5.92%)",
+        "Positive news (score 0.25, 4 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.592,
+        "news": 0.333
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "JSWSTEEL.NS",
+      "name": "JSW Steel",
+      "signal": "HOLD",
+      "score": 0.202,
+      "rsi14": 33.13,
+      "price": 1200.4,
+      "price_date": "2026-10-15",
+      "ret_1d": 2.06,
+      "ret_1w": 2.14,
+      "ret_3m": -2.98,
+      "pct_from_high": -10.48,
+      "reasons": [
+        "Price below SMA50 (1273.37)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 33.13 neutral",
+        "Weak 3M momentum (-2.98%)",
+        "Positive news (score 0.25, 8 headlines)"
+      ],
+      "news_score": 0.25,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.298,
+        "news": 0.5
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "VBL.NS",
+      "name": "Varun Beverages",
+      "signal": "HOLD",
+      "score": -0.476,
+      "rsi14": 48.77,
+      "price": 429.25,
+      "price_date": "2026-10-15",
+      "ret_1d": -3.03,
+      "ret_1w": -0.64,
+      "ret_3m": -7.26,
+      "pct_from_high": -21.01,
+      "reasons": [
+        "Price above SMA50 (427.37)",
+        "Death cross (SMA50<SMA200)",
+        "RSI 48.77 neutral",
+        "Weak 3M momentum (-7.26%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": -1.0,
+        "rsi": 0.0,
+        "momentum": -0.726,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "DIXON.NS",
+      "name": "Dixon Technologies",
+      "signal": "HOLD",
+      "score": -1.154,
+      "rsi14": 37.5,
+      "price": 12666.0,
+      "price_date": "2026-10-15",
+      "ret_1d": -1.2,
+      "ret_1w": 0.13,
+      "ret_3m": -11.54,
+      "pct_from_high": -24.75,
+      "reasons": [
+        "Price below SMA50 (13737.19)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 37.5 neutral",
+        "Weak 3M momentum (-11.54%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -1.154,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "ICICIBANK.NS",
+      "name": "ICICI Bank",
+      "signal": "HOLD",
+      "score": 1.701,
+      "rsi14": 60.9,
+      "price": 1389.4,
+      "price_date": "2026-10-15",
+      "ret_1d": 3.8,
+      "ret_1w": 2.99,
+      "ret_3m": -2.99,
+      "pct_from_high": -4.84,
+      "reasons": [
+        "Price above SMA50 (1385.29)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 60.9 neutral",
+        "Weak 3M momentum (-2.99%)",
+        "Neutral/weak news (score 0.0, 8 headlines)"
+      ],
+      "news_score": 0.0,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.299,
+        "news": 0.0
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "HEROMOTOCO.NS",
+      "name": "Hero MotoCorp",
+      "signal": "HOLD",
+      "score": 0.891,
+      "rsi14": 45.89,
+      "price": 5210.0,
+      "price_date": "2026-10-15",
+      "ret_1d": 3.8,
+      "ret_1w": 7.28,
+      "ret_3m": 7.67,
+      "pct_from_high": -15.13,
+      "reasons": [
+        "Price below SMA50 (5402.75)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 45.89 neutral",
+        "Strong 3M momentum (7.67%)",
+        "Neutral/weak news (score 0.062, 8 headlines)"
+      ],
+      "news_score": 0.062,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.767,
+        "news": 0.124
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "INDHOTEL.NS",
+      "name": "Indian Hotels",
+      "signal": "HOLD",
+      "score": 1.936,
+      "rsi14": 55.0,
+      "price": 741.45,
+      "price_date": "2026-10-15",
+      "ret_1d": 2.21,
+      "ret_1w": 4.19,
+      "ret_3m": 1.86,
+      "pct_from_high": -1.44,
+      "reasons": [
+        "Price above SMA50 (725.02)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 55.0 neutral",
+        "Near 52-week high",
+        "Flat 3M momentum (1.86%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "pos52w": -0.5,
+        "momentum": 0.186,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "BERGEPAINT.NS",
+      "name": "Berger Paints",
+      "signal": "HOLD",
+      "score": -0.323,
+      "rsi14": 62.95,
+      "price": 470.05,
+      "price_date": "2026-10-15",
+      "ret_1d": -1.16,
+      "ret_1w": 0.45,
+      "ret_3m": -4.07,
+      "pct_from_high": -19.74,
+      "reasons": [
+        "Price below SMA50 (489.28)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 62.95 neutral",
+        "Weak 3M momentum (-4.07%)",
+        "Neutral/weak news (score 0.042, 8 headlines)"
+      ],
+      "news_score": 0.042,
+      "components": {
+        "trend": -1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": -0.407,
+        "news": 0.084
+      },
+      "entry_allowed": false
+    },
+    {
+      "symbol": "DLF.NS",
+      "name": "DLF",
+      "signal": "BUY",
+      "score": 2.416,
+      "rsi14": 50.03,
+      "price": 670.5,
+      "price_date": "2026-10-15",
+      "ret_1d": 0.54,
+      "ret_1w": 5.27,
+      "ret_3m": 1.66,
+      "pct_from_high": -12.9,
+      "reasons": [
+        "Price above SMA50 (663.39)",
+        "Golden cross (SMA50>SMA200)",
+        "RSI 50.03 neutral",
+        "Flat 3M momentum (1.66%)",
+        "Positive news (score 0.125, 8 headlines)"
+      ],
+      "news_score": 0.125,
+      "components": {
+        "trend": 1.0,
+        "cross": 1.0,
+        "rsi": 0.0,
+        "momentum": 0.166,
+        "news": 0.25
+      },
+      "entry_allowed": false
+    }
+  ],
+  "disclaimer": "Rule-based EOD analysis. Not investment advice."
+}
