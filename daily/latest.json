@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-19T11:01:24.083241+00:00",
-  "ist": "2026-10-19T16:30:56.980362+05:30",
+  "generated_at": "2026-10-20T11:01:23.021214+00:00",
+  "ist": "2026-10-20T16:30:57.865337+05:30",
   "trading_date": "2026-10-19",
   "watchlist_size": 50,
   "analyzed": 50,
@@ -46,42 +46,13 @@
     "min_avg_daily_value_rs": 50000000.0,
     "min_price_rs": 20.0
   },
-  "changes_since_prev": [
-    {
-      "symbol": "AUROPHARMA.NS",
-      "name": "Aurobindo Pharma",
-      "type": "signal_flip",
-      "from": "BUY",
-      "to": "HOLD"
-    },
-    {
-      "symbol": "SOLARINDS.NS",
-      "name": "Solar Industries",
-      "type": "signal_flip",
-      "from": "BUY",
-      "to": "HOLD"
-    },
-    {
-      "symbol": "ETERNAL.NS",
-      "name": "Eternal (formerly Zomato)",
-      "type": "signal_flip",
-      "from": "BUY",
-      "to": "HOLD"
-    },
-    {
-      "symbol": "TRENT.NS",
-      "name": "Trent",
-      "type": "signal_flip",
-      "from": "BUY",
-      "to": "HOLD"
-    }
-  ],
+  "changes_since_prev": [],
   "analysis": [
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
       "signal": "BUY",
-      "score": 4.25,
+      "score": 4.5,
       "rsi14": 58.81,
       "price": 3019.8,
       "price_date": "2026-10-19",
@@ -94,15 +65,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 58.81 neutral",
         "Strong 3M momentum (22.57%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.25,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 2.0,
-        "news": 0.25
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -110,7 +81,7 @@
       "symbol": "COFORGE.NS",
       "name": "Coforge",
       "signal": "BUY",
-      "score": 4.5,
+      "score": 4.25,
       "rsi14": 67.77,
       "price": 1925.0,
       "price_date": "2026-10-19",
@@ -123,15 +94,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 67.77 neutral",
         "Strong 3M momentum (29.15%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.125,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 2.0,
-        "news": 0.5
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -168,7 +139,7 @@
       "symbol": "TECHM.NS",
       "name": "Tech Mahindra",
       "signal": "BUY",
-      "score": 3.097,
+      "score": 3.597,
       "rsi14": 73.79,
       "price": 1779.1,
       "price_date": "2026-10-19",
@@ -182,16 +153,16 @@
         "RSI 73.79 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (12.87%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.5,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.19,
         "pos52w": -0.5,
         "momentum": 1.287,
-        "news": 0.5
+        "news": 1.0
       },
       "entry_allowed": false
     },
@@ -199,7 +170,7 @@
       "symbol": "DIVISLAB.NS",
       "name": "Divi's Laboratories",
       "signal": "BUY",
-      "score": 2.0,
+      "score": 2.5,
       "rsi14": 36.07,
       "price": 9087.0,
       "price_date": "2026-10-19",
@@ -212,15 +183,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 36.07 neutral",
         "Strong 3M momentum (24.48%)",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.25,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 2.0,
-        "news": 0.0
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -257,7 +228,7 @@
       "symbol": "NYKAA.NS",
       "name": "FSN E-Commerce (Nykaa)",
       "signal": "BUY",
-      "score": 2.765,
+      "score": 2.515,
       "rsi14": 57.32,
       "price": 336.65,
       "price_date": "2026-10-19",
@@ -270,15 +241,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 57.32 neutral",
         "Strong 3M momentum (2.65%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.125,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.265,
-        "news": 0.5
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -286,7 +257,7 @@
       "symbol": "PERSISTENT.NS",
       "name": "Persistent Systems",
       "signal": "BUY",
-      "score": 3.44,
+      "score": 3.524,
       "rsi14": 62.78,
       "price": 5690.0,
       "price_date": "2026-10-19",
@@ -299,15 +270,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 62.78 neutral",
         "Strong 3M momentum (9.4%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.292, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.292,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.94,
-        "news": 0.5
+        "news": 0.584
       },
       "entry_allowed": false
     },
@@ -464,7 +435,7 @@
       "symbol": "ETERNAL.NS",
       "name": "Eternal (formerly Zomato)",
       "signal": "HOLD",
-      "score": 1.172,
+      "score": 1.505,
       "rsi14": 42.14,
       "price": 320.2,
       "price_date": "2026-10-19",
@@ -477,15 +448,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 42.14 neutral",
         "Strong 3M momentum (11.72%)",
-        "Neutral/weak news (score 0.0, 4 headlines)"
+        "Positive news (score 0.25, 4 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.25,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 1.172,
-        "news": 0.0
+        "news": 0.333
       },
       "entry_allowed": false
     },
@@ -506,7 +477,7 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 54.42 neutral",
         "Strong 3M momentum (6.14%)",
-        "Neutral/weak news (score 0.0, 7 headlines)"
+        "Neutral/weak news (score 0.0, 6 headlines)"
       ],
       "news_score": 0.0,
       "components": {
@@ -522,7 +493,7 @@
       "symbol": "TVSMOTOR.NS",
       "name": "TVS Motor",
       "signal": "HOLD",
-      "score": 0.994,
+      "score": 1.744,
       "rsi14": 48.42,
       "price": 4074.0,
       "price_date": "2026-10-19",
@@ -535,15 +506,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 48.42 neutral",
         "Strong 3M momentum (7.44%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.5,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.744,
-        "news": 0.25
+        "news": 1.0
       },
       "entry_allowed": false
     },
@@ -551,7 +522,7 @@
       "symbol": "BHEL.NS",
       "name": "Bharat Heavy Electricals",
       "signal": "BUY",
-      "score": 3.09,
+      "score": 2.59,
       "rsi14": 55.75,
       "price": 427.35,
       "price_date": "2026-10-19",
@@ -564,15 +535,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 55.75 neutral",
         "Strong 3M momentum (3.4%)",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.375,
+      "news_score": 0.125,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.34,
-        "news": 0.75
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -609,7 +580,7 @@
       "symbol": "HCLTECH.NS",
       "name": "HCL Technologies",
       "signal": "HOLD",
-      "score": 1.701,
+      "score": 1.951,
       "rsi14": 70.63,
       "price": 1379.9,
       "price_date": "2026-10-19",
@@ -622,15 +593,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 70.63 overbought \u2014 bearish",
         "Strong 3M momentum (12.32%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.375, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.375,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": -0.031,
         "momentum": 1.232,
-        "news": 0.5
+        "news": 0.75
       },
       "entry_allowed": false
     },
@@ -638,7 +609,7 @@
       "symbol": "DLF.NS",
       "name": "DLF",
       "signal": "BUY",
-      "score": 2.614,
+      "score": 2.948,
       "rsi14": 53.37,
       "price": 672.85,
       "price_date": "2026-10-19",
@@ -651,15 +622,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 53.37 neutral",
         "Flat 3M momentum (1.14%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.417, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.417,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.114,
-        "news": 0.5
+        "news": 0.834
       },
       "entry_allowed": false
     },
@@ -667,7 +638,7 @@
       "symbol": "NAUKRI.NS",
       "name": "Info Edge India",
       "signal": "HOLD",
-      "score": 0.383,
+      "score": 0.633,
       "rsi14": 44.63,
       "price": 1220.0,
       "price_date": "2026-10-19",
@@ -680,15 +651,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 44.63 neutral",
         "Flat 3M momentum (1.33%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.25,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.133,
-        "news": 0.25
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -725,7 +696,7 @@
       "symbol": "MOTHERSON.NS",
       "name": "Samvardhana Motherson",
       "signal": "HOLD",
-      "score": 1.39,
+      "score": 1.14,
       "rsi14": 44.19,
       "price": 158.15,
       "price_date": "2026-10-19",
@@ -738,15 +709,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 44.19 neutral",
         "Strong 3M momentum (8.9%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.125,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.89,
-        "news": 0.5
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -754,7 +725,7 @@
       "symbol": "TRENT.NS",
       "name": "Trent",
       "signal": "HOLD",
-      "score": 1.977,
+      "score": 1.227,
       "rsi14": 70.25,
       "price": 2891.6,
       "price_date": "2026-10-19",
@@ -767,15 +738,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 70.25 overbought \u2014 bearish",
         "Flat 3M momentum (-0.11%)",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "Negative news (score -0.375, 8 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": -0.375,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.013,
         "momentum": -0.011,
-        "news": 0.0
+        "news": -0.75
       },
       "entry_allowed": false
     },
@@ -870,7 +841,7 @@
       "symbol": "ADANIPORTS.NS",
       "name": "Adani Ports & SEZ",
       "signal": "HOLD",
-      "score": 1.814,
+      "score": 1.564,
       "rsi14": 52.82,
       "price": 1766.0,
       "price_date": "2026-10-19",
@@ -883,15 +854,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 52.82 neutral",
         "Weak 3M momentum (-4.36%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Neutral/weak news (score 0.0, 8 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.0,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.436,
-        "news": 0.25
+        "news": 0.0
       },
       "entry_allowed": false
     },
@@ -928,7 +899,7 @@
       "symbol": "WIPRO.NS",
       "name": "Wipro",
       "signal": "HOLD",
-      "score": 0.852,
+      "score": 0.936,
       "rsi14": 73.55,
       "price": 182.14,
       "price_date": "2026-10-19",
@@ -941,15 +912,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 73.55 overbought \u2014 bearish",
         "Strong 3M momentum (5.29%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.292, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.292,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": -0.177,
         "momentum": 0.529,
-        "news": 0.5
+        "news": 0.584
       },
       "entry_allowed": false
     },
@@ -957,7 +928,7 @@
       "symbol": "TATAELXSI.NS",
       "name": "Tata Elxsi",
       "signal": "HOLD",
-      "score": 1.683,
+      "score": 1.933,
       "rsi14": 75.32,
       "price": 3790.0,
       "price_date": "2026-10-19",
@@ -970,15 +941,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 75.32 overbought \u2014 bearish",
         "Strong 3M momentum (9.49%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.625, 8 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.625,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": -0.266,
         "momentum": 0.949,
-        "news": 1.0
+        "news": 1.25
       },
       "entry_allowed": false
     },
@@ -986,7 +957,7 @@
       "symbol": "SAIL.NS",
       "name": "Steel Authority of India",
       "signal": "HOLD",
-      "score": 1.184,
+      "score": 1.434,
       "rsi14": 33.99,
       "price": 168.97,
       "price_date": "2026-10-19",
@@ -999,15 +970,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 33.99 neutral",
         "Strong 3M momentum (4.34%)",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.375,
+      "news_score": 0.5,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.434,
-        "news": 0.75
+        "news": 1.0
       },
       "entry_allowed": false
     },
@@ -1044,7 +1015,7 @@
       "symbol": "TCS.NS",
       "name": "Tata Consultancy Services",
       "signal": "HOLD",
-      "score": 0.531,
+      "score": 0.281,
       "rsi14": 82.16,
       "price": 2460.9,
       "price_date": "2026-10-19",
@@ -1057,15 +1028,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 82.16 overbought \u2014 bearish",
         "Strong 3M momentum (11.39%)",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "Negative news (score -0.125, 8 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": -0.125,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": -0.608,
         "momentum": 1.139,
-        "news": 0.0
+        "news": -0.25
       },
       "entry_allowed": false
     },
@@ -1073,7 +1044,7 @@
       "symbol": "HEROMOTOCO.NS",
       "name": "Hero MotoCorp",
       "signal": "HOLD",
-      "score": 0.792,
+      "score": 1.042,
       "rsi14": 41.78,
       "price": 5230.0,
       "price_date": "2026-10-19",
@@ -1086,15 +1057,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 41.78 neutral",
         "Strong 3M momentum (5.42%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.25,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.542,
-        "news": 0.25
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -1220,7 +1191,7 @@
       "symbol": "ADANIGREEN.NS",
       "name": "Adani Green Energy",
       "signal": "HOLD",
-      "score": -0.6,
+      "score": -1.1,
       "rsi14": 59.35,
       "price": 1295.2,
       "price_date": "2026-10-19",
@@ -1233,15 +1204,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 59.35 neutral",
         "Weak 3M momentum (-16.0%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.25,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -1.6,
-        "news": 1.0
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -1307,7 +1278,7 @@
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
       "signal": "HOLD",
-      "score": 0.748,
+      "score": 0.498,
       "rsi14": 27.47,
       "price": 1814.5,
       "price_date": "2026-10-19",
@@ -1320,15 +1291,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 27.47 oversold \u2014 bullish",
         "Flat 3M momentum (1.21%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.125,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.127,
         "momentum": 0.121,
-        "news": 0.5
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -1336,7 +1307,7 @@
       "symbol": "BERGEPAINT.NS",
       "name": "Berger Paints",
       "signal": "HOLD",
-      "score": -0.649,
+      "score": -0.399,
       "rsi14": 61.72,
       "price": 470.0,
       "price_date": "2026-10-19",
@@ -1349,15 +1320,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 61.72 neutral",
         "Weak 3M momentum (-6.49%)",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.125,
       "components": {
         "trend": -1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.649,
-        "news": 0.0
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -1365,7 +1336,7 @@
       "symbol": "ASTRAL.NS",
       "name": "Astral",
       "signal": "HOLD",
-      "score": -1.893,
+      "score": -1.607,
       "rsi14": 65.16,
       "price": 1428.0,
       "price_date": "2026-10-19",
@@ -1378,15 +1349,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 65.16 neutral",
         "Flat 3M momentum (1.07%)",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "Positive news (score 0.143, 7 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.143,
       "components": {
         "trend": -1.0,
         "cross": -1.0,
         "rsi": 0.0,
         "momentum": 0.107,
-        "news": 0.0
+        "news": 0.286
       },
       "entry_allowed": false
     },
@@ -1423,7 +1394,7 @@
       "symbol": "INFY.NS",
       "name": "Infosys",
       "signal": "HOLD",
-      "score": 0.533,
+      "score": 1.033,
       "rsi14": 69.68,
       "price": 1130.7,
       "price_date": "2026-10-19",
@@ -1436,15 +1407,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 69.68 neutral",
         "Strong 3M momentum (5.33%)",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.25,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": 0.0,
         "momentum": 0.533,
-        "news": 0.0
+        "news": 0.5
       },
       "entry_allowed": false
     },
