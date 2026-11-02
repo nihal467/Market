@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-11-02T09:50:43.878979+00:00",
-  "ist": "2026-11-02T15:20:36.765127+05:30",
+  "generated_at": "2026-11-02T09:55:47.745259+00:00",
+  "ist": "2026-11-02T15:25:39.525722+05:30",
   "phase": "open",
-  "count": 53,
+  "count": 52,
   "expected_count": 53,
-  "coverage_pct": 100.0,
+  "coverage_pct": 98.11,
   "quality": "ok",
   "data_source": "yfinance",
   "source_label": "Yahoo Finance",
@@ -101,17 +101,6 @@
       ]
     },
     {
-      "symbol": "LTTS.NS",
-      "name": "L&T Technology Services",
-      "price": 4221.0,
-      "prev_close": 4280.2,
-      "chg_pct": -1.38,
-      "rsi": 28.58,
-      "flags": [
-        "rsi_oversold"
-      ]
-    },
-    {
       "symbol": "KOTAKBANK.NS",
       "name": "Kotak Mahindra Bank",
       "price": 457.7,
@@ -171,28 +160,28 @@
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 265.91,
+      "price": 265.99,
       "prev_close": 262.89,
-      "chg_pct": 1.15,
-      "rsi": 55.96,
+      "chg_pct": 1.18,
+      "rsi": 57.24,
       "flags": []
     },
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 743.17,
+      "price": 743.86,
       "prev_close": 730.9,
-      "chg_pct": 1.68,
-      "rsi": 49.72,
+      "chg_pct": 1.77,
+      "rsi": 53.85,
       "flags": []
     },
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 220.51,
+      "price": 220.78,
       "prev_close": 218.19,
-      "chg_pct": 1.06,
-      "rsi": 52.49,
+      "chg_pct": 1.19,
+      "rsi": 57.66,
       "flags": []
     },
     {
@@ -207,10 +196,10 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 3067.3,
+      "price": 3062.6,
       "prev_close": 3095.9,
-      "chg_pct": -0.92,
-      "rsi": 54.52,
+      "chg_pct": -1.08,
+      "rsi": 51.74,
       "flags": []
     },
     {
@@ -258,15 +247,6 @@
       "prev_close": 2045.0,
       "chg_pct": 1.71,
       "rsi": 41.22,
-      "flags": []
-    },
-    {
-      "symbol": "HAL.NS",
-      "name": "Hindustan Aeronautics",
-      "price": 4837.8,
-      "prev_close": 4853.7,
-      "chg_pct": -0.33,
-      "rsi": 40.59,
       "flags": []
     },
     {
@@ -326,13 +306,11 @@
     {
       "symbol": "LTTS.NS",
       "name": "L&T Technology Services",
-      "price": 4221.0,
+      "price": 4235.9,
       "prev_close": 4280.2,
-      "chg_pct": -1.38,
-      "rsi": 28.58,
-      "flags": [
-        "rsi_oversold"
-      ]
+      "chg_pct": -1.04,
+      "rsi": 36.11,
+      "flags": []
     },
     {
       "symbol": "ZYDUSLIFE.NS",
@@ -675,5 +653,7 @@
       "flags": []
     }
   ],
-  "missing_symbols": []
+  "missing_symbols": [
+    "HAL.NS"
+  ]
 }
