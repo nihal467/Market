@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-11-05T09:51:28.818164+00:00",
-  "ist": "2026-11-05T15:21:21.587378+05:30",
+  "generated_at": "2026-11-05T09:56:30.578028+00:00",
+  "ist": "2026-11-05T15:26:23.058220+05:30",
   "phase": "open",
-  "count": 53,
+  "count": 52,
   "expected_count": 53,
-  "coverage_pct": 100.0,
+  "coverage_pct": 98.11,
   "quality": "ok",
   "data_source": "yfinance",
   "source_label": "Yahoo Finance",
@@ -92,34 +92,24 @@
       ]
     },
     {
+      "symbol": "MID150BEES.NS",
+      "name": "Nifty Midcap 150 (proxy)",
+      "price": 231.5,
+      "prev_close": 223.08,
+      "chg_pct": 3.77,
+      "rsi": 71.31,
+      "flags": [
+        "big_move_up",
+        "rsi_overbought"
+      ]
+    },
+    {
       "symbol": "EICHERMOT.NS",
       "name": "Eicher Motors",
       "price": 7697.0,
       "prev_close": 7420.0,
       "chg_pct": 3.73,
       "rsi": 66.15,
-      "flags": [
-        "big_move_up"
-      ]
-    },
-    {
-      "symbol": "MID150BEES.NS",
-      "name": "Nifty Midcap 150 (proxy)",
-      "price": 231.37,
-      "prev_close": 223.08,
-      "chg_pct": 3.72,
-      "rsi": 69.64,
-      "flags": [
-        "big_move_up"
-      ]
-    },
-    {
-      "symbol": "JUNIORBEES.NS",
-      "name": "Nifty Next 50 (proxy)",
-      "price": 778.05,
-      "prev_close": 751.61,
-      "chg_pct": 3.52,
-      "rsi": 62.86,
       "flags": [
         "big_move_up"
       ]
@@ -139,10 +129,22 @@
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 279.2,
+      "price": 279.4,
       "prev_close": 270.12,
-      "chg_pct": 3.36,
-      "rsi": 69.5,
+      "chg_pct": 3.44,
+      "rsi": 74.16,
+      "flags": [
+        "big_move_up",
+        "rsi_overbought"
+      ]
+    },
+    {
+      "symbol": "JUNIORBEES.NS",
+      "name": "Nifty Next 50 (proxy)",
+      "price": 776.8,
+      "prev_close": 751.61,
+      "chg_pct": 3.35,
+      "rsi": 53.75,
       "flags": [
         "big_move_up"
       ]
@@ -165,17 +167,6 @@
       "prev_close": 1128.2,
       "chg_pct": 3.24,
       "rsi": 62.45,
-      "flags": [
-        "big_move_up"
-      ]
-    },
-    {
-      "symbol": "PAYTM.NS",
-      "name": "One 97 Communications",
-      "price": 1788.0,
-      "prev_close": 1732.4,
-      "chg_pct": 3.21,
-      "rsi": 48.52,
       "flags": [
         "big_move_up"
       ]
@@ -250,6 +241,17 @@
       ]
     },
     {
+      "symbol": "LTTS.NS",
+      "name": "L&T Technology Services",
+      "price": 4231.8,
+      "prev_close": 4133.5,
+      "chg_pct": 2.38,
+      "rsi": 51.73,
+      "flags": [
+        "big_move_up"
+      ]
+    },
+    {
       "symbol": "TECHM.NS",
       "name": "Tech Mahindra",
       "price": 1825.2,
@@ -305,17 +307,6 @@
       ]
     },
     {
-      "symbol": "LTTS.NS",
-      "name": "L&T Technology Services",
-      "price": 4222.0,
-      "prev_close": 4133.5,
-      "chg_pct": 2.14,
-      "rsi": 47.79,
-      "flags": [
-        "big_move_up"
-      ]
-    },
-    {
       "symbol": "HCLTECH.NS",
       "name": "HCL Technologies",
       "price": 1434.5,
@@ -342,21 +333,22 @@
     {
       "symbol": "NIFTYBEES.NS",
       "name": "Nifty 50 (proxy)",
-      "price": 279.2,
+      "price": 279.4,
       "prev_close": 270.12,
-      "chg_pct": 3.36,
-      "rsi": 69.5,
+      "chg_pct": 3.44,
+      "rsi": 74.16,
       "flags": [
-        "big_move_up"
+        "big_move_up",
+        "rsi_overbought"
       ]
     },
     {
       "symbol": "JUNIORBEES.NS",
       "name": "Nifty Next 50 (proxy)",
-      "price": 778.05,
+      "price": 776.8,
       "prev_close": 751.61,
-      "chg_pct": 3.52,
-      "rsi": 62.86,
+      "chg_pct": 3.35,
+      "rsi": 53.75,
       "flags": [
         "big_move_up"
       ]
@@ -364,12 +356,13 @@
     {
       "symbol": "MID150BEES.NS",
       "name": "Nifty Midcap 150 (proxy)",
-      "price": 231.37,
+      "price": 231.5,
       "prev_close": 223.08,
-      "chg_pct": 3.72,
-      "rsi": 69.64,
+      "chg_pct": 3.77,
+      "rsi": 71.31,
       "flags": [
-        "big_move_up"
+        "big_move_up",
+        "rsi_overbought"
       ]
     },
     {
@@ -384,10 +377,10 @@
     {
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
-      "price": 3150.8,
+      "price": 3152.8,
       "prev_close": 3159.0,
-      "chg_pct": -0.26,
-      "rsi": 40.73,
+      "chg_pct": -0.2,
+      "rsi": 42.08,
       "flags": []
     },
     {
@@ -492,17 +485,6 @@
       ]
     },
     {
-      "symbol": "PAYTM.NS",
-      "name": "One 97 Communications",
-      "price": 1788.0,
-      "prev_close": 1732.4,
-      "chg_pct": 3.21,
-      "rsi": 48.52,
-      "flags": [
-        "big_move_up"
-      ]
-    },
-    {
       "symbol": "AUROPHARMA.NS",
       "name": "Aurobindo Pharma",
       "price": 1777.0,
@@ -517,10 +499,10 @@
     {
       "symbol": "LTTS.NS",
       "name": "L&T Technology Services",
-      "price": 4222.0,
+      "price": 4231.8,
       "prev_close": 4133.5,
-      "chg_pct": 2.14,
-      "rsi": 47.79,
+      "chg_pct": 2.38,
+      "rsi": 51.73,
       "flags": [
         "big_move_up"
       ]
@@ -566,10 +548,10 @@
     {
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
-      "price": 1951.8,
+      "price": 1947.7,
       "prev_close": 1972.0,
-      "chg_pct": -1.02,
-      "rsi": 45.81,
+      "chg_pct": -1.23,
+      "rsi": 44.14,
       "flags": []
     },
     {
@@ -882,5 +864,7 @@
       ]
     }
   ],
-  "missing_symbols": []
+  "missing_symbols": [
+    "PAYTM.NS"
+  ]
 }
