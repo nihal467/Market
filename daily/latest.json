@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-11-09T11:01:27.982004+00:00",
-  "ist": "2026-11-09T16:31:10.516939+05:30",
+  "generated_at": "2026-11-10T11:01:25.820675+00:00",
+  "ist": "2026-11-10T16:31:07.446226+05:30",
   "trading_date": "2026-11-09",
   "watchlist_size": 50,
   "analyzed": 50,
   "coverage_pct": 100.0,
   "partial": false,
   "signal_counts": {
-    "BUY": 37,
-    "HOLD": 13,
+    "BUY": 40,
+    "HOLD": 10,
     "SELL": 0
   },
   "market_regime": {
@@ -48,41 +48,39 @@
   },
   "changes_since_prev": [
     {
-      "symbol": "KOTAKBANK.NS",
-      "name": "Kotak Mahindra Bank",
-      "type": "rsi_entered_overbought",
-      "rsi": 72.2
+      "symbol": "HAL.NS",
+      "name": "Hindustan Aeronautics",
+      "type": "signal_flip",
+      "from": "HOLD",
+      "to": "BUY"
     },
     {
-      "symbol": "ETERNAL.NS",
-      "name": "Eternal (formerly Zomato)",
-      "type": "rsi_entered_overbought",
-      "rsi": 72.85
+      "symbol": "DRREDDY.NS",
+      "name": "Dr Reddy's Laboratories",
+      "type": "signal_flip",
+      "from": "HOLD",
+      "to": "BUY"
     },
     {
-      "symbol": "ZYDUSLIFE.NS",
-      "name": "Zydus Lifesciences",
-      "type": "rsi_entered_overbought",
-      "rsi": 72.35
+      "symbol": "ABCAPITAL.NS",
+      "name": "Aditya Birla Capital",
+      "type": "signal_flip",
+      "from": "HOLD",
+      "to": "BUY"
     },
     {
-      "symbol": "PERSISTENT.NS",
-      "name": "Persistent Systems",
-      "type": "rsi_entered_overbought",
-      "rsi": 70.59
-    },
-    {
-      "symbol": "AUROPHARMA.NS",
-      "name": "Aurobindo Pharma",
-      "type": "rsi_entered_overbought",
-      "rsi": 79.42
+      "symbol": "TITAN.NS",
+      "name": "Titan Company",
+      "type": "signal_flip",
+      "from": "BUY",
+      "to": "HOLD"
     },
     {
       "symbol": "HEROMOTOCO.NS",
       "name": "Hero MotoCorp",
       "type": "signal_flip",
-      "from": "BUY",
-      "to": "HOLD"
+      "from": "HOLD",
+      "to": "BUY"
     }
   ],
   "analysis": [
@@ -90,7 +88,7 @@
       "symbol": "GLAND.NS",
       "name": "Gland Pharma",
       "signal": "BUY",
-      "score": 4.4,
+      "score": 4.15,
       "rsi14": 68.72,
       "price": 3302.4,
       "price_date": "2026-11-09",
@@ -104,16 +102,16 @@
         "RSI 68.72 neutral",
         "Near 52-week high",
         "Strong 3M momentum (24.75%)",
-        "Positive news (score 0.45, 8 headlines)"
+        "Positive news (score 0.325, 8 headlines)"
       ],
-      "news_score": 0.45,
+      "news_score": 0.325,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "pos52w": -0.5,
         "momentum": 2.0,
-        "news": 0.9
+        "news": 0.65
       },
       "entry_allowed": false
     },
@@ -121,7 +119,7 @@
       "symbol": "PAYTM.NS",
       "name": "One 97 Communications",
       "signal": "BUY",
-      "score": 3.371,
+      "score": 3.621,
       "rsi14": 60.99,
       "price": 1788.0,
       "price_date": "2026-11-09",
@@ -134,15 +132,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 60.99 neutral",
         "Strong 3M momentum (12.87%)",
-        "Neutral/weak news (score 0.042, 8 headlines)"
+        "Positive news (score 0.167, 8 headlines)"
       ],
-      "news_score": 0.042,
+      "news_score": 0.167,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 1.287,
-        "news": 0.084
+        "news": 0.334
       },
       "entry_allowed": false
     },
@@ -150,7 +148,7 @@
       "symbol": "TECHM.NS",
       "name": "Tech Mahindra",
       "signal": "BUY",
-      "score": 3.347,
+      "score": 3.597,
       "rsi14": 57.93,
       "price": 1805.0,
       "price_date": "2026-11-09",
@@ -164,16 +162,16 @@
         "RSI 57.93 neutral",
         "Near 52-week high",
         "Strong 3M momentum (10.97%)",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.375,
+      "news_score": 0.5,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "pos52w": -0.5,
         "momentum": 1.097,
-        "news": 0.75
+        "news": 1.0
       },
       "entry_allowed": false
     },
@@ -181,7 +179,7 @@
       "symbol": "ADANIPORTS.NS",
       "name": "Adani Ports & SEZ",
       "signal": "BUY",
-      "score": 4.204,
+      "score": 4.454,
       "rsi14": 72.06,
       "price": 1942.7,
       "price_date": "2026-11-09",
@@ -195,16 +193,16 @@
         "RSI 72.06 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (15.57%)",
-        "Positive news (score 0.625, 8 headlines)"
+        "Positive news (score 0.75, 8 headlines)"
       ],
-      "news_score": 0.625,
+      "news_score": 0.75,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.103,
         "pos52w": -0.5,
         "momentum": 1.557,
-        "news": 1.25
+        "news": 1.5
       },
       "entry_allowed": false
     },
@@ -212,7 +210,7 @@
       "symbol": "KOTAKBANK.NS",
       "name": "Kotak Mahindra Bank",
       "signal": "BUY",
-      "score": 4.14,
+      "score": 3.89,
       "rsi14": 72.2,
       "price": 479.5,
       "price_date": "2026-11-09",
@@ -226,16 +224,16 @@
         "RSI 72.2 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (21.86%)",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.375,
+      "news_score": 0.25,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.11,
         "pos52w": -0.5,
         "momentum": 2.0,
-        "news": 0.75
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -243,7 +241,7 @@
       "symbol": "BOSCHLTD.NS",
       "name": "Bosch",
       "signal": "BUY",
-      "score": 3.473,
+      "score": 3.223,
       "rsi14": 66.37,
       "price": 49550.0,
       "price_date": "2026-11-09",
@@ -256,15 +254,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 66.37 neutral",
         "Strong 3M momentum (13.89%)",
-        "Neutral/weak news (score 0.042, 8 headlines)"
+        "Neutral/weak news (score -0.083, 8 headlines)"
       ],
-      "news_score": 0.042,
+      "news_score": -0.083,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 1.389,
-        "news": 0.084
+        "news": -0.166
       },
       "entry_allowed": false
     },
@@ -286,7 +284,7 @@
         "RSI 72.85 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (17.15%)",
-        "Neutral/weak news (score 0.0, 2 headlines)"
+        "Neutral/weak news (score 0.0, 1 headlines)"
       ],
       "news_score": 0.0,
       "components": {
@@ -363,7 +361,7 @@
       "symbol": "DIVISLAB.NS",
       "name": "Divi's Laboratories",
       "signal": "BUY",
-      "score": 3.592,
+      "score": 3.692,
       "rsi14": 91.15,
       "price": 11565.5,
       "price_date": "2026-11-09",
@@ -377,16 +375,16 @@
         "RSI 91.15 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (39.34%)",
-        "Positive news (score 0.575, 8 headlines)"
+        "Positive news (score 0.625, 8 headlines)"
       ],
-      "news_score": 0.575,
+      "news_score": 0.625,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -1.058,
         "pos52w": -0.5,
         "momentum": 2.0,
-        "news": 1.15
+        "news": 1.25
       },
       "entry_allowed": false
     },
@@ -394,7 +392,7 @@
       "symbol": "PETRONET.NS",
       "name": "Petronet LNG",
       "signal": "BUY",
-      "score": 3.298,
+      "score": 3.714,
       "rsi14": 73.11,
       "price": 320.45,
       "price_date": "2026-11-09",
@@ -408,16 +406,16 @@
         "RSI 73.11 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (17.03%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Positive news (score 0.333, 6 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.333,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.155,
         "pos52w": -0.5,
         "momentum": 1.703,
-        "news": 0.25
+        "news": 0.666
       },
       "entry_allowed": false
     },
@@ -425,7 +423,7 @@
       "symbol": "INDHOTEL.NS",
       "name": "Indian Hotels",
       "signal": "BUY",
-      "score": 3.219,
+      "score": 2.719,
       "rsi14": 90.62,
       "price": 891.65,
       "price_date": "2026-11-09",
@@ -439,16 +437,16 @@
         "RSI 90.62 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (22.36%)",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.375,
+      "news_score": 0.125,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -1.031,
         "pos52w": -0.5,
         "momentum": 2.0,
-        "news": 0.75
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -487,7 +485,7 @@
       "symbol": "ZYDUSLIFE.NS",
       "name": "Zydus Lifesciences",
       "signal": "BUY",
-      "score": 3.083,
+      "score": 3.333,
       "rsi14": 72.35,
       "price": 1215.9,
       "price_date": "2026-11-09",
@@ -500,15 +498,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 72.35 overbought \u2014 bearish",
         "Strong 3M momentum (8.66%)",
-        "Positive news (score 0.167, 8 headlines)"
+        "Positive news (score 0.292, 8 headlines)"
       ],
-      "news_score": 0.167,
+      "news_score": 0.292,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.117,
         "momentum": 0.866,
-        "news": 0.334
+        "news": 0.584
       },
       "entry_allowed": false
     },
@@ -516,7 +514,7 @@
       "symbol": "IPCALAB.NS",
       "name": "IPCA Laboratories",
       "signal": "BUY",
-      "score": 5.053,
+      "score": 4.875,
       "rsi14": 69.36,
       "price": 1959.7,
       "price_date": "2026-11-09",
@@ -529,15 +527,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 69.36 neutral",
         "Strong 3M momentum (16.25%)",
-        "Positive news (score 0.714, 7 headlines)"
+        "Positive news (score 0.625, 8 headlines)"
       ],
-      "news_score": 0.714,
+      "news_score": 0.625,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 1.625,
-        "news": 1.428
+        "news": 1.25
       },
       "entry_allowed": false
     },
@@ -635,8 +633,8 @@
     {
       "symbol": "HAL.NS",
       "name": "Hindustan Aeronautics",
-      "signal": "HOLD",
-      "score": 1.665,
+      "signal": "BUY",
+      "score": 2.237,
       "rsi14": 52.53,
       "price": 4999.0,
       "price_date": "2026-11-09",
@@ -650,16 +648,16 @@
         "RSI 52.53 neutral",
         "Near 52-week high",
         "Flat 3M momentum (1.65%)",
-        "Neutral/weak news (score 0.0, 7 headlines)"
+        "Positive news (score 0.286, 7 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.286,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "pos52w": -0.5,
         "momentum": 0.165,
-        "news": 0.0
+        "news": 0.572
       },
       "entry_allowed": false
     },
@@ -667,7 +665,7 @@
       "symbol": "TRENT.NS",
       "name": "Trent",
       "signal": "BUY",
-      "score": 2.977,
+      "score": 2.895,
       "rsi14": 66.49,
       "price": 3119.2,
       "price_date": "2026-11-09",
@@ -680,15 +678,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 66.49 neutral",
         "Strong 3M momentum (3.11%)",
-        "Positive news (score 0.333, 6 headlines)"
+        "Positive news (score 0.292, 8 headlines)"
       ],
-      "news_score": 0.333,
+      "news_score": 0.292,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.311,
-        "news": 0.666
+        "news": 0.584
       },
       "entry_allowed": false
     },
@@ -696,7 +694,7 @@
       "symbol": "PHOENIXLTD.NS",
       "name": "Phoenix Mills",
       "signal": "BUY",
-      "score": 2.507,
+      "score": 2.757,
       "rsi14": 82.07,
       "price": 2147.0,
       "price_date": "2026-11-09",
@@ -710,16 +708,16 @@
         "RSI 82.07 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (11.1%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.375, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.375,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.603,
         "pos52w": -0.5,
         "momentum": 1.11,
-        "news": 0.5
+        "news": 0.75
       },
       "entry_allowed": false
     },
@@ -727,7 +725,7 @@
       "symbol": "HCLTECH.NS",
       "name": "HCL Technologies",
       "signal": "BUY",
-      "score": 3.459,
+      "score": 3.209,
       "rsi14": 56.28,
       "price": 1407.0,
       "price_date": "2026-11-09",
@@ -740,15 +738,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 56.28 neutral",
         "Strong 3M momentum (4.59%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.375, 8 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.375,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.459,
-        "news": 1.0
+        "news": 0.75
       },
       "entry_allowed": false
     },
@@ -756,7 +754,7 @@
       "symbol": "JSWSTEEL.NS",
       "name": "JSW Steel",
       "signal": "BUY",
-      "score": 2.222,
+      "score": 2.722,
       "rsi14": 67.98,
       "price": 1347.0,
       "price_date": "2026-11-09",
@@ -770,16 +768,16 @@
         "RSI 67.98 neutral",
         "Near 52-week high",
         "Strong 3M momentum (3.46%)",
-        "Positive news (score 0.188, 8 headlines)"
+        "Positive news (score 0.438, 8 headlines)"
       ],
-      "news_score": 0.188,
+      "news_score": 0.438,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "pos52w": -0.5,
         "momentum": 0.346,
-        "news": 0.376
+        "news": 0.876
       },
       "entry_allowed": false
     },
@@ -787,7 +785,7 @@
       "symbol": "ICICIBANK.NS",
       "name": "ICICI Bank",
       "signal": "BUY",
-      "score": 2.301,
+      "score": 2.051,
       "rsi14": 85.94,
       "price": 1589.0,
       "price_date": "2026-11-09",
@@ -801,16 +799,16 @@
         "RSI 85.94 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (10.98%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.125,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.797,
         "pos52w": -0.5,
         "momentum": 1.098,
-        "news": 0.5
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -818,7 +816,7 @@
       "symbol": "PERSISTENT.NS",
       "name": "Persistent Systems",
       "signal": "BUY",
-      "score": 3.005,
+      "score": 3.291,
       "rsi14": 70.59,
       "price": 6040.0,
       "price_date": "2026-11-09",
@@ -831,23 +829,23 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 70.59 overbought \u2014 bearish",
         "Strong 3M momentum (10.34%)",
-        "Neutral/weak news (score 0.0, 8 headlines)"
+        "Positive news (score 0.143, 7 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.143,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.03,
         "momentum": 1.034,
-        "news": 0.0
+        "news": 0.286
       },
       "entry_allowed": false
     },
     {
       "symbol": "DRREDDY.NS",
       "name": "Dr Reddy's Laboratories",
-      "signal": "HOLD",
-      "score": 1.508,
+      "signal": "BUY",
+      "score": 2.008,
       "rsi14": 83.88,
       "price": 1385.0,
       "price_date": "2026-11-09",
@@ -861,16 +859,16 @@
         "RSI 83.88 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (19.52%)",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.625, 8 headlines)"
       ],
-      "news_score": 0.375,
+      "news_score": 0.625,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": -0.694,
         "pos52w": -0.5,
         "momentum": 1.952,
-        "news": 0.75
+        "news": 1.25
       },
       "entry_allowed": false
     },
@@ -878,7 +876,7 @@
       "symbol": "KALYANKJIL.NS",
       "name": "Kalyan Jewellers",
       "signal": "BUY",
-      "score": 3.471,
+      "score": 3.221,
       "rsi14": 64.37,
       "price": 611.0,
       "price_date": "2026-11-09",
@@ -891,15 +889,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 64.37 neutral",
         "Flat 3M momentum (2.21%)",
-        "Positive news (score 0.625, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.625,
+      "news_score": 0.5,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.221,
-        "news": 1.25
+        "news": 1.0
       },
       "entry_allowed": false
     },
@@ -907,7 +905,7 @@
       "symbol": "UNIONBANK.NS",
       "name": "Union Bank of India",
       "signal": "BUY",
-      "score": 3.245,
+      "score": 3.329,
       "rsi14": 72.61,
       "price": 197.0,
       "price_date": "2026-11-09",
@@ -921,16 +919,16 @@
         "RSI 72.61 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (8.76%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.542, 8 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.542,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.13,
         "pos52w": -0.5,
         "momentum": 0.876,
-        "news": 1.0
+        "news": 1.084
       },
       "entry_allowed": false
     },
@@ -969,7 +967,7 @@
       "symbol": "ADANIGREEN.NS",
       "name": "Adani Green Energy",
       "signal": "BUY",
-      "score": 3.168,
+      "score": 3.334,
       "rsi14": 67.85,
       "price": 1448.9,
       "price_date": "2026-11-09",
@@ -982,15 +980,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 67.85 neutral",
         "Strong 3M momentum (5.84%)",
-        "Positive news (score 0.292, 8 headlines)"
+        "Positive news (score 0.375, 8 headlines)"
       ],
-      "news_score": 0.292,
+      "news_score": 0.375,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": 0.584,
-        "news": 0.584
+        "news": 0.75
       },
       "entry_allowed": false
     },
@@ -998,7 +996,7 @@
       "symbol": "MANKIND.NS",
       "name": "Mankind Pharma",
       "signal": "BUY",
-      "score": 2.968,
+      "score": 2.468,
       "rsi14": 79.54,
       "price": 2668.3,
       "price_date": "2026-11-09",
@@ -1012,16 +1010,16 @@
         "RSI 79.54 overbought \u2014 bearish",
         "Near 52-week high",
         "Strong 3M momentum (9.45%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.25,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.477,
         "pos52w": -0.5,
         "momentum": 0.945,
-        "news": 1.0
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -1060,7 +1058,7 @@
       "symbol": "MPHASIS.NS",
       "name": "Mphasis",
       "signal": "BUY",
-      "score": 2.289,
+      "score": 2.539,
       "rsi14": 46.95,
       "price": 2455.0,
       "price_date": "2026-11-09",
@@ -1073,15 +1071,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 46.95 neutral",
         "Flat 3M momentum (-2.11%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.375, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.375,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.211,
-        "news": 0.5
+        "news": 0.75
       },
       "entry_allowed": false
     },
@@ -1089,7 +1087,7 @@
       "symbol": "ADANIPOWER.NS",
       "name": "Adani Power",
       "signal": "BUY",
-      "score": 2.279,
+      "score": 2.779,
       "rsi14": 62.26,
       "price": 206.0,
       "price_date": "2026-11-09",
@@ -1102,15 +1100,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 62.26 neutral",
         "Flat 3M momentum (-2.21%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.5,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.221,
-        "news": 0.5
+        "news": 1.0
       },
       "entry_allowed": false
     },
@@ -1146,8 +1144,8 @@
     {
       "symbol": "ABCAPITAL.NS",
       "name": "Aditya Birla Capital",
-      "signal": "HOLD",
-      "score": 1.85,
+      "signal": "BUY",
+      "score": 2.517,
       "rsi14": 67.38,
       "price": 401.65,
       "price_date": "2026-11-09",
@@ -1160,15 +1158,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 67.38 neutral",
         "Flat 3M momentum (-1.5%)",
-        "Neutral/weak news (score 0.0, 6 headlines)"
+        "Positive news (score 0.5, 4 headlines)"
       ],
-      "news_score": 0.0,
+      "news_score": 0.5,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.15,
-        "news": 0.0
+        "news": 0.667
       },
       "entry_allowed": false
     },
@@ -1176,7 +1174,7 @@
       "symbol": "HDFCBANK.NS",
       "name": "HDFC Bank",
       "signal": "HOLD",
-      "score": 1.518,
+      "score": 0.768,
       "rsi14": 78.02,
       "price": 798.15,
       "price_date": "2026-11-09",
@@ -1189,15 +1187,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 78.02 overbought \u2014 bearish",
         "Strong 3M momentum (9.19%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.125,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": -0.401,
         "momentum": 0.919,
-        "news": 1.0
+        "news": 0.25
       },
       "entry_allowed": false
     },
@@ -1234,7 +1232,7 @@
       "symbol": "TATAELXSI.NS",
       "name": "Tata Elxsi",
       "signal": "HOLD",
-      "score": 1.215,
+      "score": 0.881,
       "rsi14": 57.11,
       "price": 3889.9,
       "price_date": "2026-11-09",
@@ -1247,15 +1245,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 57.11 neutral",
         "Flat 3M momentum (2.15%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.333, 6 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.333,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": 0.0,
         "momentum": 0.215,
-        "news": 1.0
+        "news": 0.666
       },
       "entry_allowed": false
     },
@@ -1263,7 +1261,7 @@
       "symbol": "AXISBANK.NS",
       "name": "Axis Bank",
       "signal": "HOLD",
-      "score": 1.008,
+      "score": 1.508,
       "rsi14": 67.53,
       "price": 1310.7,
       "price_date": "2026-11-09",
@@ -1276,23 +1274,23 @@
         "Death cross (SMA50<SMA200)",
         "RSI 67.53 neutral",
         "Strong 3M momentum (5.08%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.5,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": 0.0,
         "momentum": 0.508,
-        "news": 0.5
+        "news": 1.0
       },
       "entry_allowed": false
     },
     {
       "symbol": "TITAN.NS",
       "name": "Titan Company",
-      "signal": "BUY",
-      "score": 2.194,
+      "signal": "HOLD",
+      "score": 1.694,
       "rsi14": 82.78,
       "price": 5005.0,
       "price_date": "2026-11-09",
@@ -1305,15 +1303,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 82.78 overbought \u2014 bearish",
         "Flat 3M momentum (-1.67%)",
-        "Positive news (score 0.5, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.5,
+      "news_score": 0.25,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": -0.639,
         "momentum": -0.167,
-        "news": 1.0
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -1349,8 +1347,8 @@
     {
       "symbol": "HEROMOTOCO.NS",
       "name": "Hero MotoCorp",
-      "signal": "HOLD",
-      "score": 1.483,
+      "signal": "BUY",
+      "score": 2.233,
       "rsi14": 57.59,
       "price": 5410.5,
       "price_date": "2026-11-09",
@@ -1363,15 +1361,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 57.59 neutral",
         "Weak 3M momentum (-7.67%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Positive news (score 0.5, 8 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.5,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.767,
-        "news": 0.25
+        "news": 1.0
       },
       "entry_allowed": false
     },
@@ -1408,7 +1406,7 @@
       "symbol": "EICHERMOT.NS",
       "name": "Eicher Motors",
       "signal": "BUY",
-      "score": 2.066,
+      "score": 2.316,
       "rsi14": 61.4,
       "price": 7629.0,
       "price_date": "2026-11-09",
@@ -1421,15 +1419,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 61.4 neutral",
         "Weak 3M momentum (-4.34%)",
-        "Positive news (score 0.25, 8 headlines)"
+        "Positive news (score 0.375, 8 headlines)"
       ],
-      "news_score": 0.25,
+      "news_score": 0.375,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.434,
-        "news": 0.5
+        "news": 0.75
       },
       "entry_allowed": false
     },
@@ -1437,7 +1435,7 @@
       "symbol": "BAJFINANCE.NS",
       "name": "Bajaj Finance",
       "signal": "BUY",
-      "score": 2.411,
+      "score": 2.041,
       "rsi14": 69.46,
       "price": 1064.85,
       "price_date": "2026-11-09",
@@ -1450,15 +1448,15 @@
         "Golden cross (SMA50>SMA200)",
         "RSI 69.46 neutral",
         "Weak 3M momentum (-3.39%)",
-        "Positive news (score 0.375, 8 headlines)"
+        "Positive news (score 0.19, 7 headlines)"
       ],
-      "news_score": 0.375,
+      "news_score": 0.19,
       "components": {
         "trend": 1.0,
         "cross": 1.0,
         "rsi": 0.0,
         "momentum": -0.339,
-        "news": 0.75
+        "news": 0.38
       },
       "entry_allowed": false
     },
@@ -1466,7 +1464,7 @@
       "symbol": "INDUSTOWER.NS",
       "name": "Indus Towers",
       "signal": "HOLD",
-      "score": 0.673,
+      "score": 0.923,
       "rsi14": 50.84,
       "price": 383.55,
       "price_date": "2026-11-09",
@@ -1479,15 +1477,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 50.84 neutral",
         "Strong 3M momentum (4.23%)",
-        "Positive news (score 0.125, 8 headlines)"
+        "Positive news (score 0.25, 8 headlines)"
       ],
-      "news_score": 0.125,
+      "news_score": 0.25,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": 0.0,
         "momentum": 0.423,
-        "news": 0.25
+        "news": 0.5
       },
       "entry_allowed": false
     },
@@ -1524,7 +1522,7 @@
       "symbol": "TCS.NS",
       "name": "Tata Consultancy Services",
       "signal": "HOLD",
-      "score": 0.093,
+      "score": 0.259,
       "rsi14": 51.87,
       "price": 2475.4,
       "price_date": "2026-11-09",
@@ -1537,15 +1535,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 51.87 neutral",
         "Strong 3M momentum (2.59%)",
-        "Neutral/weak news (score -0.083, 8 headlines)"
+        "Neutral/weak news (score 0.0, 8 headlines)"
       ],
-      "news_score": -0.083,
+      "news_score": 0.0,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": 0.0,
         "momentum": 0.259,
-        "news": -0.166
+        "news": 0.0
       },
       "entry_allowed": false
     },
@@ -1553,7 +1551,7 @@
       "symbol": "VBL.NS",
       "name": "Varun Beverages",
       "signal": "HOLD",
-      "score": 0.348,
+      "score": 0.026,
       "rsi14": 55.33,
       "price": 435.0,
       "price_date": "2026-11-09",
@@ -1566,15 +1564,15 @@
         "Death cross (SMA50<SMA200)",
         "RSI 55.33 neutral",
         "Flat 3M momentum (-2.24%)",
-        "Positive news (score 0.286, 7 headlines)"
+        "Positive news (score 0.125, 8 headlines)"
       ],
-      "news_score": 0.286,
+      "news_score": 0.125,
       "components": {
         "trend": 1.0,
         "cross": -1.0,
         "rsi": 0.0,
         "momentum": -0.224,
-        "news": 0.572
+        "news": 0.25
       },
       "entry_allowed": false
     }
