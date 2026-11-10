@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-11-10T03:45:07.765734+00:00",
-  "ist": "2026-11-10T09:15:00.837674+05:30",
+  "generated_at": "2026-11-10T04:00:14.984466+00:00",
+  "ist": "2026-11-10T09:30:09.872358+05:30",
   "phase": "open",
-  "count": 52,
+  "count": 53,
   "expected_count": 53,
-  "coverage_pct": 98.11,
+  "coverage_pct": 100.0,
   "quality": "ok",
   "data_source": "yfinance",
   "source_label": "Yahoo Finance",
@@ -310,6 +310,15 @@
       "prev_close": 1936.6,
       "chg_pct": 0.31,
       "rsi": 68.6,
+      "flags": []
+    },
+    {
+      "symbol": "KOTAKBANK.NS",
+      "name": "Kotak Mahindra Bank",
+      "price": 479.5,
+      "prev_close": 480.0,
+      "chg_pct": -0.1,
+      "rsi": 54.5,
       "flags": []
     },
     {
@@ -761,7 +770,5 @@
       "flags": []
     }
   ],
-  "missing_symbols": [
-    "KOTAKBANK.NS"
-  ]
+  "missing_symbols": []
 }
